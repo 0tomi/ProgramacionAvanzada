@@ -40,9 +40,14 @@ if(count($errors))
     ]);
 }
 
-$db->query("UPDATE notes SET body = :body WHERE id = :id", [
+
+$db->query("UPDATE notes SET body = :body, username = :username, first_name = :first_name, last_name = :last_name, about = :about WHERE id = :id", [
     "id" => $_POST['id'],
-    "body" => $_POST['body']
+    "body" => $_POST['body'],
+    "username" => $_POST['username'],
+    "first_name" => $_POST['first-name'],
+    "last_name" => $_POST['last-name'],
+    "about" => $_POST['body']
 ]);
 
 // redirect the user

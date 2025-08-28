@@ -22,9 +22,14 @@ if (!empty($errors))
     ]);
 }
 
-$db->Query("INSERT INTO notes(body, user_id_fkey) VALUES (:body, :user_id_fkey)", [
-        'body' => $_POST['body'],
-        'user_id_fkey' => 1
+
+$db->Query("INSERT INTO notes(body, username, first_name, last_name, about, user_id_fkey) VALUES (:body, :username, :first_name, :last_name, :about, :user_id_fkey)", [
+    'body' => $_POST['body'],
+    'username' => $_POST['username'],
+    'first_name' => $_POST['first-name'],
+    'last_name' => $_POST['last-name'],
+    'about' => $_POST['body'],
+    'user_id_fkey' => 1
 ]);
 
 header("location: /notes");

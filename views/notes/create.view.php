@@ -6,7 +6,7 @@
 
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
          
-        <form method="post">
+    <form method="post" id="noteForm" onsubmit="return validateNoteForm()">
 
         <div class="border-b border-gray-900/10 pb-12">
 
@@ -27,7 +27,7 @@
                             
                             <div class="w-80 items-center rounded-md bg-white pl-3">
 
-                            <input id="username" type="text" name="username" placeholder="pablito clavito" class="block min-w-0 grow bg-white py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6" />
+                            <input id="username" type="text" name="username" placeholder="pablito clavito" class="block min-w-0 grow bg-white py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6" required minlength="3" />
 
                             </div>
                         </div>
@@ -44,7 +44,7 @@
                     <label for="first-name" class="block text-sm/6 font-medium text-gray-900">First name</label>
 
                         <div class="mt-2">
-                            <input id="first-name" type="text" name="first-name" autocomplete="given-name" class="block w-80 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+                            <input id="first-name" type="text" name="first-name" autocomplete="given-name" class="block w-80 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required minlength="2" />
                         </div>
 
                     </div>
@@ -54,7 +54,7 @@
                     <label for="last-name" class="block text-sm/6 font-medium text-gray-900">Last name</label>
 
                         <div class="mt-2">
-                            <input id="last-name" type="text" name="last-name" autocomplete="family-name" class="block w-80 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+                            <input id="last-name" type="text" name="last-name" autocomplete="family-name" class="block w-80 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required minlength="2" />
                         </div>
 
                     </div>
@@ -72,7 +72,7 @@
                 id="body" 
                 rows="3" 
                 class="block w-8/12 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                placeholder="Here's an idea for a note..."><?= $_POST['body'] ?? '' ?></textarea>
+                placeholder="Here's an idea for a note..." required minlength="10"><?= $_POST['body'] ?? '' ?></textarea>
 
                 <?php if (isset($errors['body'])) : ?>
                     <p class="mt-4 ml-5 font-semibold text-sm text-red-500"> <?= $errors['body'] ?> </p>
@@ -107,4 +107,32 @@
         </div>
     </main>
 
+<script>
+function validateNoteForm() {
+    let username = document.getElementById('username').value.trim();
+    let firstName = document.getElementById('first-name').value.trim();
+    let lastName = document.getElementById('last-name').value.trim();
+    let body = document.getElementById('body').value.trim();
+    let errors = [];
+
+    if (username.length < 3) {
+        errors.push('El nombre de usuario debe tener al menos 3 caracteres.');
+    }
+    if (firstName.length < 2) {
+        errors.push('El nombre debe tener al menos 2 caracteres.');
+    }
+    if (lastName.length < 2) {
+        errors.push('El apellido debe tener al menos 2 caracteres.');
+    }
+    if (body.length < 10) {
+        errors.push('La nota debe tener al menos 10 caracteres.');
+    }
+
+    if (errors.length > 0) {
+        alert(errors.join('\n'));
+        return false;
+    }
+    return true;
+}
+</script>
 <?php require base_path("views/partials/footer.php") ?>

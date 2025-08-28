@@ -18,8 +18,16 @@ $note = $db->Query($query, [
 
 authorize($note['user_id_fkey'] === $currentUserID);
 
+
 view("notes/edit.view.php", [
     "heading" => "Edit Note",
     "errors" => [],
-    "note" => $note
+    "note" => [
+        'id' => $note['id'],
+        'body' => $note['body'],
+        'username' => $note['username'] ?? '',
+        'first_name' => $note['first_name'] ?? '',
+        'last_name' => $note['last_name'] ?? '',
+        'about' => $note['about'] ?? ''
+    ]
 ]);

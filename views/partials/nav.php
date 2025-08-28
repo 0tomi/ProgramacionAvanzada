@@ -19,9 +19,8 @@
                     
                     <?php if($_SESSION['user'] ?? false) : ?>
                         <a href="/notes" class="<?= $_SERVER['REQUEST_URI'] === '/notes' ? 'rounded-md bg-gray-900' : 'text-gray-300'?> rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Notes</a>
-                    <?php endif ?>
-
-                    <a href="/forum" class="<?= $_SERVER['REQUEST_URI'] === '/forum' ? 'rounded-md bg-gray-900' : 'text-gray-300'?> rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Forum</a>
+                        <a href="/forum" class="<?= $_SERVER['REQUEST_URI'] === '/forum' ? 'rounded-md bg-gray-900' : 'text-gray-300'?> rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Forum</a>
+                    <?php endif; ?>
                 </div>
 
             </div>
@@ -67,7 +66,6 @@
                             <button class="px-4 py-1 hover:scale-105 transition-transform bg-white rounded-xl ">Log Out</button>
                         </form>
                 </div>
-
                 <?php endif; ?>
 
                 <!--

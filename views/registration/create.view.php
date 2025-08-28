@@ -60,4 +60,5 @@
 
     </main>
 
+<?php require base_path("views/register_login_buttons.php") ?>
 <?php require base_path("views/partials/footer.php") ?>
