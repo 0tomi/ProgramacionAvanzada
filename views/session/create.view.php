@@ -52,6 +52,9 @@
                     <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Log In</button>
                 </div>
 
+
+                <div class="mt-8 flex justify-center"><a href="/register" class="rounded bg-indigo-600 px-5 py-2 text-white font-semibold shadow hover:bg-indigo-500 transition">Ir a Registrarse</a></div>
+
             </form>
 
         </div>
@@ -60,5 +63,5 @@
 
     </main>
 
-<?php require base_path("views/register_login_buttons.php") ?>
+<script src="/js/validations.js"></script>
 <?php require base_path("views/partials/footer.php") ?>

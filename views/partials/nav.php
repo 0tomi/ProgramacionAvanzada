@@ -19,8 +19,9 @@
                     
                     <?php if($_SESSION['user'] ?? false) : ?>
                         <a href="/notes" class="<?= $_SERVER['REQUEST_URI'] === '/notes' ? 'rounded-md bg-gray-900' : 'text-gray-300'?> rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Notes</a>
-                        <a href="/forum" class="<?= $_SERVER['REQUEST_URI'] === '/forum' ? 'rounded-md bg-gray-900' : 'text-gray-300'?> rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Forum</a>
+                        <a href="/forum" class="<?= $_SERVER['REQUEST_URI'] === '/forum' ? 'rounded-md bg-gray-900' : 'text-gray-300'?> rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Forum</a>                      
                     <?php endif; ?>
+
                 </div>
 
             </div>
@@ -38,8 +39,10 @@
                     <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                     </svg>
-
+                    
                 </button>
+
+                
             
 
                 <!-- Profile dropdown -->
@@ -48,8 +51,13 @@
                     <button type="button" class="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm  focus:outline-hidden" id="user-menu-button">
 
                         <?php if($_SESSION["user"] ?? false): ?>
-                        <img class="size-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80">
+                        <div class="mr-2 bg-slate-900 rounded-full size-10 flex items-center justify-center">
+                            <img class="size-8 rounded-full" src="/assets/profile.png" alt="Profile">
+                        </div>
                         <?php else: ?>
+                        <div class="bg-white rounded-full size-9 flex items-center justify-center mr-6">
+                            <img class="size-8 rounded-full" src="/assets/user.png" alt="Guest">
+                        </div> 
                         <a href="/register" class="text-gray-700 bg-white rounded-xl shadow-lg mr-5 items-center justify-center duration-5 w-24 h-10 flex hover:scale-105 transition-transform">Register</a>
                         <a href="/login" class="text-gray-700 bg-white rounded-xl shadow-lg  items-center justify-center duration-5 w-24 h-10 flex hover:scale-105 transition-transform">Log In</a>
                         <?php endif; ?>
