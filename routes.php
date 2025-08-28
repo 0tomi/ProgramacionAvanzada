@@ -3,7 +3,7 @@
 // return [
 //     '/' => 'controllers/index.php',
 //     '/about' => 'controllers/about.php',
-//     '/contact' => 'controllers/contact.php',
+//     '/forum' => 'controllers/forum.php',
 //     '/notes' => 'controllers/notes/index.php',
 //     '/note' => 'controllers/notes/show.php',
 //     '/notes/create' => 'controllers/notes/create.php'
@@ -11,7 +11,7 @@
 
 $router->get('/', 'index.php');
 $router->get('/about', 'about.php');
-$router->get('/contact', 'contact.php');
+$router->get('/forum', 'forum.php');
 
 $router->get('/notes', 'notes/index.php')->only('auth');
 $router->get('/note', 'notes/show.php');

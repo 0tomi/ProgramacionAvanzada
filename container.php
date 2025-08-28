@@ -8,7 +8,7 @@ $container = new Container();
 
 $container->bind('Core\Database', function () {
 
-    $config = require base_path("config.php");
+    $config = require base_path("public/assets/config.php");
 
     return new Database($config);
 });

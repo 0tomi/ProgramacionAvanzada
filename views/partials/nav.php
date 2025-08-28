@@ -21,7 +21,7 @@
                         <a href="/notes" class="<?= $_SERVER['REQUEST_URI'] === '/notes' ? 'rounded-md bg-gray-900' : 'text-gray-300'?> rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Notes</a>
                     <?php endif ?>
 
-                    <a href="/contact" class="<?= $_SERVER['REQUEST_URI'] === '/contact' ? 'rounded-md bg-gray-900' : 'text-gray-300'?> rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Contact</a>
+                    <a href="/forum" class="<?= $_SERVER['REQUEST_URI'] === '/forum' ? 'rounded-md bg-gray-900' : 'text-gray-300'?> rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Forum</a>
                 </div>
 
             </div>
