@@ -39,6 +39,17 @@ body {
   background: #15202b;        /* paleta, por si tarda en cargar */
 }
 
+.post-header{
+  display:flex; align-items:center; gap:10px; margin-bottom:8px;
+}
+.avatar{
+  background:#15202b; width:40px; height:40px; border-radius:50%;
+  display:grid; place-items:center; border:1px solid #22303c; color:#8899ac; font-weight:700;
+}
+.meta{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.meta .handle{ color:#8899ac }
+.meta .time{ color:#8899ac; font-size:12px }
+
 
 /* Botones */
 button {

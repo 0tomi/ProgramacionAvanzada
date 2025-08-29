@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <button onclick="logout()">Cerrar sesión</button>
+
   <section id="feed"></section>
 
   <!-- Cargar la lógica del módulo -->

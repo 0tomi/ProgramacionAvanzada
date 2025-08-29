@@ -5,6 +5,16 @@ const feed = document.getElementById("feed");
 /* ==== Boot ==== */
 cargarFeed();
 
+async function logout() {
+  const res = await fetch("api.php?action=logout", { credentials: "same-origin" });
+  const data = await res.json();
+  if (data.ok) {
+    alert("Sesión cerrada");
+    location.reload(); // refrescar feed para que aparezcan deshabilitados los likes/comentarios
+  }
+}
+
+
 /* ==== Cargar feed ==== */
 async function cargarFeed() {
   try {
@@ -20,32 +30,54 @@ async function cargarFeed() {
 
 /* ==== Render de Post ==== */
 function renderPost(post) {
-    const img = post.media_url
+  const img = post.media_url
     ? `<img class="post-image" src="${escapeHtml(post.media_url)}" alt="imagen del post">`
     : "";
+  const author = post.author?.handle ? `@${escapeHtml(post.author.handle)}` : '@anon';
+  const name = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
+  const ts = formatDate(post.created_at);
+
+  // Si no está autenticado, deshabilitamos like y el form de comentarios
+  const canInteract = !!post.viewer?.authenticated;
+  const likeBtnAttrs = canInteract ? '' : 'disabled title="Inicia sesión para likear"';
+  const likeClasses = `like ${post.viewer?.liked ? "liked" : ""}`;
+  const commentFormDisabled = canInteract ? '' : 'disabled';
+  const commentPlaceholder = canInteract ? 'Escribe un comentario' : 'Inicia sesión para comentar';
+
   return `
     <article class="post" data-id="${post.id}">
+      <header class="post-header">
+        <div class="avatar">${(post.author?.handle||'U')[0].toUpperCase()}</div>
+        <div class="meta">
+          <strong>${name}</strong> <span class="handle">${author}</span>
+          <span class="time"> · ${ts}</span>
+        </div>
+      </header>
+
       <p>${escapeHtml(post.text)}</p>
       ${img}
+
       <div>
-        <button class="like ${post.viewer?.liked ? "liked" : ""}" onclick="toggleLike('${post.id}', this)">
+        <button class="${likeClasses}" ${likeBtnAttrs} onclick="toggleLike('${post.id}', this)">
           ♥ <span class="like-count">${post.counts.likes}</span>
         </button>
       </div>
+
       <details open>
         <summary>Comentarios (${post.counts.replies})</summary>
         <div class="comentarios">
           ${renderCommentsTree(post.replies || [])}
         </div>
         <form onsubmit="return comentar('${post.id}', null, this)">
-          <input name="author" placeholder="Tu nombre">
-          <input name="text" required maxlength="280" placeholder="Escribe un comentario">
-          <button>Comentar</button>
+          <input name="author" placeholder="Tu nombre" ${commentFormDisabled}>
+          <input name="text" required maxlength="280" placeholder="${commentPlaceholder}" ${commentFormDisabled}>
+          <button ${commentFormDisabled}>Comentar</button>
         </form>
       </details>
     </article>
   `;
 }
+
 
 /* ==== Árbol de comentarios ==== */
 function buildTree(list) {
