@@ -1,13 +1,18 @@
 <?php require base_path("views/partials/head.php") ?>
-<?php require base_path("views/partials/banner.php") ?>
 
-    <main>
+    <nav class="bg-gray-800 drop-shadow-xl w-full h-24">
+        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-200"> Hello, <?= $_SESSION['name'] ?? 'Guest' ?></h1>
+        </div>
+    </nav>
+
+    <main class="">
 
         <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
 
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
             <img class="mx-auto h-10 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company" />
-            <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Register for a new account</h2>
+            <h2 class=" mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-100">Register for a new account</h2>
         </div>
 
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
@@ -15,7 +20,7 @@
             <form class="space-y-6" action="/register" method="POST">
 
                 <div>
-                    <label for="email" class="block text-sm/6 font-medium text-gray-900">Email address</label>
+                    <label for="email" class="block text-sm/6 font-medium text-gray-100">Email address</label>
 
                     <div class="mt-2">
 
@@ -32,7 +37,7 @@
 
                     <div class="flex items-center justify-between">
 
-                    <label for="password" class="block text-sm/6 font-medium text-gray-900">Password</label>
+                    <label for="password" class="block text-sm/6 font-medium text-gray-100">Password</label>
 
                     </div>
 
@@ -49,10 +54,10 @@
                 </div>
 
                 <div>
-                    <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Register</button>
+                    <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 hover:scale-105 transition-transform">Register</button>
                 </div>
 
-                <div class="mt-8 flex justify-center"><a href="/login" class="rounded bg-indigo-600 px-5 py-2 text-white font-semibold shadow hover:bg-indigo-500 transition">Ir a Login</a></div>
+                <div class="mt-8 flex justify-center"><a href="/login" class="rounded bg-indigo-600 px-5 py-2 text-white font-semibold shadow hover:bg-indigo-500 hover:scale-105 transition-transform">Ir a Login</a></div>
 
             </form>
 

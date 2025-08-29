@@ -7,6 +7,6 @@
     <title>Demo</title>
 </head>
 
-<body class="h-full bg-gradient-to-t from-gray-300 via-slate-100 to-white drop-shadow-xl font-semibold">
+<body class="min-h-screen bg-gradient-to-b from-slate-800 via-slate-700 to-slate-600 drop-shadow-xl font-semibold">
 
     <div class="min-h-full">

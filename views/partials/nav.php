@@ -58,8 +58,8 @@
                         <div class="bg-white rounded-full size-9 flex items-center justify-center mr-6">
                             <img class="size-8 rounded-full" src="/assets/user.png" alt="Guest">
                         </div> 
-                        <a href="/register" class="text-gray-700 bg-white rounded-xl shadow-lg mr-5 items-center justify-center duration-5 w-24 h-10 flex hover:scale-105 transition-transform">Register</a>
-                        <a href="/login" class="text-gray-700 bg-white rounded-xl shadow-lg  items-center justify-center duration-5 w-24 h-10 flex hover:scale-105 transition-transform">Log In</a>
+                        <a href="/register" class="text-gray-700 bg-slate-300 rounded-xl shadow-lg mr-5 items-center justify-center duration-5 w-24 h-10 flex hover:scale-105 transition-transform">Register</a>
+                        <a href="/login" class="text-gray-700 bg-slate-300 rounded-xl shadow-lg  items-center justify-center duration-5 w-24 h-10 flex hover:scale-105 transition-transform">Log In</a>
                         <?php endif; ?>
                     </button>
 
@@ -71,7 +71,7 @@
                         <form method="POST" action="/session">
                             <input type="hidden" name="_method" value="DELETE">
 
-                            <button class="px-4 py-1 hover:scale-105 transition-transform bg-white rounded-xl ">Log Out</button>
+                            <button class="px-4 py-1 hover:scale-105 transition-transform bg-slate-300 shadow-md rounded-xl ">Log Out</button>
                         </form>
                 </div>
                 <?php endif; ?>

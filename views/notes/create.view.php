@@ -14,14 +14,14 @@
 
                 <div class="col-span-full mt-2">
 
-                <h2 class="text-base/7 font-semibold text-gray-900">Profile</h2>
+                <h2 class="text-base/7 font-semibold text-gray-300">Profile</h2>
                 
-                <p class="mt-1 text-sm/6 text-gray-600">This information will be displayed publicly so be careful what you share.</p>
+                <p class="mt-1 text-sm/6 text-gray-400">This information will be displayed publicly so be careful what you share.</p>
 
                     <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                         <div class="sm:col-span-4">
 
-                        <label for="username" class="block text-base/6 font-medium text-gray-900">Username</label>
+                        <label for="username" class="block text-base/6 font-medium text-gray-300">Username</label>
 
                         <div class="mt-2">
                             
@@ -35,13 +35,13 @@
                         </div>
                     </div>
 
-                <h2 class="mt-6 text-base/7 font-semibold text-gray-900">Personal Information</h2>
+                <h2 class="mt-6 text-base/7 font-semibold text-gray-300">Personal Information</h2>
 
                 <div class="mt-4 grid grid-cols-1 gap-x-18 gap-y-8 sm:grid-cols-2">
 
                     <div class="sm:col-span-1">
 
-                    <label for="first-name" class="block text-sm/6 font-medium text-gray-900">First name</label>
+                    <label for="first-name" class="block text-sm/6 font-medium text-gray-300">First name</label>
 
                         <div class="mt-2">
                             <input id="first-name" type="text" name="first-name" autocomplete="given-name" class="block w-80 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required minlength="2" />
@@ -51,7 +51,7 @@
 
                     <div class="sm:col-span-2">
 
-                    <label for="last-name" class="block text-sm/6 font-medium text-gray-900">Last name</label>
+                    <label for="last-name" class="block text-sm/6 font-medium text-gray-300">Last name</label>
 
                         <div class="mt-2">
                             <input id="last-name" type="text" name="last-name" autocomplete="family-name" class="block w-80 rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" required minlength="2" />
@@ -65,7 +65,7 @@
                 
 
 
-                <label for="body" class="mt-6 block text-base/6 mb-2 font-medium text-gray-900">About</label>
+                <label for="body" class="mt-6 block text-base/6 mb-2 font-medium text-gray-300">About</label>
             
                 <textarea 
                 name="body" 
