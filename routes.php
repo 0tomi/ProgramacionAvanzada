@@ -29,3 +29,5 @@ $router->post('/register', 'registration/store.php')->only('guest');
 $router->get('/login', 'session/create.php')->only('guest');
 $router->post('/session', 'session/procesoLogin.php')->only('guest');
 $router->delete('/session', 'session/destroy.php')->only('auth');
+$router->get('/profile', 'profile.php')->only('auth');
+$router->post('/profile', 'profile.php')->only('auth');

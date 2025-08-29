@@ -12,10 +12,16 @@
             <li>
                 <img class="size-24 ml-8 mb-4 rounded-full" src="/assets/profile.png" alt="Profile">
             </li>
+            
             <li class="mb-5"><a href="/" class="no-underline text-gray-800 text-lg flex items-center gap-2 hover:text-indigo-600 hover:scale-105 transition-transform">🏠 <span>Home</span></a></li>
+
             <li class="mb-5"><a href="/about" class="no-underline text-gray-800 text-lg flex items-center gap-2 hover:text-indigo-600 hover:scale-105 transition-transform">ℹ️ <span>About</span></a></li>
+
             <li class="mb-5"><a href="/notes" class="no-underline text-gray-800 text-lg flex items-center gap-2 hover:text-indigo-600 hover:scale-105 transition-transform">📝 <span>Notes</span></a></li>
+
             <li class="mb-5"><a href="/forum" class="no-underline text-gray-800 text-lg flex items-center gap-2 hover:text-indigo-600 hover:scale-105 transition-transform">💬 <span>Forum</span></a></li>
+
+            <li class="mb-5"><a href="/profile" class="no-underline text-gray-800 text-lg flex items-center gap-2 hover:text-indigo-600 hover:scale-105 transition-transform">👤 <span>Profile</span></a></li>
         </ul>
 
     </nav>
