@@ -1,11 +1,11 @@
 <?php require base_path("views/partials/head.php") ?>
 <?php require base_path("views/partials/nav.php") ?>
 <?php require base_path("views/partials/banner.php") ?>
+<?php require base_path("views/partials/dashboard.php") ?>
 
-    <main>
+<main style="margin-left:220px;">
 
-        <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-         
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
     <form method="post" id="noteForm" onsubmit="return validateNoteForm()">
 
         <div class="border-b border-gray-900/10 pb-12">

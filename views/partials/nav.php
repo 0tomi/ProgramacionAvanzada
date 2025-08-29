@@ -10,21 +10,7 @@
                 <img class="size-8" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
             </div>
 
-            <div class="hidden md:block">
-
-                <div class="ml-10 flex items-baseline space-x-4">
-                    <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-                    <a href="/" class="<?= $_SERVER['REQUEST_URI'] === '/' ? 'rounded-md bg-gray-900' : 'text-gray-300'?>  rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white" aria-current="page">Home</a>  
-                    <a href="/about" class="<?= $_SERVER['REQUEST_URI'] === '/about' ? 'rounded-md bg-gray-900' : 'text-gray-300'?> rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">About</a>
-                    
-                    <?php if($_SESSION['user'] ?? false) : ?>
-                        <a href="/notes" class="<?= $_SERVER['REQUEST_URI'] === '/notes' ? 'rounded-md bg-gray-900' : 'text-gray-300'?> rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Notes</a>
-                        <a href="/forum" class="<?= $_SERVER['REQUEST_URI'] === '/forum' ? 'rounded-md bg-gray-900' : 'text-gray-300'?> rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Forum</a>                      
-                    <?php endif; ?>
-
-                </div>
-
-            </div>
+            <!-- Solo logo, sin opciones de navegación -->
 
         </div>
 
