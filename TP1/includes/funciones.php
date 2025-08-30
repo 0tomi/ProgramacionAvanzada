@@ -1,6 +1,6 @@
 <?php
 function leerUsuarios() {
-    $file = "POSTS/users.json";
+    $file = "JSON/users.json";
     if (!file_exists($file)) {
         file_put_contents($file, json_encode([]));
     }

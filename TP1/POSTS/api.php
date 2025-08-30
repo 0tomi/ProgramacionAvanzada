@@ -4,7 +4,7 @@ declare(strict_types=1);
 require __DIR__ . '/auth.php';
 header('Content-Type: application/json; charset=utf-8');
 
-const DATA_FILE = __DIR__ . '/data.json';
+const DATA_FILE = __DIR__ . '../JSON/users.json';
 if (!file_exists(DATA_FILE)) file_put_contents(DATA_FILE, "[]");
 
 function read_posts(): array {
