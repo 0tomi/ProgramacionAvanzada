@@ -1,0 +1,171 @@
+/* Reset mínimo */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, sans-serif;
+  background: #15202b;
+  color: #ffffff;
+  line-height: 1.5;
+  padding: 20px;
+  display: flex;
+  justify-content: center;   /* centra horizontal */
+}
+
+#feed {
+  width: 100%;
+  max-width: 600px;       
+}
+
+.post {
+  background: #192734;
+  border: 1px solid #22303c;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 15px auto;        
+}
+
+.post p {
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+}
+
+.post-image{
+  width: 100%;
+  max-height: 480px;
+  object-fit: cover;
+  display: block;
+  margin: 10px 0;
+  border-radius: 12px;
+  border: 1px solid #22303c; /* paleta */
+  background: #15202b;        /* paleta, por si tarda en cargar */
+}
+
+.post-header{
+  display:flex; align-items:center; gap:10px; margin-bottom:8px;
+}
+.avatar{
+  background:#15202b; width:40px; height:40px; border-radius:50%;
+  display:grid; place-items:center; border:1px solid #22303c; color:#8899ac; font-weight:700;
+}
+.meta{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.meta .handle{ color:#8899ac }
+.meta .time{ color:#8899ac; font-size:12px }
+
+
+/* Botones */
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.like {
+  background: transparent;
+  border: 1px solid #22303c;
+  color: #8899ac;
+  transition: all 0.2s;
+}
+.like:hover {
+  background: rgba(249, 24, 128, 0.1);
+  border-color: #f91880;
+  color: #f91880;
+}
+.like.liked {
+  background: rgba(249, 24, 128, 0.15);
+  border-color: #f91880;
+  color: #f91880;
+}
+
+/* Comentarios */
+details {
+  margin-top: 10px;
+}
+
+details summary {
+  cursor: pointer;
+  list-style: none;
+  color: #1da1f2;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.comentarios p {
+  margin: 6px 0;
+  color: #ffffff;
+}
+
+.comentarios b {
+  color: #ffffff;
+}
+
+/* Formulario comentarios */
+form {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+form input {
+  background: #15202b;
+  border: 1px solid #22303c;
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #ffffff;
+}
+
+form input::placeholder {
+  color: #8899ac;
+}
+
+form button {
+  background: #1da1f2;
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-weight: bold;
+  align-self: flex-end;
+}
+
+form button:hover {
+  background: #1988d3;
+}
+
+/* Columna central ya la tenés; añadimos árbol de comentarios */
+.c-tree {
+  list-style: none;
+  margin: 10px 0 0 0;
+  padding-left: 16px;         /* sangría para niveles */
+  border-left: 1px solid #22303c;
+}
+
+.c-node { margin: 10px 0; }
+
+.c-bubble {
+  background: #15202b;
+  border: 1px solid #22303c;
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.c-meta { color: #8899ac; font-size: 12px; margin-bottom: 4px; }
+.c-text { white-space: pre-wrap; }
+
+.c-actions { margin-top: 6px; }
+.c-actions .c-reply-btn {
+  background: transparent; border: 1px solid #22303c; color: #8899ac;
+  border-radius: 999px; padding: 4px 10px; cursor: pointer; font-weight: 600;
+}
+.c-actions .c-reply-btn:hover { color: #ffffff; }
+
+.c-reply-form { margin-top: 8px; display: flex; gap: 6px; }
+.c-reply-form.hidden { display: none; }
+.c-reply-form input {
+  flex: 1; background: #15202b; border: 1px solid #22303c; color: #ffffff; border-radius: 6px; padding: 6px 10px;
+}
+.c-reply-form button {
+  background: #1da1f2; color: #ffffff; border: none; border-radius: 999px; padding: 6px 12px; font-weight: 700; cursor: pointer;
+}
