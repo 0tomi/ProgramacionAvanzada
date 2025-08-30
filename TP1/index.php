@@ -2,7 +2,7 @@
 <html lang="en">
 
 <?php require_once 'includes/header.php' ?>
-
+<?php require_once 'includes/footer.php' ?>
 <body>
     <div class="d-flex">
     <?php require_once 'includes/barraLateral.php' ?>
