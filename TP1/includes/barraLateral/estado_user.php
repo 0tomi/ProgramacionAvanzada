@@ -23,21 +23,15 @@ $profilePicture = $isLoggedIn && !empty($_SESSION['user_profile_picture'])
 
 // CTA (botón inferior)
 if ($isLoggedIn) {
-    $ctaHref   = 'logout.php';
-    $ctaText   = 'Cerrar sesión';
-    $ctaStyle  = 'btn btn-danger w-100 d-flex align-items-center justify-content-center';
-    $ctaIcon   = 'bi-box-arrow-right';
+    $ctaHref = 'logout.php';
+    $ctaText = 'Cerrar sesión';
 } else {
-    $ctaHref   = 'login.php';
-    $ctaText   = 'Iniciar sesión';
-    $ctaStyle  = 'btn w-100 d-flex align-items-center justify-content-center';
-    $ctaIcon   = 'bi-box-arrow-in-right';
-    $ctaInline = 'background-color:#8899ac; color:#fff;';
+    $ctaHref = 'login.php';
+    $ctaText = 'Iniciar sesión';
 }
 
-// Sanitizar salidas ???
-$userNameSafe = htmlspecialchars($userName ?? '', ENT_QUOTES, 'UTF-8');
+// Sanitizar salidas
+$userNameSafe      = htmlspecialchars($userName ?? '', ENT_QUOTES, 'UTF-8');
 $profilePictureSafe = htmlspecialchars($profilePicture ?? '', ENT_QUOTES, 'UTF-8');
-$ctaHrefSafe = htmlspecialchars($ctaHref ?? '#', ENT_QUOTES, 'UTF-8');
-$ctaTextSafe = htmlspecialchars($ctaText ?? '', ENT_QUOTES, 'UTF-8');
-$ctaIconSafe = htmlspecialchars($ctaIcon ?? 'bi-box-arrow-right', ENT_QUOTES, 'UTF-8');
+$ctaHrefSafe       = htmlspecialchars($ctaHref ?? '#', ENT_QUOTES, 'UTF-8');
+$ctaTextSafe       = htmlspecialchars($ctaText ?? '', ENT_QUOTES, 'UTF-8');
