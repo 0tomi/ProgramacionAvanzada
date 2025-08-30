@@ -22,6 +22,7 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
   <link rel="stylesheet" href="inicio.css">
 </head>
 <body>
+  
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
       <header class="feed-head">
@@ -92,5 +93,6 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
       </div>
     </section>
   </div>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
 </body>
 </html>
