@@ -31,41 +31,45 @@
       <!-- FEED ESTÁTICO (sin JS): dos ejemplos -->
       <div id="feed">
         <!-- Post 1 (sin imagen) -->
-        <article class="post">
-          <header class="post-header">
-            <div class="avatar">V</div>
-            <div class="meta">
-              <strong>Valentino Pettinato</strong>
-              <span class="handle">@valen</span>
-              <span class="time"> · 28/08/2025 11:20</span>
-            </div>
-          </header>
-          <p>Hola, soy Valen y este es mi post 👋</p>
+        <a class="post-link-card" href="/POSTS/?id=197041291234567000">
+          <article class="post">
+            <header class="post-header">
+              <div class="avatar">V</div>
+              <div class="meta">
+                <strong>Valentino Pettinato</strong>
+                <span class="handle">@valen</span>
+                <span class="time"> · 28/08/2025 11:20</span>
+              </div>
+            </header>
 
-          <div class="actions">
-            <button type="button" class="like" title="Demo: deshabilitado" disabled>
-              ♥ <span class="like-count">1</span>
-            </button>
-          </div>
+            <p>Hola, soy Valen y este es mi post 👋</p>
 
-          <details open>
-            <summary>Comentarios (1)</summary>
-            <div class="comentarios">
-              <ul class="c-tree">
-                <li class="c-node">
-                  <div class="c-bubble">
-                    <div class="c-meta"><b>Tomás(@tomas)</b> · <span>29/08/2025 07:10</span></div>
-                    <div class="c-text">¡bien ahí!</div>
-                  </div>
-                </li>
-              </ul>
+            <div class="actions">
+              <button type="button" class="like" title="Demo: deshabilitado" disabled>
+                ♥ <span class="like-count">1</span>
+              </button>
             </div>
-            <form class="comment-form">
-              <input placeholder="Inicia sesión para comentar" disabled>
-              <button disabled>Comentar</button>
-            </form>
-          </details>
-        </article>
+
+            <details open>
+              <summary>Comentarios (1)</summary>
+              <div class="comentarios">
+                <ul class="c-tree">
+                  <li class="c-node">
+                    <div class="c-bubble">
+                      <div class="c-meta"><b>Tomás(@tomas)</b> · <span>29/08/2025 07:10</span></div>
+                      <div class="c-text">¡bien ahí!</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <form class="comment-form">
+                <input placeholder="Inicia sesión para comentar" disabled>
+                <button disabled>Comentar</button>
+              </form>
+            </details>
+          </article>
+        </a>
+
 
         <!-- Post 2 (con imagen) -->
         <article class="post">
