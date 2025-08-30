@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <title>Inicio — Demo sin JS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="inicio.css">
 </head>
 <body>
-
+  <?php require('../includes/barraLateral/header.php'); ?>
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
       <header class="feed-head">
@@ -26,7 +27,7 @@
           </div>
         </form>
       </div>
-
+      
       <!-- FEED ESTÁTICO (sin JS): dos ejemplos -->
       <div id="feed">
         <!-- Post 1 (sin imagen) -->
