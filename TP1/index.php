@@ -37,8 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_method'] ?? '') === 'DELE
     </div>
   </nav>
 
-<?php require("includes/dashboard.php") ?>
-
   <!-- CONTENIDO CENTRADO -->
   <main class="flex-grow flex items-center justify-center">
     <div class="bg-gray-900 rounded-2xl shadow-2xl p-10 text-center w-full max-w-md hover:scale-x-95 transition-transform mb-24">
@@ -69,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_method'] ?? '') === 'DELE
 
     </div>
   </main>
-
 </body>
+
+<?php include('includes/footer.php'); ?>
 </html>
