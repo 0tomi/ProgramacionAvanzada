@@ -1,11 +1,18 @@
     <!-- boton para la barrita de la izquierda -->
 <header> 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous">
+
+    <!-- esto trae iconos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet">
     <button class="btn btn-primary m-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"  style="background-color:#8899ac;">
     <i class="bi bi-list"></i> 
     </button>
 </header>
 
-<?php require_once __DIR__ . '/estado_user.php'; ?>
 <!-- OFFCANVAS (sidebar) -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu"
      style="--bs-offcanvas-width: 280px; background-color:#192734; color:#fff;">

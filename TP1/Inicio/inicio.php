@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
-<?php require_once("../includes/barraLateral/header.php"); ?>
+<head>
+  <meta charset="utf-8" />
+  <title>Inicio — Demo sin JS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="inicio.css">
+</head>
 <body>
-  <?php require("../includes/barraLateral/barraLateral.php"); ?>
 
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
