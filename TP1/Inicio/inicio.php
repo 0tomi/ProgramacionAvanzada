@@ -8,7 +8,7 @@ $guestAvatar = "../imagenes/profilePictures/defaultProfilePicture.png";
 
 // si esta logeado q use su fotito
 $avatarUrl = ($isAuth && !empty($_SESSION['profilePicture']))
-  ? $_SESSION['profilePicture']
+  ? $_SESSION['profilePicture'] //profile picture no existe creo
   : $guestAvatar;
 
 $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para bloquear botones en modo invitado
@@ -93,6 +93,7 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
       </div>
     </section>
   </div>
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?> 
+
 </body>
 </html>
