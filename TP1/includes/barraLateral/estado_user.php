@@ -21,6 +21,11 @@ $profilePicture = $isLoggedIn && !empty($_SESSION['user_profile_picture'])
     ? $_SESSION['user_profile_picture']
     : 'imagenes/profilePictures/defaultProfilePicture.png';
 
+// Asegurar que la ruta funcione desde subdirectorios
+if (!preg_match('#^https?://#', $profilePicture) && $profilePicture[0] !== '/') {
+    $profilePicture = '../' . ltrim($profilePicture, '/');
+}
+
 // CTA (botón inferior)
 if ($isLoggedIn) {
     $ctaHref = 'logout.php';
