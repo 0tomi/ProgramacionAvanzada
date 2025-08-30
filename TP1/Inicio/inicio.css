@@ -95,6 +95,15 @@ body{
   border:2px solid color-mix(in srgb, var(--ink) 20%, transparent);
   border-top-color:var(--accent); animation:spin 1s linear infinite;
 }
+/* aca aseguramos de que se bloquee el composer x si no hay login (el data locked 1, la bandera) */
+.composer[data-locked="1"] textarea,
+.composer[data-locked="1"] .btn,
+.composer[data-locked="1"] label[for="imgUp"]{
+  pointer-events: none;
+  opacity: .55;
+  cursor: not-allowed;
+}
+
 @keyframes spin{ to{ transform:rotate(360deg) } }
 
 /* Responsive */

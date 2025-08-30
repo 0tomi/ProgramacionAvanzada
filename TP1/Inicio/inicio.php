@@ -2,6 +2,16 @@
 session_start();
 $isAuth = isset($_SESSION['username']) && $_SESSION['username'] !== '';
 $guard  = $isAuth ? '' : 'disabled';
+
+
+$guestAvatar = "../imagenes/profilePictures/defaultProfilePicture.png";
+
+// si esta logeado q use su fotito
+$avatarUrl = ($isAuth && !empty($_SESSION['profilePicture']))
+  ? $_SESSION['profilePicture']
+  : $guestAvatar;
+
+$lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para bloquear botones en modo invitado
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -20,8 +30,8 @@ $guard  = $isAuth ? '' : 'disabled';
       </header>
 
       <!-- Composer -->
-      <div class="composer" aria-label="Publicar">
-        <img class="avatar" src="https://i.pravatar.cc/88?img=15" alt="Tu avatar">
+      <div class="composer"<?=$lockedAttr?> aria-label="Publicar">
+        <img class="avatar" src="<?= htmlspecialchars($avatarUrl) ?>" alt="Tu avatar">
         <form class="compose" action="#" method="post" enctype="multipart/form-data" novalidate>
           <textarea placeholder="<?= $isAuth ? '¿Qué está pasando?' : 'Inicia sesión para postear' ?>" maxlength="280" <?= $guard ?>></textarea>
           <div class="row">
