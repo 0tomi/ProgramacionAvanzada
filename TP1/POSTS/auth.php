@@ -3,7 +3,7 @@
 declare(strict_types=1);
 session_start();
 
-const USERS_FILE = __DIR__ . '/users.json';
+const USERS_FILE = __DIR__ . '../JSON/users.json';
 
 function auth_load_users(): array {
   if (!file_exists(USERS_FILE)) return [];

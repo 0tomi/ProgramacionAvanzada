@@ -37,8 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_method'] ?? '') === 'DELE
     </div>
   </nav>
 
-<?php require("includes/dashboard.php") ?>
-
   <!-- CONTENIDO CENTRADO -->
   <main class="flex-grow flex items-center justify-center">
     <div class="bg-gray-900 rounded-2xl shadow-2xl p-10 text-center w-full max-w-md hover:scale-x-95 transition-transform mb-24">
@@ -64,11 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_method'] ?? '') === 'DELE
           <a href="register.php" class="block px-6 py-3 w-full rounded-xl bg-indigo-500 text-white font-semibold shadow-md hover:bg-indigo-600 hover:scale-105 transition">
             Registrarse
           </a>
+          <a href="index.php" class="block px-6 py-3 w-full rounded-xl bg-slate-300 text-gray-900 font-semibold shadow-md hover:bg-slate-400 hover:scale-105 transition">
+            Continuar como Invitado
+          </a>
         </div>
       <?php endif; ?>
 
     </div>
   </main>
-
 </body>
+
+<?php include('includes/footer.php'); ?>
 </html>
