@@ -1,13 +1,17 @@
+<?php
+session_start();
+$isAuth = isset($_SESSION['username']) && $_SESSION['username'] !== '';
+$guard  = $isAuth ? '' : 'disabled';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Inicio — Demo sin JS</title>
+  <title>Inicio — Mini X</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="inicio.css">
 </head>
 <body>
-
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
       <header class="feed-head">
@@ -15,90 +19,63 @@
         <span class="sub">Posteos más recientes</span>
       </header>
 
-      <!-- Composer (solo visual) -->
-      <div class="composer" aria-hidden="true">
-        <img class="avatar" src="https://i.pravatar.cc/88?img=15" alt="Avatar demo">
-        <form>
-          <textarea placeholder="¿Qué está pasando?" disabled></textarea>
+      <!-- Composer -->
+      <div class="composer" aria-label="Publicar">
+        <img class="avatar" src="https://i.pravatar.cc/88?img=15" alt="Tu avatar">
+        <form class="compose" action="#" method="post" enctype="multipart/form-data" novalidate>
+          <textarea placeholder="<?= $isAuth ? '¿Qué está pasando?' : 'Inicia sesión para postear' ?>" maxlength="280" <?= $guard ?>></textarea>
           <div class="row">
-            <button class="btn" type="button" disabled>Imagen</button>
-            <button class="btn primary" type="button" disabled>Publicar</button>
+            <input type="file" id="imgUp" name="images[]" accept="image/*" style="display:none" <?= $guard ?>>
+            <label for="imgUp" class="btn ghost" aria-disabled="<?= $isAuth ? 'false' : 'true' ?>" <?= $guard ? 'tabindex="-1"' : '' ?>>Imagen</label>
+            <button class="btn primary" type="submit" <?= $guard ?>>Publicar</button>
           </div>
         </form>
       </div>
 
-      <!-- FEED ESTÁTICO (sin JS): dos ejemplos -->
+      <!-- Feed (SOLO posts) -->
       <div id="feed">
-        <!-- Post 1 (sin imagen) -->
         <article class="post">
           <header class="post-header">
             <div class="avatar">V</div>
             <div class="meta">
-              <strong>Valentino Pettinato</strong>
-              <span class="handle">@valen</span>
-              <span class="time"> · 28/08/2025 11:20</span>
+              <div class="name">Valentino Pettinato</div>
+              <div class="subline">
+                <span class="handle">@valen</span>
+                <span class="dot">·</span>
+                <time datetime="2025-08-28T11:20">28/08/2025 11:20</time>
+              </div>
             </div>
           </header>
-          <p>Hola, soy Valen y este es mi post 👋</p>
-
+          <p class="text">Hola, soy Valen y este es mi post 👋</p>
           <div class="actions">
-            <button type="button" class="like" title="Demo: deshabilitado" disabled>
-              ♥ <span class="like-count">1</span>
-            </button>
+            <button type="button" class="chip" disabled>♥ <span class="count">1</span></button>
+            <a href="#" class="chip ghost">Ver post</a>
           </div>
-
-          <details open>
-            <summary>Comentarios (1)</summary>
-            <div class="comentarios">
-              <ul class="c-tree">
-                <li class="c-node">
-                  <div class="c-bubble">
-                    <div class="c-meta"><b>Tomás(@tomas)</b> · <span>29/08/2025 07:10</span></div>
-                    <div class="c-text">¡bien ahí!</div>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <form class="comment-form">
-              <input placeholder="Inicia sesión para comentar" disabled>
-              <button disabled>Comentar</button>
-            </form>
-          </details>
         </article>
 
-        <!-- Post 2 (con imagen) -->
         <article class="post">
           <header class="post-header">
             <img class="avatar" src="https://i.pravatar.cc/88?img=32" alt="Avatar Tomás">
             <div class="meta">
-              <strong>Tomás Sch</strong>
-              <span class="handle">@tomas</span>
-              <span class="time"> · 29/08/2025 13:00</span>
+              <div class="name">Tomás Sch</div>
+              <div class="subline">
+                <span class="handle">@tomas</span>
+                <span class="dot">·</span>
+                <time datetime="2025-08-29T13:00">29/08/2025 13:00</time>
+              </div>
             </div>
           </header>
-          <p>Post de Tomás con imagen</p>
-          <img class="post-image" src="https://picsum.photos/800/450?random=3" alt="Imagen del post">
-
+          <p class="text">Post de Tomás con imagen</p>
+          <figure class="media">
+            <img src="https://picsum.photos/1200/650?random=3" alt="Imagen del post">
+          </figure>
           <div class="actions">
-            <button type="button" class="like" title="Demo: deshabilitado" disabled>
-              ♥ <span class="like-count">0</span>
-            </button>
+            <button type="button" class="chip" disabled>♥ <span class="count">0</span></button>
+            <a href="#" class="chip ghost">Ver post</a>
           </div>
-
-          <details>
-            <summary>Comentarios (0)</summary>
-            <div class="comentarios">
-              <div class="muted">Sé el primero en comentar</div>
-            </div>
-            <form class="comment-form">
-              <input placeholder="Inicia sesión para comentar" disabled>
-              <button disabled>Comentar</button>
-            </form>
-          </details>
         </article>
       </div>
 
-      <!-- Pie de la columna central -->
       <div class="load-more">
         <button class="btn" disabled>Cargar más</button>
         <span class="spinner" aria-hidden="true"></span>

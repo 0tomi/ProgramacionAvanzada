@@ -1,165 +1,103 @@
-/* ================== Variables / tema ================== */
 :root{
-  --bg:#0c0f14;
-  --panel:#0f131a;
-  --ink:#e8edf5;
-  --muted:#8ea0b5;
-  --line:#1b2431;
-  --accent:#4aa3ff;
-  --like:#ff4d7a;
+  --bg:#0c0f14; --panel:#0f131a; --panel-2:#0b0f15;
+  --ink:#e8edf5; --muted:#8ea0b5; --line:#1b2431;
+  --accent:#4aa3ff; --like:#ff4d7a; --shadow:0 12px 36px rgb(0 0 0 / .28);
 }
 @media (prefers-color-scheme: light){
   :root{
-    --bg:#f6f8fb;
-    --panel:#ffffff;
-    --ink:#0e1724;
-    --muted:#5b6b7f;
-    --line:#e6ecf2;
-    --accent:#1662d1;
-    --like:#d61a2c;
+    --bg:#f6f8fb; --panel:#ffffff; --panel-2:#f9fbff;
+    --ink:#0e1724; --muted:#5b6b7f; --line:#e6ecf2;
+    --accent:#1662d1; --like:#d61a2c; --shadow:0 12px 36px rgb(16 45 90 / .10);
   }
 }
 
-/* ================== Base ================== */
-html, body { height: 100%; }
+*{ box-sizing:border-box }
+html,body{ height:100% }
 body{
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+  margin:0;
+  background:
+    radial-gradient(900px 520px at 50% -10%, color-mix(in srgb, var(--panel) 60%, transparent), transparent 60%),
+    var(--bg);
+  color:var(--ink);
+  font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
 }
 
-/* ================== Layout feed ================== */
-.shell{
-  display: grid;
-  grid-template-columns: 1fr min(780px, 100%) 1fr;
-}
-.feed-col{
-  grid-column: 2;
-  min-height: 100dvh;
-  border-inline: 1px solid var(--line);
-  background: var(--panel);
-}
+/* Layout */
+.shell{ display:grid; grid-template-columns:1fr min(760px,100%) 1fr; }
+.feed-col{ grid-column:2; min-height:100dvh; border-inline:1px solid var(--line);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--panel) 92%, transparent), var(--panel)); }
 
-/* ================== Header feed ================== */
+/* Header */
 .feed-head{
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  padding: 12px 16px;
-  background: color-mix(in srgb, var(--panel) 65%, transparent);
-  backdrop-filter: saturate(140%) blur(10px);
-  border-bottom: 1px solid var(--line);
+  position:sticky; top:0; z-index:5; display:flex; align-items:baseline; gap:10px;
+  padding:14px 18px; background:color-mix(in srgb, var(--panel) 85%, transparent);
+  border-bottom:1px solid var(--line); backdrop-filter:saturate(140%) blur(8px);
 }
-.feed-head h1{ margin: 0; font-size: 18px; font-weight: 700; }
-.feed-head .sub{ color: var(--muted); font-size: 13px; font-weight: 500; }
+.feed-head h1{ margin:0; font-size:20px; font-weight:800; letter-spacing:.2px }
+.feed-head .sub{ color:var(--muted); font-size:13px; font-weight:600 }
 
-/* ================== Composer (visual) ================== */
-.composer{
-  display: flex;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--line);
-  background: var(--panel);
-}
+/* Composer */
+.composer{ display:grid; grid-template-columns:56px 1fr; gap:12px; padding:16px;
+  border-bottom:1px solid var(--line); background:var(--panel); }
 .avatar{
-  width: 44px; height: 44px; border-radius: 50%; flex: 0 0 44px;
-  background: #121a26; object-fit: cover;
-  display: grid; place-items: center;
-  border: 1px solid var(--line);
-  color: var(--muted); font-weight: 700;
+  width:44px; height:44px; border-radius:50%; display:grid; place-items:center;
+  overflow:hidden; background:#121a26; color:#a7b7cd; border:1px solid var(--line); font-weight:800;
 }
-.composer form{ flex: 1; }
-.composer textarea{
-  width: 100%; resize: none; min-height: 60px; padding: 12px 14px;
-  background: #121a26; border: 1px solid var(--line); border-radius: 12px;
-  color: var(--ink); outline: 0; font: inherit;
+.compose{ display:flex; flex-direction:column; gap:10px }
+.compose textarea{
+  width:100%; min-height:70px; max-height:180px; resize:vertical;
+  padding:12px 14px; border-radius:14px; background:#121a26; border:1px solid var(--line);
+  color:var(--ink); outline:0; font:inherit;
 }
-.composer .row{
-  display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;
-}
+.row{ display:flex; gap:10px; justify-content:flex-end }
 .btn{
-  border: 1px solid var(--line); background: #162034; color: var(--ink);
-  padding: 8px 14px; border-radius: 999px; font-weight: 600; cursor: pointer;
-  transition: transform .06s ease, opacity .2s ease, background .2s ease, border-color .2s ease;
+  border:1px solid var(--line); background:#162034; color:var(--ink);
+  padding:8px 14px; border-radius:999px; font-weight:800; cursor:pointer;
+  transition:transform .06s ease, opacity .2s ease, background .2s ease, border-color .2s ease;
 }
-.btn:hover{ transform: translateY(-1px); }
-.btn:active{ transform: translateY(0); }
-.btn.primary{ background: var(--accent); border-color: color-mix(in srgb, var(--accent) 70%, black); color:#fff; }
-.btn:disabled{ opacity:.55; cursor:not-allowed; }
+.btn:hover{ transform:translateY(-1px) } .btn:active{ transform:translateY(0) }
+.btn.primary{ background:var(--accent); border-color:color-mix(in srgb, var(--accent) 70%, black); color:#fff }
+.btn.ghost{ background:transparent }
+.btn:disabled, .compose textarea:disabled{ opacity:.55; cursor:not-allowed }
 
-/* ================== Post ================== */
+/* Feed */
+#feed{ display:grid; gap:16px; padding:16px }
+
 .post{
-  display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 12px;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--line);
-  background: var(--panel);
+  background:linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+  border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);
+  transition:transform .06s ease, border-color .2s ease, box-shadow .2s ease;
 }
-.post-header{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
-.meta{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-.meta .handle{ color: var(--muted); }
-.meta .time{ color: var(--muted); font-size:12px; }
-.post p{ white-space: pre-wrap; line-height: 1.45; margin: 4px 0 0 0; }
+.post:hover{ transform:translateY(-1px); border-color:color-mix(in srgb, var(--line) 60%, var(--accent) 30%) }
+.post-header{ display:flex; align-items:center; gap:12px; padding:14px 16px 0 }
+.meta{ min-width:0 } .name{ font-weight:800; letter-spacing:.2px; line-height:1.2; overflow-wrap:anywhere }
+.subline{ display:flex; align-items:center; gap:6px; margin-top:2px; color:var(--muted); font-weight:600; font-size:13px }
+.subline .dot{ color:var(--muted) }
+.text{ padding:10px 16px 0; white-space:pre-wrap; overflow-wrap:anywhere }
 
-/* Imagen del post */
-.post-image{
-  width: 100%; max-height: 520px; object-fit: cover; display: block; margin-top: 8px;
-  border-radius: 12px; border: 1px solid var(--line); background: var(--bg);
-}
+.media{ margin:10px 16px 0; border-radius:12px; overflow:hidden; border:1px solid var(--line); background:#0b0f15 }
+.media img{ width:100%; height:auto; display:block; object-fit:cover }
 
-/* Acciones */
-.actions{
-  display: flex; gap: 18px; align-items: center; margin-top: 8px;
+.actions{ display:flex; gap:10px; align-items:center; padding:12px 16px 14px }
+.chip{
+  border:1px solid var(--line); background:transparent; color:var(--muted);
+  padding:6px 12px; border-radius:999px; font-weight:700; cursor:pointer;
 }
-.actions .like{
-  background: transparent; border: 1px solid var(--line); color: var(--muted);
-  padding: 6px 12px; border-radius: 999px; font-weight: 600; cursor: pointer;
-  transition: background .15s, color .15s, border-color .15s, transform .05s ease;
-}
-.actions .like:hover{ background:#162034; color: var(--ink); }
-.actions .like:active{ transform: translateY(1px); }
-.actions .like.liked{
-  border-color: var(--like); color: var(--like);
-  background: color-mix(in srgb, var(--like) 15%, transparent);
-}
+.chip:hover{ background:#162034; color:var(--ink) }
+.chip.ghost{ color:var(--accent); border-color:color-mix(in srgb, var(--accent) 60%, var(--line) 40%) }
+.chip[disabled]{ opacity:.55; cursor:not-allowed }
 
-/* ================== Comentarios ================== */
-details{ margin-top:10px; }
-details summary{ cursor:pointer; list-style:none; color: var(--accent); font-weight: 600; margin-bottom: 6px; }
-.comentarios{ margin-top: 6px; }
-.c-tree{ list-style:none; margin:10px 0 0 0; padding-left:16px; border-left:1px solid var(--line); }
-.c-node{ margin:10px 0; }
-.c-bubble{ background:#121a26; border:1px solid var(--line); border-radius:10px; padding:8px 10px; }
-.c-meta{ color: var(--muted); font-size:12px; margin-bottom:4px; }
-.c-text{ white-space: pre-wrap; }
-
-/* Form de comentario (visual) */
-.comment-form{ margin-top: 8px; display:flex; gap: 6px; }
-.comment-form input{
-  flex: 1; background:#121a26; border:1px solid var(--line); border-radius: 8px; padding:8px 10px; color: var(--ink);
-}
-.comment-form input::placeholder{ color: var(--muted); }
-.comment-form button{
-  background: var(--accent); color:#fff; border:none; border-radius:999px; padding:8px 12px; font-weight:700; cursor:pointer;
-}
-.comment-form button:disabled, .comment-form input:disabled{ opacity:.55; cursor:not-allowed; }
-
-/* ================== Load more ================== */
-.load-more{
-  display:flex; justify-content:center; align-items:center; gap:10px; padding:16px;
-  background: var(--panel); border-bottom:1px solid var(--line);
-}
+/* Footer */
+.load-more{ display:flex; justify-content:center; align-items:center; gap:10px; padding:18px; border-top:1px solid var(--line) }
 .spinner{
-  display:none; width:18px; height:18px;
+  width:18px; height:18px; border-radius:50%;
   border:2px solid color-mix(in srgb, var(--ink) 20%, transparent);
-  border-top-color: var(--accent); border-radius:50%; animation: spin 1s linear infinite;
+  border-top-color:var(--accent); animation:spin 1s linear infinite;
 }
-.load-more.loading .spinner{ display:inline-block; }
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin{ to{ transform:rotate(360deg) } }
+
+/* Responsive */
+@media (max-width:560px){
+  .name{ font-size:15px } .subline{ font-size:13px }
+}
