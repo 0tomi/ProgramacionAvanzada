@@ -9,15 +9,25 @@
     <nav class="w-full gap-y-2 mt-14">
 
         <ul class="list-none p-0 m-0 w-full">
+
+            <!-- logica condicional en html con php   -->
+             
+            <?php if($_SESSION['username'] ?? false) : ?>
             <li>
                 <img class="size-24 ml-8 mb-4 rounded-full" src="imagenes/profile.png" alt="Profile">
             </li>
-            
+            <?php else: ?>
+            <li>
+                <img class="size-24 ml-8 mb-4 rounded-full" src="imagenes/user.png" alt="Profile">
+            </li>
+            <?php endif; ?>
+
             <li class="mb-3"><a href="inicio.php" class="no-underline text-gray-800 text-lg flex items-center gap-2 hover:text-indigo-600 hover:scale-105 transition-transform">🏠 <span>Home</span></a></li>
 
             <li class="mb-3"><a href="about.php" class="no-underline text-gray-800 text-lg flex items-center gap-2 hover:text-indigo-600 hover:scale-105 transition-transform">ℹ️ <span>About</span></a></li>
 
             <li class="mb-3"><a href="POSTS/index.php" class="no-underline text-gray-800 text-lg flex items-center gap-2 hover:text-indigo-600 hover:scale-105 transition-transform">ℹ️ <span>Posts</span></a></li>
+
 
         </ul>
 
