@@ -17,12 +17,13 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Inicio — Mini X</title>
+  <title>Inicio — Demo sin JS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="inicio.css">
 </head>
 <body>
-  
+  <?php require('../includes/barraLateral/barraLateral.php'); ?>
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
       <header class="feed-head">
@@ -42,8 +43,8 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
           </div>
         </form>
       </div>
-
-      <!-- Feed (SOLO posts) -->
+      
+      <!-- FEED ESTÁTICO (sin JS): dos ejemplos -->
       <div id="feed">
         <article class="post">
           <a href="#" class="post-overlay" aria-label="Ver post"></a><!--click para entrar al post  -->
