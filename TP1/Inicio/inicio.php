@@ -46,6 +46,7 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
       <!-- Feed (SOLO posts) -->
       <div id="feed">
         <article class="post">
+          <a href="#" class="post-overlay" aria-label="Ver post"></a><!--click para entrar al post  -->
           <header class="post-header">
             <div class="avatar">V</div>
             <div class="meta">
@@ -64,8 +65,9 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
         </article>
 
         <article class="post">
+          <a href="#" class="post-overlay" aria-label="Ver post"></a><!--click para entrar al post  -->
           <header class="post-header">
-            <img class="avatar" src="https://i.pravatar.cc/88?img=32" alt="Avatar Tomás">
+            <div class="avatar">T</div>
             <div class="meta">
               <div class="name">Tomás Sch</div>
               <div class="subline">
