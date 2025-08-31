@@ -60,7 +60,6 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
           <p class="text">Hola, soy Valen y este es mi post 👋</p>
           <div class="actions">
             <button type="button" class="chip" disabled>♥ <span class="count">1</span></button>
-            <a href="#" class="chip ghost">Ver post</a>
           </div>
         </article>
 
@@ -82,7 +81,6 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
           </figure>
           <div class="actions">
             <button type="button" class="chip" disabled>♥ <span class="count">0</span></button>
-            <a href="#" class="chip ghost">Ver post</a>
           </div>
         </article>
       </div>

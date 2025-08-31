@@ -80,13 +80,6 @@ body{
 .media img{ width:100%; height:auto; display:block; object-fit:cover }
 
 .actions{ display:flex; gap:10px; align-items:center; padding:12px 16px 14px }
-.chip{
-  border:1px solid var(--line); background:transparent; color:var(--muted);
-  padding:6px 12px; border-radius:999px; font-weight:700; cursor:pointer;
-}
-.chip:hover{ background:#162034; color:var(--ink) }
-.chip.ghost{ color:var(--accent); border-color:color-mix(in srgb, var(--accent) 60%, var(--line) 40%) }
-.chip[disabled]{ opacity:.55; cursor:not-allowed }
 
 /* Footer */
 .load-more{ display:flex; justify-content:center; align-items:center; gap:10px; padding:18px; border-top:1px solid var(--line) }
