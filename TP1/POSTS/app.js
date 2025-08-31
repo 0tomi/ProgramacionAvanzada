@@ -2,26 +2,28 @@
 const API = "api.php";
 const feed = document.getElementById("feed");
 
-init();
+/* ==== Boot ==== */
+cargarFeed();
 
-function init(){
-  const params = new URLSearchParams(location.search);
-  const id = params.get("id");
-  if(!id){
-    feed.innerHTML = `<div class="error">Falta el parámetro ?id=...</div>`;
-    return;
+async function logout() {
+  const res = await fetch("api.php?action=logout", { credentials: "same-origin" });
+  const data = await res.json();
+  if (data.ok) {
+    alert("Sesión cerrada");
+    location.reload(); // refrescar feed para que aparezcan deshabilitados los likes/comentarios
   }
-  cargarPost(id);
 }
 
-async function cargarPost(id){
-  try{
-    const res = await fetch(`${API}?action=get&id=${encodeURIComponent(id)}`, { credentials: "same-origin" });
+
+/* ==== Cargar feed ==== */
+async function cargarFeed() {
+  try {
+    const res = await fetch(`${API}?action=list`, { credentials: "same-origin" });
     const data = await res.json();
-    if(!data.ok) throw new Error(data.error || "No se pudo cargar el post");
-    feed.innerHTML = renderPost(data.item);   // <- un solo post
+    if (!data.ok) throw new Error(data.error || "No se pudo cargar el feed");
+    feed.innerHTML = data.items.map(renderPost).join("");
     bindPostEvents(feed);
-  }catch(err){
+  } catch (err) {
     feed.innerHTML = `<div class="error">${escapeHtml(String(err.message || err))}</div>`;
   }
 }

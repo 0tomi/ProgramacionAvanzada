@@ -4,74 +4,19 @@ declare(strict_types=1);
 require __DIR__ . '/auth.php';
 header('Content-Type: application/json; charset=utf-8');
 
-const POSTS_JSON_PATH = __DIR__ . '/../JSON/POST.json';
-
-if (!file_exists(POSTS_JSON_PATH)) file_put_contents(POSTS_JSON_PATH, "[]");
-
-function ensure_posts_file(): void {
-  $dir = dirname(POSTS_JSON_PATH);
-  if (!is_dir($dir)) {
-    // si te interesa, creá la carpeta; si no, tirá error
-    mkdir($dir, 0775, true);
-  }
-  if (!file_exists(POSTS_JSON_PATH)) {
-    file_put_contents(POSTS_JSON_PATH, "[]");
-  }
-}
+const DATA_FILE = __DIR__ . '../JSON/users.json';
+if (!file_exists(DATA_FILE)) file_put_contents(DATA_FILE, "[]");
 
 function read_posts(): array {
-  ensure_posts_file();
-  $raw = file_get_contents(POSTS_JSON_PATH);
-  $data = json_decode($raw ?: '[]', true);
-  return is_array($data) ? $data : [];
+  return json_decode(file_get_contents(DATA_FILE) ?: '[]', true) ?: [];
 }
-
 function write_posts(array $arr): void {
-  ensure_posts_file();
-  // bloqueo básico para evitar corrupciones si hay 2 escrituras simultáneas
-  $fp = fopen(POSTS_JSON_PATH, 'c+');
-  if (!$fp) throw new Exception('No se pudo abrir POST.json');
-  if (!flock($fp, LOCK_EX)) { fclose($fp); throw new Exception('No se pudo bloquear POST.json'); }
-  ftruncate($fp, 0);
-  rewind($fp);
-  fwrite($fp, json_encode($arr, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
-  fflush($fp);
-  flock($fp, LOCK_UN);
-  fclose($fp);
+  file_put_contents(DATA_FILE, json_encode($arr, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 }
 
 if (!isset($_SESSION['likes'])) $_SESSION['likes'] = [];
 
 $action = $_GET['action'] ?? 'list';
-
-if ($action === 'get') {
-  $id = $_GET['id'] ?? '';
-  if ($id === '') {
-    http_response_code(400);
-    echo json_encode(['ok'=>false,'error'=>'id requerido']); exit;
-  }
-  $items = read_posts();
-  $liked = array_flip($_SESSION['likes'] ?? []);
-  $viewer = auth_user();
-
-  foreach ($items as $p) {
-    if ($p['id'] === $id) {
-      // normalizar y enriquecer igual que en list
-      $p['counts']  = $p['counts']  ?? ['likes'=>0,'replies'=>0];
-      $p['replies'] = $p['replies'] ?? [];
-      $p['author']  = $p['author']  ?? ['id'=>'uX','handle'=>'anon','name'=>'Anónimo'];
-      $p['viewer']  = [
-        'liked' => isset($liked[$p['id']]),
-        'authenticated' => $viewer !== null,
-        'handle' => $viewer['handle'] ?? null,
-        'name'   => $viewer['name'] ?? null,
-      ];
-      echo json_encode(['ok'=>true,'item'=>$p], JSON_UNESCAPED_UNICODE); exit;
-    }
-  }
-  http_response_code(404);
-  echo json_encode(['ok'=>false,'error'=>'Post no encontrado']); exit;
-}
 
 try {
   /* ====== Auth dev helpers ====== */
