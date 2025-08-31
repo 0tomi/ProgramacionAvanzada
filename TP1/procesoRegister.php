@@ -23,4 +23,4 @@ $usuarios[] = [
 
 guardarUsuarios($usuarios);
 
-header("Location: inicio.php?success=Registro+exitoso");
+header("Location: Inicio/inicio.php?success=Registro+exitoso");
