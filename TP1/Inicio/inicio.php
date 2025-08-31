@@ -23,6 +23,7 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
   <link rel="stylesheet" href="inicio.css">
 </head>
 <body>
+  <?php include __DIR__ . '/headerInicio.php'; ?>
   <?php require('../includes/barraLateral/barraLateral.php'); ?>
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
