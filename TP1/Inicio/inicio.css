@@ -118,7 +118,7 @@ body{
   border-top: 1px solid var(--line);
   background: var(--panel);
 }
-.chip{
+.chip{ /*darle estilo al boton de like jejeee*/
   border:1px solid var(--line);
   background:transparent;
   color:var(--muted);
@@ -138,7 +138,7 @@ body{
 }
 @keyframes spin{ to{ transform:rotate(360deg) } }
 
-/* Responsive */
+/* responsivo */
 @media (max-width:560px){
   .name{ font-size:15px } .subline{ font-size:13px }
 }
