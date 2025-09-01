@@ -226,6 +226,33 @@ body {
 .post .chip {
   pointer-events: none;
 }
+.post .actions{
+  position: relative;
+  z-index: 214748364;   
+}
+
+.post .actions .chip.like{
+  pointer-events: auto !important;
+}
+/* El overlay queda por debajo del botón like */
+.post-overlay{ z-index: 100; }
+.post .chip.like{
+  position: relative;
+  z-index: 200;          /* por encima del overlay */
+  pointer-events: auto;  /* recibe clicks */
+}
+/* Botón like activo */
+.chip.like.liked {
+  border-color: var(--like);          /* el color rosa/rojo que ya definiste en :root */
+  color: #fff;
+  background: color-mix(in srgb, var(--like) 30%, transparent);
+}
+
+
+.meta{ min-width:0 } .name{ font-weight:800; letter-spacing:.2px; line-height:1.2; overflow-wrap:anywhere }
+.subline{ display:flex; align-items:center; gap:6px; margin-top:2px; color:var(--muted); font-weight:600; font-size:13px }
+.subline .dot{ color:var(--muted) }
+.text{ padding:10px 16px 0; white-space:pre-wrap; overflow-wrap:anywhere }
 
 .meta {
   min-width: 0;
@@ -359,3 +386,9 @@ body {
     font-size: 13px;
   }
 }
+/* nada por encima del overlay dentro de .post */
+.post > *:not(.post-overlay){ position: relative; z-index: 0; }
+/* en el feed, que los botones no “roben” el click */
+.post .actions, .post .chip, .post .actions *{ pointer-events: none; }
+.post:hover{ cursor: pointer; }
+

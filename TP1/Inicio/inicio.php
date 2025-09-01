@@ -98,14 +98,32 @@ if (is_readable($POSTS_JSON)) {
               <?php endif; ?>
 
               <div class="actions">
-                <button type="button" class="chip" disabled>
+                <button type="button"
+                        class="chip like"
+                        data-id="<?= htmlspecialchars($id) ?>">
                   ♥ <span class="count"><?= $likes ?></span>
                 </button>
               </div>
+
             </article>
           <?php endforeach; ?>
         <?php endif; ?>
       </div>
+
+      <script>
+        (async function markLikedOnLoad(){
+          try{
+            const res = await fetch('../POSTS/api.php?action=liked_ids', { credentials:'same-origin' });
+            const data = await res.json();
+            if (!data.ok || !Array.isArray(data.ids)) return;
+            const liked = new Set(data.ids.map(String));
+            document.querySelectorAll('.chip.like[data-id]').forEach(btn=>{
+              if (liked.has(btn.getAttribute('data-id'))) btn.classList.add('liked');
+            });
+          }catch(e){ /* silencioso */ }
+        })();
+      </script>
+
 
       <div class="load-more">
         <button class="btn" disabled>Cargar más</button>
@@ -125,19 +143,60 @@ if (is_readable($POSTS_JSON)) {
   </style>
 
   <script>
-  // Si por cualquier motivo no navega, forzamos la navegación al href del overlay
-  document.addEventListener('click', function(e){
-    const card = e.target.closest('.post');
-    if(!card) return;
-    const overlay = card.querySelector('.post-overlay');
-    if(!overlay || !overlay.getAttribute('href')) return;
+    // Navegación por overlay + Like en Inicio
+    document.addEventListener('click', async function(e){
+      // 1) LIKE en el feed
+      const likeBtn = e.target.closest('.chip.like');
+      if (likeBtn) {
+        e.preventDefault();
+        e.stopPropagation();
 
-    // Si el click NO provino del overlay pero sí dentro de la card, navegamos igual
-    if (!e.target.closest('.post-overlay')) {
-      window.location.href = overlay.href;
-    }
-  }, { passive: true });
-</script>
+        const postId = likeBtn.getAttribute('data-id');
+        if (!postId) return;
+
+        // elementos y estado actual
+        const countEl = likeBtn.querySelector('.count');
+        const prev = parseInt(countEl.textContent, 10) || 0;
+
+        // Optimistic UI
+        likeBtn.classList.toggle('liked');
+        const optimistic = likeBtn.classList.contains('liked') ? prev + 1 : prev - 1;
+        countEl.textContent = optimistic;
+
+        try {
+          // IMPORTANTE: ruta relativa desde /Inicio a /POSTS
+          const res = await fetch('../POSTS/api.php?action=like', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ post_id: postId })
+          });
+          const data = await res.json();
+          if (!data.ok) throw new Error(data.error || 'Error al likear');
+
+          // sincronizar con el valor real que devolvió la API
+          likeBtn.classList.toggle('liked', !!data.liked);
+          countEl.textContent = data.like_count;
+        } catch (err) {
+          // rollback si hubo error
+          likeBtn.classList.toggle('liked');
+          countEl.textContent = prev;
+          alert(String(err.message || err));
+        }
+        return;
+      }
+
+      // 2) Overlay: si clickeás en la tarjeta, navegás al detalle
+      const card = e.target.closest('.post');
+      if(!card) return;
+      const overlay = card.querySelector('.post-overlay');
+      if(!overlay || !overlay.getAttribute('href')) return;
+
+      if (!e.target.closest('.post-overlay')) {
+        window.location.href = overlay.href;
+      }
+    }, { passive: true });
+  </script>
 
 </body>
 </html>
