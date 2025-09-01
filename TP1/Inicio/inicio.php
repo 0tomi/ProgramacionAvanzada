@@ -8,7 +8,7 @@ $guestAvatar = "../imagenes/profilePictures/defaultProfilePicture.png";
 
 // si está logueado usa su foto; si no, avatar por defecto
 $avatarUrl = ($isAuth && !empty($_SESSION['profilePicture']))
-  ? $_SESSION['profilePicture']      // (si existe esa key en tu sesión)
+  ? $_SESSION['profilePicture']
   : $guestAvatar;
 
 $lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
@@ -25,7 +25,7 @@ if (is_readable($POSTS_JSON)) {
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Inicio — Demo sin JS</title>
+  <title>Inicio — Feed</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="inicio.css">
@@ -61,7 +61,8 @@ if (is_readable($POSTS_JSON)) {
         <?php else: ?>
           <?php foreach ($posts as $p):
             // defensivo + formato de campos
-            $id      = htmlspecialchars($p['id'] ?? '');
+            $id      = (string)($p['id'] ?? '');
+            $idEsc   = htmlspecialchars($id);
             $name    = htmlspecialchars($p['author']['name'] ?? 'Anónimo');
             $handle  = htmlspecialchars($p['author']['handle'] ?? 'anon');
             $avatarL = strtoupper(substr($p['author']['handle'] ?? 'U', 0, 1));
@@ -71,11 +72,11 @@ if (is_readable($POSTS_JSON)) {
             $likes   = (int)($p['counts']['likes'] ?? 0);
             $media   = trim((string)($p['media_url'] ?? ''));
           ?>
-            <article class="post" data-id="<?= htmlspecialchars($id) ?>">
+            <article class="post" data-id="<?= $idEsc ?>">
               <!-- Capa clickeable que abre el detalle del post -->
-              <a class="post-overlay" 
-                href="../POSTS/?id=<?= urlencode($id) ?>" 
-                aria-label="Ver post"></a>
+              <a class="post-overlay"
+                 href="../POSTS/?id=<?= urlencode($id) ?>"
+                 aria-label="Ver post"></a>
 
               <header class="post-header">
                 <div class="avatar"><?= htmlspecialchars($avatarL) ?></div>
@@ -100,30 +101,14 @@ if (is_readable($POSTS_JSON)) {
               <div class="actions">
                 <button type="button"
                         class="chip like"
-                        data-id="<?= htmlspecialchars($id) ?>">
+                        data-id="<?= $idEsc ?>">
                   ♥ <span class="count"><?= $likes ?></span>
                 </button>
               </div>
-
             </article>
           <?php endforeach; ?>
         <?php endif; ?>
       </div>
-
-      <script>
-        (async function markLikedOnLoad(){
-          try{
-            const res = await fetch('../POSTS/api.php?action=liked_ids', { credentials:'same-origin' });
-            const data = await res.json();
-            if (!data.ok || !Array.isArray(data.ids)) return;
-            const liked = new Set(data.ids.map(String));
-            document.querySelectorAll('.chip.like[data-id]').forEach(btn=>{
-              if (liked.has(btn.getAttribute('data-id'))) btn.classList.add('liked');
-            });
-          }catch(e){ /* silencioso */ }
-        })();
-      </script>
-
 
       <div class="load-more">
         <button class="btn" disabled>Cargar más</button>
@@ -134,71 +119,7 @@ if (is_readable($POSTS_JSON)) {
 
   <?php require_once __DIR__ . '/../includes/footer.php'; ?>
 
-  <!-- CSS mínimo para overlay clickeable (si no está en tu inicio.css) -->
-  <style>
-    .post{ position:relative; }
-    .post-overlay{ position:absolute; inset:0; z-index:1; text-indent:-9999px; }
-    .post *{ position:relative; z-index:2; }
-    .post .chip{ pointer-events:none; } /* en inicio el botón es decorativo */
-  </style>
-
-  <script>
-    // Navegación por overlay + Like en Inicio
-    document.addEventListener('click', async function(e){
-      // 1) LIKE en el feed
-      const likeBtn = e.target.closest('.chip.like');
-      if (likeBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const postId = likeBtn.getAttribute('data-id');
-        if (!postId) return;
-
-        // elementos y estado actual
-        const countEl = likeBtn.querySelector('.count');
-        const prev = parseInt(countEl.textContent, 10) || 0;
-
-        // Optimistic UI
-        likeBtn.classList.toggle('liked');
-        const optimistic = likeBtn.classList.contains('liked') ? prev + 1 : prev - 1;
-        countEl.textContent = optimistic;
-
-        try {
-          // IMPORTANTE: ruta relativa desde /Inicio a /POSTS
-          const res = await fetch('../POSTS/api.php?action=like', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin',
-            body: JSON.stringify({ post_id: postId })
-          });
-          const data = await res.json();
-          if (!data.ok) throw new Error(data.error || 'Error al likear');
-
-          // sincronizar con el valor real que devolvió la API
-          likeBtn.classList.toggle('liked', !!data.liked);
-          countEl.textContent = data.like_count;
-        } catch (err) {
-          // rollback si hubo error
-          likeBtn.classList.toggle('liked');
-          countEl.textContent = prev;
-          alert(String(err.message || err));
-        }
-        return;
-      }
-
-      // 2) Overlay: si clickeás en la tarjeta, navegás al detalle
-      const card = e.target.closest('.post');
-      if(!card) return;
-      const overlay = card.querySelector('.post-overlay');
-      if(!overlay || !overlay.getAttribute('href')) return;
-
-      if (!e.target.closest('.post-overlay')) {
-        window.location.href = overlay.href;
-      }
-    }, { passive: true });
-  </script>
-
+  <!-- JS separado -->
+  <script src="inicio.js"></script>
 </body>
 </html>
-
-

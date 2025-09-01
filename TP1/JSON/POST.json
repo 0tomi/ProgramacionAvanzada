@@ -12,8 +12,7 @@
             "likes": 1,
             "replies": 0
         },
-        "replies": [
-        ],
+        "replies": [],
         "created_at": "2025-08-28T14:20:00Z"
     },
     {
@@ -26,7 +25,7 @@
         "text": "Post de Tomás con imagen",
         "media_url": "uploads/gato.jpg",
         "counts": {
-            "likes": 0,
+            "likes": 1,
             "replies": 0
         },
         "replies": [],
