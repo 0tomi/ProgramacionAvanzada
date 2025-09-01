@@ -27,6 +27,13 @@
         </div>
 
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm bg-[#192734] p-6 rounded-lg shadow-lg">
+
+            <?php if (isset($_GET['error'])): ?>
+                <div class="mb-4 rounded bg-red-500 px-4 py-2 text-white text-center font-semibold">
+                    <?php echo htmlspecialchars($_GET['error']); ?>
+                </div>
+            <?php endif; ?>
+
             <form class="space-y-6" action="procesoLogin.php" method="POST" id="loginForm">
 
                 <div>

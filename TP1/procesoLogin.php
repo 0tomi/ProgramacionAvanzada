@@ -15,4 +15,6 @@ foreach ($usuarios as $user) {
     }
 }
 
-header("Location: login.php?error=Credenciales+inválidas");
+// Si no encontró coincidencias
+header("Location: login.php?error=Usuario+o+contraseña+incorrectos");
+exit;
