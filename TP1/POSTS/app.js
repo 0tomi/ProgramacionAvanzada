@@ -26,21 +26,19 @@ function renderPost(post){
   const img = post.media_url
     ? `<figure class="media"><img class="post-image" src="${escapeHtml(post.media_url)}" alt="Imagen del post"></figure>`
     : "";
-  const author = post.author?.handle ? `@${escapeHtml(post.author.handle)}` : '@anon';
   const name = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
+  const initial = (post.author?.name || 'U').charAt(0).toUpperCase(); // ← desde el nombre
   const ts = formatDate(post.created_at);
 
   const likeClasses = `chip ${post.viewer?.liked ? "liked" : ""}`;
 
   return `
-  <article class="post" data-id="${post.id}">
+    <article class="post" data-id="${post.id}">
     <header class="post-header">
-      <div class="avatar">${(post.author?.handle||'U')[0].toUpperCase()}</div>
+      <div class="avatar">${initial}</div>
       <div class="meta">
         <div class="name">${name}</div>
         <div class="subline">
-          <span class="handle">${author}</span>
-          <span class="dot">·</span>
           <time>${ts}</time>
         </div>
       </div>

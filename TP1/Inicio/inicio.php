@@ -68,7 +68,7 @@ if (is_readable($POSTS_JSON)) {
             $idEsc   = htmlspecialchars($id);
             $name    = htmlspecialchars($p['author']['name'] ?? 'Anónimo');
             $handle  = htmlspecialchars($p['author']['handle'] ?? 'anon');
-            $avatarL = strtoupper(substr($p['author']['handle'] ?? 'U', 0, 1));
+            $avatarL = strtoupper(substr(($p['author']['name'] ?? 'U'), 0, 1));
             $tsRaw   = $p['created_at'] ?? '';
             $tsHuman = $tsRaw ? date('d/m/Y H:i', strtotime($tsRaw)) : '';
             $text    = htmlspecialchars($p['text'] ?? '');

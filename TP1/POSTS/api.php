@@ -157,6 +157,12 @@ try {
 
   // POST (multipart/form-data): crear post (texto + imagen opcional)
   if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Debe estar logueado
+    $logged = isset($_SESSION['username']) && $_SESSION['username'] !== '';
+    if (!$logged) {
+      json_out(['ok'=>false,'error'=>'Debes iniciar sesión para publicar'], 401);
+    }
+
     // Texto
     $text = trim((string)($_POST['text'] ?? ''));
     if ($text === '' || mb_strlen($text, 'UTF-8') > 280) {
@@ -170,8 +176,8 @@ try {
       $mime = mime_content_type($file['tmp_name']) ?: '';
       $allowed = ['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp','image/gif'=>'gif'];
 
-      if (!isset($allowed[$mime]))  json_out(['ok'=>false,'error'=>'Formato de imagen no permitido'], 400);
-      if ($file['size'] > MAX_IMG_BYTES) json_out(['ok'=>false,'error'=>'La imagen supera 5MB'], 400);
+      if (!isset($allowed[$mime]))            json_out(['ok'=>false,'error'=>'Formato de imagen no permitido'], 400);
+      if ($file['size'] > MAX_IMG_BYTES)      json_out(['ok'=>false,'error'=>'La imagen supera 5MB'], 400);
 
       ensure_uploads_dir();
       $ext   = $allowed[$mime];
@@ -181,16 +187,19 @@ try {
       if (!@move_uploaded_file($file['tmp_name'], $dest)) {
         json_out(['ok'=>false,'error'=>'No se pudo guardar la imagen'], 500);
       }
-
       // URL relativa servible desde /POSTS/
       $mediaUrl = 'uploads/'.$fname;
     }
 
-    // Autor "fake" (hasta tener login real)
+    // Autor desde sesión (sin @)
+    $username = $_SESSION['username'];                       // viene de tu login
+    $display  = $_SESSION['display_name'] ?? $username;      // por si tenés nombre para mostrar
+    $userId   = $_SESSION['user_id'] ?? ('u_' . preg_replace('/\W+/', '', strtolower($username)));
+
     $author = [
-      'id'     => $_SESSION['user_id']      ?? 'u1',
-      'handle' => $_SESSION['username']     ?? 'anon',
-      'name'   => $_SESSION['display_name'] ?? 'Anónimo',
+      'id'     => $userId,
+      'handle' => '',                // dejamos vacío para no usar @
+      'name'   => $display,          // ← esto es lo que se mostrará
     ];
 
     // Crear post
@@ -198,7 +207,7 @@ try {
       'id'         => gen_id(),
       'author'     => $author,
       'text'       => $text,
-      'media_url'  => $mediaUrl,                  // '' si no hay imagen
+      'media_url'  => $mediaUrl,
       'counts'     => ['likes'=>0, 'replies'=>0],
       'replies'    => [],
       'created_at' => gmdate('c'),
@@ -208,9 +217,9 @@ try {
     array_unshift($items, $post);
     write_posts($items);
 
-    // Enriquecido con viewer.liked = false por defecto
     json_out(['ok'=>true, 'item'=> enrich_post($post)], 200);
   }
+
 
   // Acción no soportada
   json_out(['ok'=>false,'error'=>'Acción no soportada'], 400);
