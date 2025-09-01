@@ -1,17 +1,15 @@
-<?php // POSTS/index.php ?>
+<?php // /POSTS/index.php ?>
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Mini X — Posts</title>
+  <title>Detalle del Post</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <button onclick="logout()">Cerrar sesión</button>
-
-  <section id="feed"></section>
-
-  <!-- Cargar la lógica del módulo -->
+  <main class="container">
+    <section id="feed"></section> <!-- aquí se inyecta el post individual -->
+  </main>
   <script src="app.js"></script>
 </body>
 </html>

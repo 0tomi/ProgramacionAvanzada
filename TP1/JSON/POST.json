@@ -10,9 +10,10 @@
         "media_url": "",
         "counts": {
             "likes": 1,
-            "replies": 1
+            "replies": 0
         },
-        "replies": [],
+        "replies": [
+        ],
         "created_at": "2025-08-28T14:20:00Z"
     },
     {

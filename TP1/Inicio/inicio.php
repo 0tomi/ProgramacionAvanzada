@@ -1,17 +1,25 @@
 <?php
 session_start();
+
 $isAuth = isset($_SESSION['username']) && $_SESSION['username'] !== '';
 $guard  = $isAuth ? '' : 'disabled';
 
-
 $guestAvatar = "../imagenes/profilePictures/defaultProfilePicture.png";
 
-// si esta logeado q use su fotito
+// si está logueado usa su foto; si no, avatar por defecto
 $avatarUrl = ($isAuth && !empty($_SESSION['profilePicture']))
-  ? $_SESSION['profilePicture'] //profile picture no existe creo
+  ? $_SESSION['profilePicture']      // (si existe esa key en tu sesión)
   : $guestAvatar;
 
-$lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para bloquear botones en modo invitado
+$lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
+
+// === FEED: leer posts desde /JSON/POST.json ===
+$POSTS_JSON = __DIR__ . '/../JSON/POST.json';
+$posts = [];
+if (is_readable($POSTS_JSON)) {
+  $raw = file_get_contents($POSTS_JSON);
+  $posts = json_decode($raw ?: '[]', true) ?: [];
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -25,6 +33,7 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
 <body>
   <?php include __DIR__ . '/headerInicio.php'; ?>
   <?php require('../includes/barraLateral/barraLateral.php'); ?>
+
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
       <header class="feed-head">
@@ -33,7 +42,7 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
       </header>
 
       <!-- Composer -->
-      <div class="composer"<?=$lockedAttr?> aria-label="Publicar">
+      <div class="composer" <?=$lockedAttr?> aria-label="Publicar">
         <img class="avatar" src="<?= htmlspecialchars($avatarUrl) ?>" alt="Tu avatar">
         <form class="compose" action="#" method="post" enctype="multipart/form-data" novalidate>
           <textarea placeholder="<?= $isAuth ? '¿Qué está pasando?' : 'Inicia sesión para postear' ?>" maxlength="280" <?= $guard ?>></textarea>
@@ -44,49 +53,58 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
           </div>
         </form>
       </div>
-      
-      <!-- FEED ESTÁTICO (sin JS): dos ejemplos -->
-      <div id="feed">
-        <article class="post">
-          <a href="#" class="post-overlay" aria-label="Ver post"></a><!--click para entrar al post  -->
-          <header class="post-header">
-            <div class="avatar">V</div>
-            <div class="meta">
-              <div class="name">Valentino Pettinato</div>
-              <div class="subline">
-                <span class="handle">@valen</span>
-                <span class="dot">·</span>
-                <time datetime="2025-08-28T11:20">28/08/2025 11:20</time>
-              </div>
-            </div>
-          </header>
-          <p class="text">Hola, soy Valen y este es mi post 👋</p>
-          <div class="actions">
-            <button type="button" class="chip" disabled>♥ <span class="count">1</span></button>
-          </div>
-        </article>
 
-        <article class="post">
-          <a href="#" class="post-overlay" aria-label="Ver post"></a><!--click para entrar al post  -->
-          <header class="post-header">
-            <div class="avatar">T</div>
-            <div class="meta">
-              <div class="name">Tomás Sch</div>
-              <div class="subline">
-                <span class="handle">@tomas</span>
-                <span class="dot">·</span>
-                <time datetime="2025-08-29T13:00">29/08/2025 13:00</time>
+      <!-- FEED desde /JSON/POST.json -->
+      <div id="feed">
+        <?php if (empty($posts)): ?>
+          <p class="muted">No hay posts todavía.</p>
+        <?php else: ?>
+          <?php foreach ($posts as $p):
+            // defensivo + formato de campos
+            $id      = htmlspecialchars($p['id'] ?? '');
+            $name    = htmlspecialchars($p['author']['name'] ?? 'Anónimo');
+            $handle  = htmlspecialchars($p['author']['handle'] ?? 'anon');
+            $avatarL = strtoupper(substr($p['author']['handle'] ?? 'U', 0, 1));
+            $tsRaw   = $p['created_at'] ?? '';
+            $tsHuman = $tsRaw ? date('d/m/Y H:i', strtotime($tsRaw)) : '';
+            $text    = htmlspecialchars($p['text'] ?? '');
+            $likes   = (int)($p['counts']['likes'] ?? 0);
+            $media   = trim((string)($p['media_url'] ?? ''));
+          ?>
+            <article class="post" data-id="<?= htmlspecialchars($id) ?>">
+              <!-- Capa clickeable que abre el detalle del post -->
+              <a class="post-overlay" 
+                href="../POSTS/?id=<?= urlencode($id) ?>" 
+                aria-label="Ver post"></a>
+
+              <header class="post-header">
+                <div class="avatar"><?= htmlspecialchars($avatarL) ?></div>
+                <div class="meta">
+                  <div class="name"><?= $name ?></div>
+                  <div class="subline">
+                    <span class="handle">@<?= $handle ?></span>
+                    <span class="dot">·</span>
+                    <time datetime="<?= htmlspecialchars($tsRaw) ?>"><?= $tsHuman ?></time>
+                  </div>
+                </div>
+              </header>
+
+              <p class="text"><?= $text ?></p>
+
+              <?php if ($media !== ''): ?>
+                <figure class="media">
+                  <img src="<?= htmlspecialchars($media) ?>" alt="Imagen del post">
+                </figure>
+              <?php endif; ?>
+
+              <div class="actions">
+                <button type="button" class="chip" disabled>
+                  ♥ <span class="count"><?= $likes ?></span>
+                </button>
               </div>
-            </div>
-          </header>
-          <p class="text">Post de Tomás con imagen</p>
-          <figure class="media">
-            <img src="https://picsum.photos/1200/650?random=3" alt="Imagen del post">
-          </figure>
-          <div class="actions">
-            <button type="button" class="chip" disabled>♥ <span class="count">0</span></button>
-          </div>
-        </article>
+            </article>
+          <?php endforeach; ?>
+        <?php endif; ?>
       </div>
 
       <div class="load-more">
@@ -95,7 +113,33 @@ $lockedAttr = $isAuth ? '' : 'data-locked="1"';//esto es solo una bandera para b
       </div>
     </section>
   </div>
-<?php require_once __DIR__ . '/../includes/footer.php'; ?> 
+
+  <?php require_once __DIR__ . '/../includes/footer.php'; ?>
+
+  <!-- CSS mínimo para overlay clickeable (si no está en tu inicio.css) -->
+  <style>
+    .post{ position:relative; }
+    .post-overlay{ position:absolute; inset:0; z-index:1; text-indent:-9999px; }
+    .post *{ position:relative; z-index:2; }
+    .post .chip{ pointer-events:none; } /* en inicio el botón es decorativo */
+  </style>
+
+  <script>
+  // Si por cualquier motivo no navega, forzamos la navegación al href del overlay
+  document.addEventListener('click', function(e){
+    const card = e.target.closest('.post');
+    if(!card) return;
+    const overlay = card.querySelector('.post-overlay');
+    if(!overlay || !overlay.getAttribute('href')) return;
+
+    // Si el click NO provino del overlay pero sí dentro de la card, navegamos igual
+    if (!e.target.closest('.post-overlay')) {
+      window.location.href = overlay.href;
+    }
+  }, { passive: true });
+</script>
 
 </body>
 </html>
+
+
