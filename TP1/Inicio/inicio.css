@@ -1,131 +1,314 @@
-:root{
-  --bg: #15202b;        /* fondo general */
-  --panel: #192734;     /* panel principal */
-  --panel-2: #22303c;   /* variación panel */
-  --ink: #ffffff;       /* texto principal */
-  --muted: #8899ac;     /* texto secundario */
-  --line: #22303c;      /* bordes */
-  --accent: #1da1f2;    /* azul twitter para acentos (puede quedar tu #4aa3ff si preferís) */
-  --like: #ff4d7a;      /* me gusta (puede mantenerse igual) */
+:root {
+  --bg: #0c0f14;
+  --panel: #0f131a;
+  --panel-2: #0b0f15;
+  --ink: #e8edf5;
+  --muted: #8ea0b5;
+  --line: #1b2431;
+  --accent: #4aa3ff;
+  --like: #ff4d7a;
   --shadow: 0 12px 36px rgb(0 0 0 / .28);
 }
 
-@media (prefers-color-scheme: light){
-  :root{
-    --bg:#f6f8fb; --panel:#ffffff; --panel-2:#f9fbff;
-    --ink:#0e1724; --muted:#5b6b7f; --line:#e6ecf2;
-    --accent:#1662d1; --like:#d61a2c; --shadow:0 12px 36px rgb(16 45 90 / .10);
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f6f8fb;
+    --panel: #ffffff;
+    --panel-2: #f9fbff;
+    --ink: #0e1724;
+    --muted: #5b6b7f;
+    --line: #e6ecf2;
+    --accent: #1662d1;
+    --like: #d61a2c;
+    --shadow: 0 12px 36px rgb(16 45 90 / .10);
   }
 }
 
-*{ box-sizing:border-box }
-html,body{ height:100% }
-body{
-  margin:0;
-  background:
-    radial-gradient(900px 520px at 50% -10%, color-mix(in srgb, var(--panel) 60%, transparent), transparent 60%),
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(900px 520px at 50% -10%,
+      color-mix(in srgb, var(--panel) 60%, transparent),
+      transparent 60%),
     var(--bg);
-  color:var(--ink);
-  font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif;
-  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  color: var(--ink);
+  font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, Ubuntu,
+    "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Layout */
-.shell{ display:grid; grid-template-columns:1fr min(760px,100%) 1fr; }
-.feed-col{ grid-column:2; min-height:100dvh; border-inline:1px solid var(--line);
-  background:linear-gradient(180deg, color-mix(in srgb, var(--panel) 92%, transparent), var(--panel)); }
+.shell {
+  display: grid;
+  grid-template-columns: 1fr min(760px, 100%) 1fr;
+}
+
+.feed-col {
+  grid-column: 2;
+  min-height: 100dvh;
+  border-inline: 1px solid var(--line);
+  background: linear-gradient(180deg,
+      color-mix(in srgb, var(--panel) 92%, transparent),
+      var(--panel));
+}
 
 /* Header */
-.feed-head{
-  position:sticky; top:0; z-index:5; display:flex; align-items:baseline; gap:10px;
-  padding:14px 18px; background:color-mix(in srgb, var(--panel) 85%, transparent);
-  border-bottom:1px solid var(--line); backdrop-filter:saturate(140%) blur(8px);
+.feed-head {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 14px 18px;
+  background: color-mix(in srgb, var(--panel) 85%, transparent);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: saturate(140%) blur(8px);
 }
-.feed-head h1{ margin:0; font-size:20px; font-weight:800; letter-spacing:.2px }
-.feed-head .sub{ color:var(--muted); font-size:13px; font-weight:600 }
+
+.feed-head h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.feed-head .sub {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
 
 /* Composer */
-.composer{ display:grid; grid-template-columns:56px 1fr; gap:12px; padding:16px;
-  border-bottom:1px solid var(--line); background:var(--panel); }
-.avatar{
-  width:44px; height:44px; border-radius:50%; display:grid; place-items:center;
-  overflow:hidden; background:#121a26; color:#a7b7cd; border:1px solid var(--line); font-weight:800;
+.composer {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
 }
-.compose{ display:flex; flex-direction:column; gap:10px }
-.compose textarea{
-  width:100%; min-height:70px; max-height:180px; resize:vertical;
-  padding:12px 14px; border-radius:14px; background:#121a26; border:1px solid var(--line);
-  color:var(--ink); outline:0; font:inherit;
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #121a26;
+  color: #a7b7cd;
+  border: 1px solid var(--line);
+  font-weight: 800;
 }
-.row{ display:flex; gap:10px; justify-content:flex-end }
-.btn{
-  border:1px solid var(--line); background:#162034; color:var(--ink);
-  padding:8px 14px; border-radius:999px; font-weight:800; cursor:pointer;
-  transition:transform .06s ease, opacity .2s ease, background .2s ease, border-color .2s ease;
+
+.compose {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.btn:hover{ transform:translateY(-1px) } .btn:active{ transform:translateY(0) }
-.btn.primary{ background:var(--accent); border-color:color-mix(in srgb, var(--accent) 70%, black); color:#fff }
-.btn.ghost{ background:transparent }
-.btn:disabled, .compose textarea:disabled{ opacity:.55; cursor:not-allowed }
+
+.compose textarea {
+  width: 100%;
+  min-height: 70px;
+  max-height: 180px;
+  resize: vertical;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #121a26;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  outline: 0;
+  font: inherit;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn {
+  border: 1px solid var(--line);
+  background: #162034;
+  color: var(--ink);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .06s ease,
+    opacity .2s ease,
+    background .2s ease,
+    border-color .2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 70%, black);
+  color: #fff;
+}
+
+.btn.ghost {
+  background: transparent;
+}
+
+.btn:disabled,
+.compose textarea:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
 
 /* Feed */
-#feed{ display:grid; gap:16px; padding:16px }
-
-.post{
-  background:linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
-  border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);
-  transition:transform .06s ease, border-color .2s ease, box-shadow .2s ease;
-  position: relative; /* overlay se posiciona respecto de esto */
+#feed {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
 }
 
-.post:hover{
-  transform:translateY(-1px);
-  border-color:color-mix(in srgb, var(--line) 60%, var(--accent) 30%);
-  cursor: pointer; /* feedback de clic */
+.post {
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  transition: transform .06s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+  position: relative;
 }
-.post-header{ display:flex; align-items:center; gap:12px; padding:14px 16px 0 }
-.post-overlay{
+
+.post:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--line) 60%, var(--accent) 30%);
+  cursor: pointer;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px 0;
+}
+
+.post-overlay {
   position: absolute;
-  inset: 0;               /* top/right/bottom/left = 0 */
+  inset: 0;
   display: block;
   text-indent: -9999px;
-  z-index: 100;           /* por ENCIMA de todo el contenido */
-  /* si querés ocultar texto dentro del <a>, podrías usar text-indent: -9999px; */
+  z-index: 2147483647; /* forzar clic */
+  pointer-events: auto;
 }
-.post > *:not(.post-overlay){ position:relative; z-index:0; }
+
+.post>*:not(.post-overlay) {
+  position: relative;
+  z-index: 0;
+}
 
 .post .actions,
 .post .button,
 .post .actions a,
-.post .chip{
+.post .chip {
   pointer-events: none;
 }
-.meta{ min-width:0 } .name{ font-weight:800; letter-spacing:.2px; line-height:1.2; overflow-wrap:anywhere }
-.subline{ display:flex; align-items:center; gap:6px; margin-top:2px; color:var(--muted); font-weight:600; font-size:13px }
-.subline .dot{ color:var(--muted) }
-.text{ padding:10px 16px 0; white-space:pre-wrap; overflow-wrap:anywhere }
 
-.media{ margin:10px 16px 0; border-radius:12px; overflow:hidden; border:1px solid var(--line); background:#0b0f15 }
-.media img{ width:100%; height:auto; display:block; object-fit:cover }
+.meta {
+  min-width: 0;
+}
 
-.actions{ display:flex; gap:10px; align-items:center; padding:12px 16px 14px; }
+.name {
+  font-weight: 800;
+  letter-spacing: .2px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.subline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.subline .dot {
+  color: var(--muted);
+}
+
+.text {
+  padding: 10px 16px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.media {
+  margin: 10px 16px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #0b0f15;
+}
+
+.media img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 16px 14px;
+}
 
 /* Footer */
-.load-more{ display:flex; justify-content:center; align-items:center; gap:10px; padding:18px; border-top:1px solid var(--line) }
-.spinner{
-  width:18px; height:18px; border-radius:50%;
-  border:2px solid color-mix(in srgb, var(--ink) 20%, transparent);
-  border-top-color:var(--accent); animation:spin 1s linear infinite;
+.load-more {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 18px;
+  border-top: 1px solid var(--line);
 }
-/* aca aseguramos de que se bloquee el composer x si no hay login (el data locked 1, la bandera) */
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--ink) 20%, transparent);
+  border-top-color: var(--accent);
+  animation: spin 1s linear infinite;
+}
+
+/* Lock composer */
 .composer[data-locked="1"] textarea,
 .composer[data-locked="1"] .btn,
-.composer[data-locked="1"] label[for="imgUp"]{
+.composer[data-locked="1"] label[for="imgUp"] {
   pointer-events: none;
   opacity: .55;
   cursor: not-allowed;
 }
-/*footer estilardo jejox*/
+
+/* Footer estilado */
 .site-footer {
   text-align: center;
   padding: 16px;
@@ -134,53 +317,45 @@ body{
   border-top: 1px solid var(--line);
   background: var(--panel);
 }
-.chip{ /*darle estilo al boton de like jejeee*/
-  border:1px solid var(--line);
-  background:transparent;
-  color:var(--muted);
-  padding:6px 12px;
-  border-radius:999px;
-  font-weight:700;
-  cursor:pointer;
-  transition: background .2s ease, color .2s ease, border-color .2s ease;
-}
-.chip:hover{
-  background:#162034;
-  color:var(--ink);
-}
-.chip[disabled]{
-  opacity:.55;
-  cursor:not-allowed;
-}
-@keyframes spin{ to{ transform:rotate(360deg) } }
 
-/* responsivo */
-@media (max-width:560px){
-  .name{ font-size:15px } .subline{ font-size:13px }
+/* Botón chip (like) */
+.chip {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s ease,
+    color .2s ease,
+    border-color .2s ease;
 }
 
-/* ——— Overlay clickeable (override final) ——— */
-.post{ position:relative; }
-.post-overlay{
-  position:absolute; inset:0; display:block;
-  z-index:999; text-indent:-9999px; /* invisible pero clickeable */
+.chip:hover {
+  background: #162034;
+  color: var(--ink);
 }
-.post > *:not(.post-overlay){ position:relative; z-index:0; }  /* el contenido no tapa el overlay */
-.post .chip, .post .actions *{ pointer-events:none; }          /* en el feed, decorativos */
-.post:hover{ cursor:pointer; }
 
-/* --- FORZAR overlay clickeable --- */
-.post { position: relative; }
-.post-overlay{
-  position: absolute;
-  inset: 0;
-  display: block;
-  z-index: 2147483647;   /* bien arriba, incluso con stacking contexts */
-  pointer-events: auto;
-  text-indent: -9999px;  /* invisible pero clickeable */
+.chip[disabled] {
+  opacity: .55;
+  cursor: not-allowed;
 }
-/* nada por encima del overlay dentro de .post */
-.post > *:not(.post-overlay){ position: relative; z-index: 0; }
-/* en el feed, que los botones no “roben” el click */
-.post .actions, .post .chip, .post .actions *{ pointer-events: none; }
-.post:hover{ cursor: pointer; }
+
+/* Animación spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsivo */
+@media (max-width:560px) {
+  .name {
+    font-size: 15px;
+  }
+
+  .subline {
+    font-size: 13px;
+  }
+}
