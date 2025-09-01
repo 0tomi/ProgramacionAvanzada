@@ -29,7 +29,6 @@ function renderPost(post){
   const name = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
   const initial = (post.author?.name || 'U').charAt(0).toUpperCase(); // ← desde el nombre
   const ts = formatDate(post.created_at);
-
   const likeClasses = `chip ${post.viewer?.liked ? "liked" : ""}`;
 
   return `
@@ -67,6 +66,7 @@ function renderPost(post){
   </article>
   `;
 }
+
 
 /* ===== Árbol de comentarios ===== */
 function buildTree(list){
