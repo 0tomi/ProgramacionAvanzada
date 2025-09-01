@@ -1,90 +1,102 @@
 <?php
-require_once 'includes/header.php';
-require_once 'includes/barraLateral.php';
+require_once __DIR__ . '/includes/session_check.php';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Datos simulados de usuario (mockup para front)
 if (!isset($_SESSION["usuario"])) {
     $_SESSION["usuario"] = [
-        "nombre" => "NombreEjemplo",
-        "usuario" => "UsuarioEjemplo",
-        "contrasena" => "123456", // visible/oculto con botón
-        "descripcion" => "Introduce tu descripcion aca...",
-        "imagen" => "uploads/default.png"
+        "nombre"      => "Facundo",
+        "usuario"     => "facuperez",
+        "contrasena"  => "123456",
+        "descripcion" => "¡Hola! Soy nuevo en la red social.",
+        "imagen"      => "imagenes/profilePictures/defaultProfilePicture.png"
     ];
 }
 
 $usuario = $_SESSION["usuario"];
 
-// Procesar cambios si se envía formulario
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (!empty($_POST["descripcion"])) {
-        $usuario["descripcion"] = htmlspecialchars($_POST["descripcion"]);
+    if (isset($_POST["descripcion"])) {
+        $usuario["descripcion"] = htmlspecialchars($_POST["descripcion"], ENT_QUOTES, 'UTF-8');
     }
-
     if (!empty($_FILES["imagen"]["name"])) {
-        $targetDir = "uploads/";
-        if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0777, true);
-        }
-        $targetFile = $targetDir . basename($_FILES["imagen"]["name"]);
+        $targetDir = __DIR__ . "/uploads/";
+        if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
+        $safeName   = preg_replace('/[^a-zA-Z0-9._-]/', '_', $_FILES["imagen"]["name"]);
+        $targetFile = $targetDir . $safeName;
         if (move_uploaded_file($_FILES["imagen"]["tmp_name"], $targetFile)) {
-            $usuario["imagen"] = $targetFile;
+            $usuario["imagen"] = "uploads/" . $safeName;
         }
     }
-
     $_SESSION["usuario"] = $usuario;
+    header("Location: perfil.php?saved=1");
+    exit;
 }
+
+require_once __DIR__ . "/includes/headertw.php";
+require_once __DIR__ . "/includes/nav.php";
+require_once __DIR__ . "/includes/dashboard.php";
 ?>
 
-<main class="flex-grow-1 p-4" style="background:#0f1419; min-height:100vh;">
-  <div class="perfil-container text-center p-4" style="background:#ffffff; border-radius:12px; max-width:500px; margin:auto; border:1px solid #22303c;">
-      <h2 class="mb-3">Perfil del Usuario</h2>
+<main class="min-vh-100 d-flex align-items-center justify-content-center px-4 py-5"
+      style="background:#0f1419;">
+  <div class="w-100" style="max-width: 900px; background:#15202b; border:1px solid #22303c; border-radius:20px; padding:50px; box-shadow:0 8px 24px rgba(0,0,0,0.4);">
 
-      <!-- Imagen de perfil -->
-      <img src="<?= $usuario["imagen"]; ?>" alt="Imagen de perfil" 
-           style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:2px solid #0b0c0eff;">
+    <h1 class="text-center mb-5" style="color:#ffffff; font-size:2.2rem;">Perfil del Usuario</h1>
 
-      <div class="mt-3"><strong>Nombre:</strong> <span><?= $usuario["nombre"]; ?></span></div>
-      <div class="mt-2"><strong>Usuario:</strong> <span><?= $usuario["usuario"]; ?></span></div>
+    <!-- Imagen -->
+    <div class="text-center mb-4">
+      <img src="<?= htmlspecialchars($usuario["imagen"]) ?>" alt="Imagen de perfil"
+           style="width:200px;height:200px;object-fit:cover;border-radius:50%;
+                  border:3px solid #1da1f2;">
+    </div>
 
-      <!-- Contraseña -->
-      <div class="mt-2">
-          <strong>Contraseña:</strong>
-          <span id="contrasena">******</span>
-          <button type="button" class="btn btn-sm btn-primary ms-2" onclick="togglePassword()">Mostrar</button>
+    <!-- Datos -->
+    <div class="mb-5 text-center" style="font-size:1.2rem;">
+      <p style="color:#8899ac;"><strong style="color:#ffffff;">Nombre:</strong> <?= htmlspecialchars($usuario["nombre"]) ?></p>
+      <p style="color:#8899ac;"><strong style="color:#ffffff;">Usuario:</strong> <?= htmlspecialchars($usuario["usuario"]) ?></p>
+      <p style="color:#8899ac;">
+        <strong style="color:#ffffff;">Contraseña:</strong>
+        <span id="contrasena" style="color:#ffffff;">******</span>
+        <button type="button" class="btn btn-lg btn-primary ms-3" onclick="togglePassword()">Mostrar</button>
+      </p>
+    </div>
+
+    <!-- Formulario -->
+    <form method="POST" enctype="multipart/form-data" style="font-size:1.1rem;">
+      <div class="mb-4">
+        <label class="form-label" style="color:#ffffff; font-size:1.1rem;"><strong>Cambiar imagen</strong></label>
+        <input type="file" name="imagen" accept="image/*" class="form-control form-control-lg">
       </div>
 
-      <!-- Formulario -->
-      <form method="POST" enctype="multipart/form-data" class="mt-4 text-start">
-          <label class="form-label"><strong>Cambiar imagen:</strong></label>
-          <input type="file" name="imagen" accept="image/*" class="form-control mb-3">
+      <div class="mb-4">
+        <label class="form-label" style="color:#ffffff; font-size:1.1rem;"><strong>Descripción</strong></label>
+        <textarea name="descripcion" rows="4" class="form-control form-control-lg"
+                  style="background:#0f1419; border:1px solid #22303c; color:#ffffff;"><?= htmlspecialchars($usuario["descripcion"]) ?></textarea>
+      </div>
 
-          <label class="form-label"><strong>Descripción:</strong></label>
-          <textarea name="descripcion" class="form-control mb-3" rows="4"><?= $usuario["descripcion"]; ?></textarea>
+      <button type="submit" class="btn btn-lg w-100"
+              style="background:#17a34a; color:#fff; font-weight:bold; font-size:1.2rem;">Guardar cambios</button>
+    </form>
 
-          <button type="submit" class="btn btn-success w-100">Guardar cambios</button>
-      </form>
+    <?php if (isset($_GET['saved'])): ?>
+      <p class="text-center mt-4" style="color:#1da1f2; font-size:1.1rem;">Cambios guardados correctamente ✅</p>
+    <?php endif; ?>
   </div>
 </main>
 
 <script>
-let visible = false;
-const contrasena = "<?= $usuario['contrasena']; ?>";
-function togglePassword() {
+  let visible = false;
+  const contrasena = "<?= htmlspecialchars($usuario['contrasena'], ENT_QUOTES, 'UTF-8'); ?>";
+  function togglePassword() {
     const span = document.getElementById("contrasena");
     if (visible) {
-        span.textContent = "******";
-        event.target.textContent = "Mostrar";
+      span.textContent = "******";
+      event.target.textContent = "Mostrar";
     } else {
-        span.textContent = contrasena;
-        event.target.textContent = "Ocultar";
+      span.textContent = contrasena;
+      event.target.textContent = "Ocultar";
     }
     visible = !visible;
-}
+  }
 </script>
 
-<?php require_once 'includes/footer.php'; ?>
+<?php require_once __DIR__ . "/includes/footer.php"; ?>
