@@ -7,8 +7,8 @@ $guard  = $isAuth ? '' : 'disabled';
 $guestAvatar = "../imagenes/profilePictures/defaultProfilePicture.png";
 
 // si está logueado usa su foto; si no, avatar por defecto
-$avatarUrl = ($isAuth && !empty($_SESSION['profilePicture']))
-  ? $_SESSION['profilePicture']
+$avatarUrl = ($isAuth && !empty($_SESSION['user_profile_picture']))
+  ? '../'.$_SESSION['user_profile_picture']
   : $guestAvatar;
 
 $lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
@@ -32,7 +32,7 @@ if (is_readable($POSTS_JSON)) {
 </head>
 <body>
   <?php include __DIR__ . '/headerInicio.php'; ?>
-  <?php require('../includes/barraLateral/barraLateral.php'); ?>
+  <?php $preruta = '../'; require('../includes/barraLateral/barraLateral.php'); ?>
 
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
