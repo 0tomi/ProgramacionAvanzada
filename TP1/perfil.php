@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/includes/session_check.php';
-
 if (!isset($_SESSION["usuario"])) {
     $_SESSION["usuario"] = [
         "nombre"      => "Facundo",
@@ -32,8 +30,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 
 require_once __DIR__ . "/includes/headertw.php";
-require_once __DIR__ . "/includes/nav.php";
-require_once __DIR__ . "/includes/dashboard.php";
+require_once __DIR__ . "/includes/barraLateral/barraLateral.php";
+require_once __DIR__ . "/Inicio/headerInicio.php";
 ?>
 
 <main class="min-vh-100 d-flex align-items-center justify-content-center px-4 py-5"
