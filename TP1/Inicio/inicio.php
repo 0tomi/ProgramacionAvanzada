@@ -6,11 +6,6 @@ $guard  = $isAuth ? '' : 'disabled';
 
 $guestAvatar = "../imagenes/profilePictures/defaultProfilePicture.png";
 
-// si está logueado usa su foto; si no, avatar por defecto
-$avatarUrl = ($isAuth && !empty($_SESSION['user_profile_picture']))
-  ? '../'.$_SESSION['user_profile_picture']
-  : $guestAvatar;
-
 $lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
 
 // === FEED: leer posts desde /JSON/POST.json ===
@@ -32,7 +27,7 @@ if (is_readable($POSTS_JSON)) {
 </head>
 <body>
   <?php include __DIR__ . '/headerInicio.php'; ?>
-  <?php $preruta = '../'; require('../includes/barraLateral/barraLateral.php'); ?>
+  <?php $preruta ="../"; require('../includes/barraLateral/barraLateral.php'); ?>
 
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
@@ -43,12 +38,11 @@ if (is_readable($POSTS_JSON)) {
 
       <!-- Composer -->
       <div class="composer" <?=$lockedAttr?> aria-label="Publicar">
-        <img class="avatar" src="<?= htmlspecialchars($avatarUrl) ?>" alt="Tu avatar">
+        <img class="avatar" src="<?= htmlspecialchars($profilePicture) ?>" alt="Tu avatar">
 
         <!-- IMPORTANTE: id, name="text", name="image" -->
         <form id="createPostForm" class="compose" action="javascript:void(0)" method="post" enctype="multipart/form-data" novalidate>
           <textarea name="text" placeholder="<?= $isAuth ? '¿Qué está pasando?' : 'Inicia sesión para postear' ?>" maxlength="280" required <?= $guard ?>></textarea>
-
           <div class="row">
             <input type="file" id="imgUp" name="image" accept="image/*" style="display:none" <?= $guard ?>>
             <label for="imgUp" class="btn ghost" aria-disabled="<?= $isAuth ? 'false' : 'true' ?>" <?= $guard ? 'tabindex="-1"' : '' ?>>Imagen</label>
@@ -67,8 +61,9 @@ if (is_readable($POSTS_JSON)) {
             $id      = (string)($p['id'] ?? '');
             $idEsc   = htmlspecialchars($id);
             $name    = htmlspecialchars($p['author']['name'] ?? 'Anónimo');
-            $handle  = htmlspecialchars($p['author']['handle'] ?? 'anon');
-            $avatarL = strtoupper(substr($p['author']['handle'] ?? 'U', 0, 1));
+            $handle  = (string)($p['author']['handle'] ?? 'anon'); // solo para la inicial del avatar
+            $avatarL = strtoupper(substr($handle ?: 'U', 0, 1));
+
             $tsRaw   = $p['created_at'] ?? '';
             $tsHuman = $tsRaw ? date('d/m/Y H:i', strtotime($tsRaw)) : '';
             $text    = htmlspecialchars($p['text'] ?? '');
@@ -86,8 +81,6 @@ if (is_readable($POSTS_JSON)) {
                 <div class="meta">
                   <div class="name"><?= $name ?></div>
                   <div class="subline">
-                    <span class="handle">@<?= $handle ?></span>
-                    <span class="dot">·</span>
                     <time datetime="<?= htmlspecialchars($tsRaw) ?>"><?= $tsHuman ?></time>
                   </div>
                 </div>
@@ -123,6 +116,7 @@ if (is_readable($POSTS_JSON)) {
   <?php require_once __DIR__ . '/../includes/footer.php'; ?>
 
   <!-- JS separado -->
-  <script src="inicio.js"></script>
+  <script src="inicio.js?v=20250901"></script>
+
 </body>
 </html>

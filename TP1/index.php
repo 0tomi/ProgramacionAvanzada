@@ -40,7 +40,7 @@ if (!empty($_SESSION['username'])) { //si esta logeado que mande al inicio!!!!!!
     </div>
   </nav>
 
-  <?php include 'includes/barraLateral/barraLateral.php'; ?>
+  <?php $preruta =""; include 'includes/barraLateral/barraLateral.php'; ?>
 
   <!-- CONTENIDO CENTRADO -->
   <main class="flex-grow flex items-center justify-center">
