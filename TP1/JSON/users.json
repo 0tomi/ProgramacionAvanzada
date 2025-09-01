@@ -30,5 +30,10 @@
         "id": "u6",
         "username": "tomitomi",
         "password": "$2y$10$yvIeT1LM5m0UyuVijFUv7.LAu0I2g2PgFqzYRCtOVfhQdNrXll2Y2"
+    },
+    {
+        "id": "u7",
+        "username": "daniel",
+        "password": "$2y$10$5O24D7mlg5lGELMWiM9Khea9S.lrWHGSscwnffXPZmNW6RVFvkeQK"
     }
 ]
