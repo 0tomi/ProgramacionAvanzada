@@ -23,6 +23,9 @@ if (!preg_match('#^https?://#', $profilePicture) && $profilePicture[0] !== '/') 
     $profilePicture = $preruta . ltrim($profilePicture, '/');
 }
 
+// Referencias de los otros botones
+$boton_perfil = $preruta.'perfil.php';
+
 // CTA (botón inferior)
 if ($isLoggedIn) {
     $ctaHref = $preruta.'logout.php';

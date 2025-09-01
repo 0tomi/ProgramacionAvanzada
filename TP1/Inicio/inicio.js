@@ -6,6 +6,10 @@ const API_BASE = '../POSTS/api.php';
 document.addEventListener('DOMContentLoaded', () => {
   marcarLikesAlCargar();
   wireEventosClick();
+
+  // Hook del formulario de crear post (sin redirigir)
+  const form = document.getElementById('createPostForm');
+  if (form) form.addEventListener('submit', onCreatePostSubmit);
 });
 
 /** Marca en rojo los posts likeados en esta sesión */
@@ -27,6 +31,9 @@ async function marcarLikesAlCargar() {
 /** Delegación global de clicks para like + overlay */
 function wireEventosClick() {
   document.addEventListener('click', async (e) => {
+    // Evitar que el composer dispare overlay/likes
+    if (e.target.closest('.composer')) return;
+
     // 1) Like en el feed (♥)
     const likeBtn = e.target.closest('.chip.like');
     if (likeBtn) {
@@ -82,8 +89,11 @@ async function manejarLike(likeBtn) {
   }
 }
 
-document.getElementById('createPostForm')?.addEventListener('submit', async (e) => {
+/** Submit del formulario de crear post (sin redirección) */
+async function onCreatePostSubmit(e) {
   e.preventDefault();
+  e.stopPropagation();
+
   const form = e.currentTarget;
   const fd = new FormData(form);
 
@@ -94,7 +104,7 @@ document.getElementById('createPostForm')?.addEventListener('submit', async (e) 
   }
 
   try {
-    const res = await fetch('../POSTS/api.php?action=create', {
+    const res = await fetch(`${API_BASE}?action=create`, {
       method: 'POST',
       body: fd,
       credentials: 'same-origin'
@@ -102,47 +112,53 @@ document.getElementById('createPostForm')?.addEventListener('submit', async (e) 
     const data = await res.json();
     if (!data.ok || !data.item) throw new Error(data.error || 'No se pudo crear el post');
 
-    // 👉 Renderizamos el post en el inicio (sin redirigir)
-    const p = data.item;
-    const id = p.id;
-    const name = p.author?.name || 'Anónimo';
-    const handle = p.author?.handle || 'anon';
-    const avatarL = (handle[0] || 'U').toUpperCase();
-    const tsHuman = new Date(p.created_at).toLocaleString();
-    const media = p.media_url ? `<figure class="media"><img src="${p.media_url}" alt="Imagen del post"></figure>` : "";
+    // Insertar en el feed SIN redirigir
+    insertarPostEnFeed(data.item);
 
-    const html = `
-      <article class="post" data-id="${id}">
-        <a class="post-overlay" href="../POSTS/?id=${encodeURIComponent(id)}" aria-label="Ver post"></a>
-        <header class="post-header">
-          <div class="avatar">${avatarL}</div>
-          <div class="meta">
-            <div class="name">${name}</div>
-            <div class="subline">
-              <span class="handle">@${handle}</span>
-              <span class="dot">·</span>
-              <time datetime="${p.created_at}">${tsHuman}</time>
-            </div>
-          </div>
-        </header>
-        <p class="text">${p.text}</p>
-        ${media}
-        <div class="actions">
-          <button type="button" class="chip like" data-id="${id}">
-            ♥ <span class="count">${p.counts.likes}</span>
-          </button>
-        </div>
-      </article>
-    `;
-
-    // Insertar al principio del feed
-    const feed = document.getElementById('feed');
-    feed.insertAdjacentHTML('afterbegin', html);
-
-    // Resetear form
+    // limpiar form
     form.reset();
-
   } catch (err) {
     alert(String(err.message || err));
   }
-});
+}
+
+/** Inserta el post recién creado al principio del feed (sin @handle) */
+function insertarPostEnFeed(p) {
+  const id = p.id;
+  const name = p.author?.name || 'Anónimo';
+  const avatarL = (name[0] || 'U').toUpperCase(); // inicial desde el nombre
+  const tsHuman = new Date(p.created_at).toLocaleString();
+  const media = p.media_url ? `<figure class="media"><img src="${escapeHtml(p.media_url)}" alt="Imagen del post"></figure>` : "";
+
+  const html = `
+    <article class="post" data-id="${escapeHtml(id)}">
+      <a class="post-overlay" href="../POSTS/?id=${encodeURIComponent(id)}" aria-label="Ver post"></a>
+      <header class="post-header">
+        <div class="avatar">${escapeHtml(avatarL)}</div>
+        <div class="meta">
+          <div class="name">${escapeHtml(name)}</div>
+          <div class="subline">
+            <time datetime="${escapeHtml(p.created_at)}">${escapeHtml(tsHuman)}</time>
+          </div>
+        </div>
+      </header>
+      <p class="text">${escapeHtml(p.text)}</p>
+      ${media}
+      <div class="actions">
+        <button type="button" class="chip like" data-id="${escapeHtml(id)}">
+          ♥ <span class="count">${Number(p.counts?.likes ?? 0)}</span>
+        </button>
+      </div>
+    </article>
+  `;
+
+  const feed = document.getElementById('feed');
+  feed.insertAdjacentHTML('afterbegin', html);
+}
+
+/* Utilidad para evitar inyección de HTML */
+function escapeHtml(s) {
+  return (s ?? '').toString().replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}

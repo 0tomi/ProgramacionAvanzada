@@ -23,6 +23,8 @@ body{
   font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif;
   -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
 }
+.handle { display: none !important; }
+
 
 /* ================== LAYOUT LOCAL ================== */
 .container{ display:block; }
