@@ -58,6 +58,16 @@ try {
     echo json_encode(['ok'=>false,'error'=>'Post no encontrado']); exit;
   }
 
+  // Devolvemos los IDs likeados en esta sesión
+  if (($action ?? '') === 'liked_ids') {
+    session_start();
+    header('Content-Type: application/json; charset=utf-8');
+    $ids = array_values($_SESSION['likes'] ?? []);
+    echo json_encode(['ok' => true, 'ids' => $ids]);
+    exit;
+  }
+
+
   if ($action === 'list') {
     $items = read_posts();
     foreach ($items as &$p) {

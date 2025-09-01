@@ -234,6 +234,20 @@ body {
 .post .actions .chip.like{
   pointer-events: auto !important;
 }
+/* El overlay queda por debajo del botón like */
+.post-overlay{ z-index: 100; }
+.post .chip.like{
+  position: relative;
+  z-index: 200;          /* por encima del overlay */
+  pointer-events: auto;  /* recibe clicks */
+}
+/* Botón like activo */
+.chip.like.liked {
+  border-color: var(--like);          /* el color rosa/rojo que ya definiste en :root */
+  color: #fff;
+  background: color-mix(in srgb, var(--like) 30%, transparent);
+}
+
 
 .meta{ min-width:0 } .name{ font-weight:800; letter-spacing:.2px; line-height:1.2; overflow-wrap:anywhere }
 .subline{ display:flex; align-items:center; gap:6px; margin-top:2px; color:var(--muted); font-weight:600; font-size:13px }
