@@ -26,10 +26,8 @@ function renderPost(post){
   const img = post.media_url
     ? `<figure class="media"><img class="post-image" src="${escapeHtml(post.media_url)}" alt="Imagen del post"></figure>`
     : "";
-  const author = post.author?.handle ? `@${escapeHtml(post.author.handle)}` : '@anon';
   const name = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
   const ts = formatDate(post.created_at);
-
   const likeClasses = `chip ${post.viewer?.liked ? "liked" : ""}`;
 
   return `
@@ -39,8 +37,6 @@ function renderPost(post){
       <div class="meta">
         <div class="name">${name}</div>
         <div class="subline">
-          <span class="handle">${author}</span>
-          <span class="dot">·</span>
           <time>${ts}</time>
         </div>
       </div>
@@ -69,6 +65,7 @@ function renderPost(post){
   </article>
   `;
 }
+
 
 /* ===== Árbol de comentarios ===== */
 function buildTree(list){
