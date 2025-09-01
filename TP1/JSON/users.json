@@ -18,5 +18,15 @@
         "id": "u6",
         "username": "tomitomi",
         "password": "$2y$10$yvIeT1LM5m0UyuVijFUv7.LAu0I2g2PgFqzYRCtOVfhQdNrXll2Y2"
+    },
+    {
+        "id": "u5",
+        "username": "fcytuader",
+        "password": "$2y$10$MUoAvg4NqJgZXE38LlBMuOc7ymN6mPpJ1SOzKPeEnbjeg3nVZ2VE6"
+    },
+    {
+        "id": "u6",
+        "username": "fcytuader.",
+        "password": "$2y$10$fyZlASqDe381cq1pCiBJl.zQygHKqh2n1SbZW1cqWTagUzwvWHAFu"
     }
 ]
