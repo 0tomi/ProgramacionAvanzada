@@ -7,8 +7,8 @@ $guard  = $isAuth ? '' : 'disabled';
 $guestAvatar = "../imagenes/profilePictures/defaultProfilePicture.png";
 
 // si está logueado usa su foto; si no, avatar por defecto
-$avatarUrl = ($isAuth && !empty($_SESSION['profilePicture']))
-  ? $_SESSION['profilePicture']      // (si existe esa key en tu sesión)
+$avatarUrl = ($isAuth && !empty($_SESSION['user_profile_picture']))
+  ? '../'.$_SESSION['user_profile_picture']
   : $guestAvatar;
 
 $lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
@@ -25,14 +25,14 @@ if (is_readable($POSTS_JSON)) {
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>Inicio — Demo sin JS</title>
+  <title>Inicio — Feed</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="inicio.css">
 </head>
 <body>
   <?php include __DIR__ . '/headerInicio.php'; ?>
-  <?php require('../includes/barraLateral/barraLateral.php'); ?>
+  <?php $preruta = '../'; require('../includes/barraLateral/barraLateral.php'); ?>
 
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
@@ -44,10 +44,13 @@ if (is_readable($POSTS_JSON)) {
       <!-- Composer -->
       <div class="composer" <?=$lockedAttr?> aria-label="Publicar">
         <img class="avatar" src="<?= htmlspecialchars($avatarUrl) ?>" alt="Tu avatar">
-        <form class="compose" action="#" method="post" enctype="multipart/form-data" novalidate>
-          <textarea placeholder="<?= $isAuth ? '¿Qué está pasando?' : 'Inicia sesión para postear' ?>" maxlength="280" <?= $guard ?>></textarea>
+
+        <!-- IMPORTANTE: id, name="text", name="image" -->
+        <form id="createPostForm" class="compose" action="javascript:void(0)" method="post" enctype="multipart/form-data" novalidate>
+          <textarea name="text" placeholder="<?= $isAuth ? '¿Qué está pasando?' : 'Inicia sesión para postear' ?>" maxlength="280" required <?= $guard ?>></textarea>
+
           <div class="row">
-            <input type="file" id="imgUp" name="images[]" accept="image/*" style="display:none" <?= $guard ?>>
+            <input type="file" id="imgUp" name="image" accept="image/*" style="display:none" <?= $guard ?>>
             <label for="imgUp" class="btn ghost" aria-disabled="<?= $isAuth ? 'false' : 'true' ?>" <?= $guard ? 'tabindex="-1"' : '' ?>>Imagen</label>
             <button class="btn primary" type="submit" <?= $guard ?>>Publicar</button>
           </div>
@@ -61,7 +64,8 @@ if (is_readable($POSTS_JSON)) {
         <?php else: ?>
           <?php foreach ($posts as $p):
             // defensivo + formato de campos
-            $id      = htmlspecialchars($p['id'] ?? '');
+            $id      = (string)($p['id'] ?? '');
+            $idEsc   = htmlspecialchars($id);
             $name    = htmlspecialchars($p['author']['name'] ?? 'Anónimo');
             $handle  = htmlspecialchars($p['author']['handle'] ?? 'anon');
             $avatarL = strtoupper(substr($p['author']['handle'] ?? 'U', 0, 1));
@@ -71,11 +75,11 @@ if (is_readable($POSTS_JSON)) {
             $likes   = (int)($p['counts']['likes'] ?? 0);
             $media   = trim((string)($p['media_url'] ?? ''));
           ?>
-            <article class="post" data-id="<?= htmlspecialchars($id) ?>">
+            <article class="post" data-id="<?= $idEsc ?>">
               <!-- Capa clickeable que abre el detalle del post -->
-              <a class="post-overlay" 
-                href="../POSTS/?id=<?= urlencode($id) ?>" 
-                aria-label="Ver post"></a>
+              <a class="post-overlay"
+                 href="../POSTS/?id=<?= urlencode($id) ?>"
+                 aria-label="Ver post"></a>
 
               <header class="post-header">
                 <div class="avatar"><?= htmlspecialchars($avatarL) ?></div>
@@ -98,7 +102,9 @@ if (is_readable($POSTS_JSON)) {
               <?php endif; ?>
 
               <div class="actions">
-                <button type="button" class="chip" disabled>
+                <button type="button"
+                        class="chip like"
+                        data-id="<?= $idEsc ?>">
                   ♥ <span class="count"><?= $likes ?></span>
                 </button>
               </div>
@@ -116,30 +122,7 @@ if (is_readable($POSTS_JSON)) {
 
   <?php require_once __DIR__ . '/../includes/footer.php'; ?>
 
-  <!-- CSS mínimo para overlay clickeable (si no está en tu inicio.css) -->
-  <style>
-    .post{ position:relative; }
-    .post-overlay{ position:absolute; inset:0; z-index:1; text-indent:-9999px; }
-    .post *{ position:relative; z-index:2; }
-    .post .chip{ pointer-events:none; } /* en inicio el botón es decorativo */
-  </style>
-
-  <script>
-  // Si por cualquier motivo no navega, forzamos la navegación al href del overlay
-  document.addEventListener('click', function(e){
-    const card = e.target.closest('.post');
-    if(!card) return;
-    const overlay = card.querySelector('.post-overlay');
-    if(!overlay || !overlay.getAttribute('href')) return;
-
-    // Si el click NO provino del overlay pero sí dentro de la card, navegamos igual
-    if (!e.target.closest('.post-overlay')) {
-      window.location.href = overlay.href;
-    }
-  }, { passive: true });
-</script>
-
+  <!-- JS separado -->
+  <script src="inicio.js"></script>
 </body>
 </html>
-
-
