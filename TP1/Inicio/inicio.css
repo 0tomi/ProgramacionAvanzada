@@ -1,8 +1,15 @@
 :root{
-  --bg:#0c0f14; --panel:#0f131a; --panel-2:#0b0f15;
-  --ink:#e8edf5; --muted:#8ea0b5; --line:#1b2431;
-  --accent:#4aa3ff; --like:#ff4d7a; --shadow:0 12px 36px rgb(0 0 0 / .28);
+  --bg: #15202b;        /* fondo general */
+  --panel: #192734;     /* panel principal */
+  --panel-2: #22303c;   /* variación panel */
+  --ink: #ffffff;       /* texto principal */
+  --muted: #8899ac;     /* texto secundario */
+  --line: #22303c;      /* bordes */
+  --accent: #1da1f2;    /* azul twitter para acentos (puede quedar tu #4aa3ff si preferís) */
+  --like: #ff4d7a;      /* me gusta (puede mantenerse igual) */
+  --shadow: 0 12px 36px rgb(0 0 0 / .28);
 }
+
 @media (prefers-color-scheme: light){
   :root{
     --bg:#f6f8fb; --panel:#ffffff; --panel-2:#f9fbff;

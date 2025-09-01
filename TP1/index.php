@@ -7,7 +7,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_method'] ?? '') === 'DELE
     header("Location: index.php");
     exit;
 }
+if (!empty($_SESSION['username'])) { //si esta logeado que mande al inicio!!!!!!
+    header("Location: Inicio/inicio.php");
+    exit;
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-gray-100">
 <head>
