@@ -81,3 +81,68 @@ async function manejarLike(likeBtn) {
     alert(String(err.message || err));
   }
 }
+
+document.getElementById('createPostForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.currentTarget;
+  const fd = new FormData(form);
+
+  const text = (fd.get('text') || '').toString().trim();
+  if (text.length === 0 || text.length > 280) {
+    alert('El texto es requerido (1..280 caracteres).');
+    return;
+  }
+
+  try {
+    const res = await fetch('../POSTS/api.php?action=create', {
+      method: 'POST',
+      body: fd,
+      credentials: 'same-origin'
+    });
+    const data = await res.json();
+    if (!data.ok || !data.item) throw new Error(data.error || 'No se pudo crear el post');
+
+    // 👉 Renderizamos el post en el inicio (sin redirigir)
+    const p = data.item;
+    const id = p.id;
+    const name = p.author?.name || 'Anónimo';
+    const handle = p.author?.handle || 'anon';
+    const avatarL = (handle[0] || 'U').toUpperCase();
+    const tsHuman = new Date(p.created_at).toLocaleString();
+    const media = p.media_url ? `<figure class="media"><img src="${p.media_url}" alt="Imagen del post"></figure>` : "";
+
+    const html = `
+      <article class="post" data-id="${id}">
+        <a class="post-overlay" href="../POSTS/?id=${encodeURIComponent(id)}" aria-label="Ver post"></a>
+        <header class="post-header">
+          <div class="avatar">${avatarL}</div>
+          <div class="meta">
+            <div class="name">${name}</div>
+            <div class="subline">
+              <span class="handle">@${handle}</span>
+              <span class="dot">·</span>
+              <time datetime="${p.created_at}">${tsHuman}</time>
+            </div>
+          </div>
+        </header>
+        <p class="text">${p.text}</p>
+        ${media}
+        <div class="actions">
+          <button type="button" class="chip like" data-id="${id}">
+            ♥ <span class="count">${p.counts.likes}</span>
+          </button>
+        </div>
+      </article>
+    `;
+
+    // Insertar al principio del feed
+    const feed = document.getElementById('feed');
+    feed.insertAdjacentHTML('afterbegin', html);
+
+    // Resetear form
+    form.reset();
+
+  } catch (err) {
+    alert(String(err.message || err));
+  }
+});

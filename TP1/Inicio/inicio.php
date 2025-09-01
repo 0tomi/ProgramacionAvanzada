@@ -44,10 +44,13 @@ if (is_readable($POSTS_JSON)) {
       <!-- Composer -->
       <div class="composer" <?=$lockedAttr?> aria-label="Publicar">
         <img class="avatar" src="<?= htmlspecialchars($avatarUrl) ?>" alt="Tu avatar">
-        <form class="compose" action="#" method="post" enctype="multipart/form-data" novalidate>
-          <textarea placeholder="<?= $isAuth ? '¿Qué está pasando?' : 'Inicia sesión para postear' ?>" maxlength="280" <?= $guard ?>></textarea>
+
+        <!-- IMPORTANTE: id, name="text", name="image" -->
+        <form id="createPostForm" class="compose" action="javascript:void(0)" method="post" enctype="multipart/form-data" novalidate>
+          <textarea name="text" placeholder="<?= $isAuth ? '¿Qué está pasando?' : 'Inicia sesión para postear' ?>" maxlength="280" required <?= $guard ?>></textarea>
+
           <div class="row">
-            <input type="file" id="imgUp" name="images[]" accept="image/*" style="display:none" <?= $guard ?>>
+            <input type="file" id="imgUp" name="image" accept="image/*" style="display:none" <?= $guard ?>>
             <label for="imgUp" class="btn ghost" aria-disabled="<?= $isAuth ? 'false' : 'true' ?>" <?= $guard ? 'tabindex="-1"' : '' ?>>Imagen</label>
             <button class="btn primary" type="submit" <?= $guard ?>>Publicar</button>
           </div>
