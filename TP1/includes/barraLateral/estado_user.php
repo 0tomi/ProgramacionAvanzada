@@ -7,6 +7,11 @@ $userName = $isLoggedIn
     ? $_SESSION['username']
     : 'Invitado'; 
 
+// debug xq no se veian las fotos de perfil
+/*echo "<pre>";
+var_dump($_SESSION['user_profile_picture']);
+echo "<pre>";*/
+
 if ($isLoggedIn)
     $profilePicture = !empty($_SESSION['user_profile_picture']) ?
         $_SESSION['user_profile_picture']
@@ -27,7 +32,7 @@ if ($isLoggedIn) {
     $ctaText = 'Iniciar sesión';
 }
 
-// Sanitizar salidas
+// Sanitizar salidas ????????????????
 $userNameSafe      = htmlspecialchars($userName ?? '', ENT_QUOTES, 'UTF-8');
 $profilePictureSafe = htmlspecialchars($profilePicture ?? '', ENT_QUOTES, 'UTF-8');
 $ctaHrefSafe       = htmlspecialchars($ctaHref ?? '#', ENT_QUOTES, 'UTF-8');
