@@ -5,8 +5,8 @@
   --ink: #ffffff;       /* texto principal */
   --muted: #8899ac;     /* texto secundario */
   --line: #22303c;      /* bordes */
-  --accent: #1da1f2;    /* azul twitter para acentos (puede quedar tu #4aa3ff si preferís) */
-  --like: #ff4d7a;      /* me gusta (puede mantenerse igual) */
+  --accent: #1da1f2;    
+  --like: #ff4d7a;      
   --shadow: 0 12px 36px rgb(0 0 0 / .28);
 }
 
@@ -100,6 +100,15 @@ body{
 .post .chip{
   pointer-events: none;
 }
+.post .actions{
+  position: relative;
+  z-index: 214748364;   
+}
+
+.post .actions .chip.like{
+  pointer-events: auto !important;
+}
+
 .meta{ min-width:0 } .name{ font-weight:800; letter-spacing:.2px; line-height:1.2; overflow-wrap:anywhere }
 .subline{ display:flex; align-items:center; gap:6px; margin-top:2px; color:var(--muted); font-weight:600; font-size:13px }
 .subline .dot{ color:var(--muted) }
@@ -184,3 +193,4 @@ body{
 /* en el feed, que los botones no “roben” el click */
 .post .actions, .post .chip, .post .actions *{ pointer-events: none; }
 .post:hover{ cursor: pointer; }
+

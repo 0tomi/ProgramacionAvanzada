@@ -98,8 +98,8 @@ if (is_readable($POSTS_JSON)) {
               <?php endif; ?>
 
               <div class="actions">
-                <button type="button" class="chip" disabled>
-                  ♥ <span class="count"><?= $likes ?></span>
+                <button type="button" class="chip like" <?= $guard ?> data-post-id="<?= htmlspecialchars($id) ?>">
+                ♥ <span class="count"><?= $likes ?></span>
                 </button>
               </div>
             </article>
@@ -127,6 +127,14 @@ if (is_readable($POSTS_JSON)) {
   <script>
   // Si por cualquier motivo no navega, forzamos la navegación al href del overlay
   document.addEventListener('click', function(e){
+   const likeBtn = e.target.closest('.chip.like');
+  if (likeBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    // hacer q funcione el like con el api de petti
+
+    return;
+  }
     const card = e.target.closest('.post');
     if(!card) return;
     const overlay = card.querySelector('.post-overlay');
