@@ -9,7 +9,9 @@ $usuarios = leerUsuarios();
 foreach ($usuarios as $user) {
     if ($user['username'] === $username && password_verify($password, $user['password'])) {
         session_start();
+        $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $username;
+        $_SESSION['user_profile_picture'] = $user['user_profile_picture'];
         header("Location: Inicio/inicio.php");
         exit;
     }

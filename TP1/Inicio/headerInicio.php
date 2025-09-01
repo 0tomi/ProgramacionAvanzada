@@ -1,9 +1,6 @@
 <?php
 // arrancar la "sesión" (solo si no está iniciada)
-if (session_status() === PHP_SESSION_NONE) {
-  session_start();
-}
-$isAuth = isset($_SESSION['username']) && $_SESSION['username'] !== '';//si hay nombre es pq hay login!!
+$isAuth = (isset($_SESSION['username']) && $_SESSION['username'] !== '');//si hay nombre es pq hay login!!
 ?>
 <header class="flex items-center justify-between px-6 py-4 border-b border-[color:var(--line)] bg-[color:var(--panel)]">
   <?php if ($isAuth): ?>

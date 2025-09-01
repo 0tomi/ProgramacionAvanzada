@@ -68,22 +68,15 @@ body{
   background:linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
   border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);
   transition:transform .06s ease, border-color .2s ease, box-shadow .2s ease;
-  position: relative; /*con esto los hijos como post overlay van a ocupar solo el largo y ancho del contenedor, en este caso el post*/
+  position: relative; /* overlay se posiciona respecto de esto */
 }
-
-.post:hover{ transform:translateY(-1px); border-color:color-mix(in srgb, var(--line) 60%, var(--accent) 30%) }
+.post:hover{
+  transform:translateY(-1px);
+  border-color:color-mix(in srgb, var(--line) 60%, var(--accent) 30%);
+  cursor: pointer; /* feedback de clic */
+}
 .post-header{ display:flex; align-items:center; gap:12px; padding:14px 16px 0 }
-.post-overlay{/*post clickeable jejeeeee*/
-  position: absolute; /*el overlay se ajusta en las coordenadas de la clase*/
-  inset: 0;/*ocupa todo el largo y ancho del post*/
-  z-index:1;
-}
-.post .actions,
-.post .button,
-.post .actions a{
-  position: relative;
-  z-index:2;
-}
+
 .meta{ min-width:0 } .name{ font-weight:800; letter-spacing:.2px; line-height:1.2; overflow-wrap:anywhere }
 .subline{ display:flex; align-items:center; gap:6px; margin-top:2px; color:var(--muted); font-weight:600; font-size:13px }
 .subline .dot{ color:var(--muted) }
@@ -101,7 +94,7 @@ body{
   border:2px solid color-mix(in srgb, var(--ink) 20%, transparent);
   border-top-color:var(--accent); animation:spin 1s linear infinite;
 }
-/* aca aseguramos de que se bloquee el composer x si no hay login (el data locked 1, la bandera) */
+/* bloquea el composer si no hay login */
 .composer[data-locked="1"] textarea,
 .composer[data-locked="1"] .btn,
 .composer[data-locked="1"] label[for="imgUp"]{
@@ -109,7 +102,7 @@ body{
   opacity: .55;
   cursor: not-allowed;
 }
-/*footer estilardo jejox*/
+/* footer */
 .site-footer {
   text-align: center;
   padding: 16px;
@@ -118,7 +111,7 @@ body{
   border-top: 1px solid var(--line);
   background: var(--panel);
 }
-.chip{ /*darle estilo al boton de like jejeee*/
+.chip{
   border:1px solid var(--line);
   background:transparent;
   color:var(--muted);
@@ -128,17 +121,62 @@ body{
   cursor:pointer;
   transition: background .2s ease, color .2s ease, border-color .2s ease;
 }
-.chip:hover{
-  background:#162034;
-  color:var(--ink);
-}
-.chip[disabled]{
-  opacity:.55;
-  cursor:not-allowed;
-}
+.chip:hover{ background:#162034; color:var(--ink); }
+.chip[disabled]{ opacity:.55; cursor:not-allowed; }
 @keyframes spin{ to{ transform:rotate(360deg) } }
 
 /* responsivo */
 @media (max-width:560px){
   .name{ font-size:15px } .subline{ font-size:13px }
+}
+
+/* ====== OVERRIDES FINALES ====== */
+
+/* Overlay clickeable en toda la tarjeta */
+.post { position: relative; }
+.post-overlay {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 100;          /* por encima del contenido */
+  text-indent: -9999px;  /* invisible */
+  pointer-events: auto;
+}
+/* El contenido no debe tapar el overlay */
+.post > *:not(.post-overlay) { position: relative; z-index: 0; }
+
+/* Botón like por encima del overlay, para que reciba click */
+.post .chip.like {
+  position: relative;
+  z-index: 200;
+  pointer-events: auto;
+}
+
+/* Estado visual de like activo (rojo) */
+.chip.like.liked{
+  border-color: var(--like);
+  color: #fff;
+  background: color-mix(in srgb, var(--like) 30%, transparent);
+}
+
+/* Overlay ocupa todo el post, PERO queda por debajo de los botones de acción */
+.post { position: relative; }
+
+.post-overlay {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 50;            /* más bajo que el botón like */
+  text-indent: -9999px;   /* invisible */
+  pointer-events: auto;   /* clickeable en general */
+}
+
+/* El contenido normal se dibuja encima del overlay */
+.post > *:not(.post-overlay) { position: relative; z-index: 100; }
+
+/* Botón like SIEMPRE por encima del overlay */
+.post .chip.like {
+  position: relative;
+  z-index: 200;    /* más alto que overlay */
+  pointer-events: auto; /* debe recibir clicks */
 }

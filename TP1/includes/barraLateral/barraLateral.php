@@ -26,9 +26,10 @@
     </button>
   </div>
 
+  <!-- Vista al perfil -->
   <div class="p-4 text-center border-b border-slate-700">
-    <img src="<?= $profilePictureSafe ?>" alt="Usuario" class="w-20 h-20 rounded-full mx-auto mb-2">
-    <div class="font-semibold"><?= $userNameSafe ?></div>
+    <img src="<?= $profilePicture ?>" alt="Usuario" class="w-20 h-20 rounded-full mx-auto mb-2">
+    <div class="font-semibold"><?= $userName ?></div>
   </div>
 
   <nav class="flex-1 p-4 space-y-2">
