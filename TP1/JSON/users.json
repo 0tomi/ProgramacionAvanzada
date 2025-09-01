@@ -1,5 +1,15 @@
 [
     {
+        "id": "u1",
+        "username": "Valentino Pettinato",
+        "password": "123456"
+    },
+    {
+        "id": "u2",
+        "username": "tomi",
+        "password": "abcdef"
+    },
+    {
         "id": "u3",
         "username": "marianocaminos",
         "password": "$2y$10$0XTvbvTwdM8rsHHfZlm\/POLnItc.VYO\/hvU6Nd2Zw4fGQDhJpilj.",
