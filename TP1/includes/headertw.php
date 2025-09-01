@@ -8,6 +8,6 @@
     <title>Demo</title>
 </head>
 
-<body class="min-h-screen bg-gradient-to-b from-slate-800 via-slate-700 to-slate-600 drop-shadow-xl font-semibold">
+<body class="min-h-screen bg-[#15202b]">
 
     <div class="min-h-full">

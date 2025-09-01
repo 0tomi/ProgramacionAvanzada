@@ -37,3 +37,9 @@ $year = date('Y');
     </div>
   </div>
 </footer>
+
+</div>
+
+</body>
+
+</html>
