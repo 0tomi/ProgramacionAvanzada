@@ -22,6 +22,7 @@ body{
   font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif;
   -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
 }
+.handle { display: none !important; }
 
 /* Layout */
 .shell{ display:grid; grid-template-columns:1fr min(760px,100%) 1fr; }

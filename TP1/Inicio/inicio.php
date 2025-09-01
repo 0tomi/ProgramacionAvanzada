@@ -119,6 +119,7 @@ if (is_readable($POSTS_JSON)) {
   <?php require_once __DIR__ . '/../includes/footer.php'; ?>
 
   <!-- JS separado -->
-  <script src="inicio.js"></script>
+  <script src="inicio.js?v=20250901"></script>
+
 </body>
 </html>
