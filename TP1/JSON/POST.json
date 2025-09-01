@@ -1,5 +1,21 @@
 [
     {
+        "id": "1756697601684987",
+        "author": {
+            "id": "u1",
+            "handle": "petti",
+            "name": "Anónimo"
+        },
+        "text": "GOD",
+        "media_url": "uploads/1756697601972988.jpg",
+        "counts": {
+            "likes": 0,
+            "replies": 0
+        },
+        "replies": [],
+        "created_at": "2025-09-01T03:33:21+00:00"
+    },
+    {
         "id": "197041291234567000",
         "author": {
             "id": "u1",
@@ -9,11 +25,10 @@
         "text": "Hola, soy Valen y este es mi post 👋",
         "media_url": "",
         "counts": {
-            "likes": 1,
+            "likes": 2,
             "replies": 0
         },
-        "replies": [
-        ],
+        "replies": [],
         "created_at": "2025-08-28T14:20:00Z"
     },
     {
@@ -26,7 +41,7 @@
         "text": "Post de Tomás con imagen",
         "media_url": "uploads/gato.jpg",
         "counts": {
-            "likes": 0,
+            "likes": 1,
             "replies": 0
         },
         "replies": [],
