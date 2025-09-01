@@ -2,21 +2,37 @@
     {
         "id": "u3",
         "username": "marianocaminos",
-        "password": "$2y$10$0XTvbvTwdM8rsHHfZlm\/POLnItc.VYO\/hvU6Nd2Zw4fGQDhJpilj."
+        "password": "$2y$10$0XTvbvTwdM8rsHHfZlm\/POLnItc.VYO\/hvU6Nd2Zw4fGQDhJpilj.",
+        "user_profile_picture":""
     },
     {
         "id": "u4",
         "username": "MarianoCaminos",
-        "password": "$2y$10$qVzyj\/DghrJi5sSHxuGGqO.YJzYYk5HtlfCeOEvlXp5nNR902ZRg."
+        "password": "$2y$10$qVzyj\/DghrJi5sSHxuGGqO.YJzYYk5HtlfCeOEvlXp5nNR902ZRg.",
+        "user_profile_picture":""
     },
     {
         "id": "u5",
         "username": "chinoo_vg",
-        "password": "$2y$10$XpSJS2.D53nbbdkNII9HOeP0RmdIaoTiCK.Ze84lpEXeLdcHbzGFK"
+        "password": "$2y$10$XpSJS2.D53nbbdkNII9HOeP0RmdIaoTiCK.Ze84lpEXeLdcHbzGFK",
+        "user_profile_picture":""
     },
     {
         "id": "u6",
         "username": "tomitomi",
-        "password": "$2y$10$yvIeT1LM5m0UyuVijFUv7.LAu0I2g2PgFqzYRCtOVfhQdNrXll2Y2"
+        "password": "$2y$10$yvIeT1LM5m0UyuVijFUv7.LAu0I2g2PgFqzYRCtOVfhQdNrXll2Y2",
+        "user_profile_picture":""
+    },
+    {
+        "id": "u5",
+        "username": "fcytuader",
+        "password": "$2y$10$MUoAvg4NqJgZXE38LlBMuOc7ymN6mPpJ1SOzKPeEnbjeg3nVZ2VE6",
+        "user_profile_picture":"imagenes/profilePictures/uader.png"
+    },
+    {
+        "id": "u6",
+        "username": "fcytuader.",
+        "password": "$2y$10$fyZlASqDe381cq1pCiBJl.zQygHKqh2n1SbZW1cqWTagUzwvWHAFu",
+        "user_profile_picture":"imagenes/profilePictures/uader.png"
     }
 ]

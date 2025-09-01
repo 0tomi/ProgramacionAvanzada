@@ -7,9 +7,11 @@ $guard  = $isAuth ? '' : 'disabled';
 $guestAvatar = "../imagenes/profilePictures/defaultProfilePicture.png";
 
 // si está logueado usa su foto; si no, avatar por defecto
-$avatarUrl = ($isAuth && !empty($_SESSION['profilePicture']))
-  ? $_SESSION['profilePicture']
-  : $guestAvatar;
+if ($isLoggedIn)
+    $profilePicture = !empty($_SESSION['user_profile_picture']) ?
+        $_SESSION['user_profile_picture']
+        : '../imagenes/profilePictures/user.png';
+else $profilePicture = '../imagenes/profilePictures/defaultProfilePicture.png';
 
 $lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
 
@@ -43,8 +45,10 @@ if (is_readable($POSTS_JSON)) {
 
       <!-- Composer -->
       <div class="composer" <?=$lockedAttr?> aria-label="Publicar">
-        <img class="avatar" src="<?= htmlspecialchars($avatarUrl) ?>" alt="Tu avatar">
-        <form id="createPostForm" class="compose" action="javascript:void(0)" method="post" enctype="multipart/form-data" onsubmit="return false;" novalidate>
+        <img class="avatar" src="<?= htmlspecialchars($profilePicture) ?>" alt="Tu avatar">
+
+        <!-- IMPORTANTE: id, name="text", name="image" -->
+        <form id="createPostForm" class="compose" action="javascript:void(0)" method="post" enctype="multipart/form-data" novalidate>
           <textarea name="text" placeholder="<?= $isAuth ? '¿Qué está pasando?' : 'Inicia sesión para postear' ?>" maxlength="280" required <?= $guard ?>></textarea>
           <div class="row">
             <input type="file" id="imgUp" name="image" accept="image/*" style="display:none" <?= $guard ?>>
