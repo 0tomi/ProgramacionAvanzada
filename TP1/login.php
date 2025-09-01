@@ -2,24 +2,28 @@
 
 
 <nav class="bg-[#192734] drop-shadow-xl w-full h-24">
-    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-        <!-- Texto de saludo -->
-        <h1 class="text-3xl font-bold tracking-tight text-[#ffffff]"> Hola!!</h1>
+  <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex items-center relative">
+      
+      <!-- Texto de saludo -->
+      <div class="absolute mt-2 left-1/2 transform -translate-x-1/2">
+          <h1 class="text-3xl font-bold tracking-tight text-[#ffffff]">Ritual</h1>
+      </div>
 
-        <!-- Botón Ir a Inicio -->
-        <div class="flex justify-end">
-            <a href="index.php" 
-               class="rounded bg-[#8899ac] px-5 py-2 text-[#15202b] font-semibold shadow 
-                      hover:bg-[#ffffff] hover:text-[#15202b] hover:scale-105 transition-transform">
-                Volver
-            </a>
-        </div>
-    </div>
+      <!-- Botón ir a inicio -->
+      <div class="ml-auto mt-2">
+          <a href="index.php" 
+             class="rounded bg-[#8899ac] px-5 py-2 text-[#15202b] font-semibold shadow 
+                    hover:bg-[#ffffff] hover:text-[#15202b] hover:scale-105 transition-transform">
+              Volver
+          </a>
+      </div>
+  </div>
 </nav>
 
 <script src="js/validations.js"></script>
-<main class="bg-[#15202b] min-h-screen">
-    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+
+<main class="flex flex-grow items-center justify-center bg-gradient-to-b from-[#192734] via-[#22303c] to-[#15202b]">
+    <div class="flex flex-col justify-center text-center w-full max-w-md px-6 py-12 lg:px-8 mb-32 mt-20">
 
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
             <img class="mx-auto h-10 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg" alt="Your Company" />
