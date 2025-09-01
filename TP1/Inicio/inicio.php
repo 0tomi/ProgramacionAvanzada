@@ -6,13 +6,6 @@ $guard  = $isAuth ? '' : 'disabled';
 
 $guestAvatar = "../imagenes/profilePictures/defaultProfilePicture.png";
 
-// si está logueado usa su foto; si no, avatar por defecto
-if ($isLoggedIn)
-    $profilePicture = !empty($_SESSION['user_profile_picture']) ?
-        $_SESSION['user_profile_picture']
-        : '../imagenes/profilePictures/user.png';
-else $profilePicture = '../imagenes/profilePictures/defaultProfilePicture.png';
-
 $lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
 
 // === FEED: leer posts desde /JSON/POST.json ===
