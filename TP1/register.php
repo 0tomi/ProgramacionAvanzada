@@ -1,16 +1,22 @@
 <?php require("includes/headertw.php") ?>
 
+<?php
+// Capturar mensajes de error o éxito
+$error   = isset($_GET['error']) ? $_GET['error'] : null;
+$success = isset($_GET['success']) ? $_GET['success'] : null;
+?>
+
 <nav class="bg-[#192734] drop-shadow-xl w-full h-24">
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
         <!-- Texto de saludo -->
-        <h1 class="text-3xl font-bold tracking-tight text-[#ffffff]"> Hello, Guest</h1>
+        <h1 class="text-3xl font-bold tracking-tight text-[#ffffff]"> Hola!!</h1>
 
         <!-- Botón Ir a Inicio -->
         <div class="flex justify-end">
             <a href="index.php" 
                class="rounded bg-[#8899ac] px-5 py-2 text-[#15202b] font-semibold shadow 
                       hover:bg-[#ffffff] hover:text-[#15202b] hover:scale-105 transition-transform">
-                Go to home
+                Volver
             </a>
         </div>
     </div>
@@ -19,52 +25,62 @@
 <script src="js/validations.js"></script>
 <main class="bg-[#15202b] min-h-screen">
     <div class="flex min-h-full px-6 py-12 lg:px-8">
+
         <!-- Formulario lado izquierdo -->
         <div class="flex flex-col justify-center sm:mx-auto sm:w-full sm:max-w-sm w-full lg:w-1/2">
+
             <img class="mx-auto h-10 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg" alt="Your Company" />
-            <h2 class="mt-10 text-left text-2xl/9 font-bold tracking-tight text-[#ffffff]">Register!!</h2>
+            <h2 class="mt-10 text-left text-2xl/9 font-bold tracking-tight text-[#ffffff]">Registrarse!!</h2>
+
+            <!-- Mostrar mensajes -->
+            <?php if ($error): ?>
+                <p class="mt-4 p-3 rounded bg-red-500 text-white font-semibold text-center shadow-lg">
+                    <?= htmlspecialchars($error) ?>
+                </p>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
+                <p class="mt-4 p-3 rounded bg-green-500 text-white font-semibold text-center shadow-lg">
+                    <?= htmlspecialchars($success) ?>
+                </p>
+            <?php endif; ?>
 
             <div class="mt-10 bg-[#192734] p-6 rounded-lg shadow-lg">
                 <form class="space-y-6" action="procesoRegister.php" id="registerForm" method="POST">
                     <div>
-                        <label for="username" class="block text-sm/6 font-medium text-[#ffffff]">Username</label>
+                        <label for="username" class="block text-sm/6 font-medium text-[#ffffff]">Usuario</label>
                         <div class="mt-2">
                             <input type="text" name="username" id="username" autocomplete="username" required 
                                 class="block w-full rounded-md bg-[#22303c] px-3 py-1.5 text-base text-[#ffffff] 
                                        outline-none placeholder:text-[#8899ac] 
                                        focus:ring-2 focus:ring-[#8899ac] sm:text-sm/6" />
-                            <?php if (isset($errors['username'])) : ?>
-                                <p class="mt-4 ml-5 font-semibold text-sm text-red-500"> <?= $errors['username'] ?> </p>
-                            <?php endif ?>
                         </div>
                     </div>
+
                     <div>
-                        <div class="flex items-center justify-between">
-                            <label for="password" class="block text-sm/6 font-medium text-[#ffffff]">Password</label>
-                        </div>
+                        <label for="password" class="block text-sm/6 font-medium text-[#ffffff]">Contraseña</label>
                         <div class="mt-2">
                             <input type="password" name="password" id="password" autocomplete="current-password" required 
                                 class="block w-full rounded-md bg-[#22303c] px-3 py-1.5 text-base text-[#ffffff] 
                                        outline-none placeholder:text-[#8899ac] 
                                        focus:ring-2 focus:ring-[#8899ac] sm:text-sm/6" />
                         </div>
-                        <?php if (isset($errors['password'])) : ?>
-                            <p class="mt-4 ml-5 font-semibold text-sm text-red-500"> <?= $errors['password'] ?> </p>
-                        <?php endif ?>
                     </div>
+
                     <div>
                         <button type="submit" 
                             class="flex w-full justify-center rounded-md bg-[#8899ac] px-3 py-1.5 
                                    font-semibold text-[#15202b] shadow-lg hover:bg-[#ffffff] 
                                    hover:text-[#15202b] hover:scale-105 transition-transform">
-                            Register
+                            Registrarse
                         </button>
                     </div>
+
                     <div class="mt-8 flex justify-center">
                         <a href="login.php" 
                            class="rounded bg-[#8899ac] px-5 py-2 text-[#15202b] font-semibold shadow 
                                   hover:bg-[#ffffff] hover:text-[#15202b] hover:scale-105 transition-transform">
-                            Go to Log In
+                            Iniciar Sesión
                         </a>
                     </div>
                 </form>

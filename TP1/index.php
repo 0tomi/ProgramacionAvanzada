@@ -34,7 +34,7 @@ if (!empty($_SESSION['username'])) { //si esta logeado que mande al inicio!!!!!!
 
         <!-- Texto usuario -->
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 class="text-3xl font-bold tracking-tight text-[#ffffff]"> Hello, Guest</h1>
+          <h1 class="text-3xl font-bold tracking-tight text-[#ffffff]"> Hola!!</h1>
         </div>
       </div>
     </div>

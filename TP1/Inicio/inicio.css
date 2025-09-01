@@ -1,15 +1,8 @@
 :root{
-  --bg: #15202b;        /* fondo general */
-  --panel: #192734;     /* panel principal */
-  --panel-2: #22303c;   /* variación panel */
-  --ink: #ffffff;       /* texto principal */
-  --muted: #8899ac;     /* texto secundario */
-  --line: #22303c;      /* bordes */
-  --accent: #1da1f2;    /* azul twitter para acentos (puede quedar tu #4aa3ff si preferís) */
-  --like: #ff4d7a;      /* me gusta (puede mantenerse igual) */
-  --shadow: 0 12px 36px rgb(0 0 0 / .28);
+  --bg:#0c0f14; --panel:#0f131a; --panel-2:#0b0f15;
+  --ink:#e8edf5; --muted:#8ea0b5; --line:#1b2431;
+  --accent:#4aa3ff; --like:#ff4d7a; --shadow:0 12px 36px rgb(0 0 0 / .28);
 }
-
 @media (prefers-color-scheme: light){
   :root{
     --bg:#f6f8fb; --panel:#ffffff; --panel-2:#f9fbff;
@@ -77,29 +70,13 @@ body{
   transition:transform .06s ease, border-color .2s ease, box-shadow .2s ease;
   position: relative; /* overlay se posiciona respecto de esto */
 }
-
 .post:hover{
   transform:translateY(-1px);
   border-color:color-mix(in srgb, var(--line) 60%, var(--accent) 30%);
   cursor: pointer; /* feedback de clic */
 }
 .post-header{ display:flex; align-items:center; gap:12px; padding:14px 16px 0 }
-.post-overlay{
-  position: absolute;
-  inset: 0;               /* top/right/bottom/left = 0 */
-  display: block;
-  text-indent: -9999px;
-  z-index: 100;           /* por ENCIMA de todo el contenido */
-  /* si querés ocultar texto dentro del <a>, podrías usar text-indent: -9999px; */
-}
-.post > *:not(.post-overlay){ position:relative; z-index:0; }
 
-.post .actions,
-.post .button,
-.post .actions a,
-.post .chip{
-  pointer-events: none;
-}
 .meta{ min-width:0 } .name{ font-weight:800; letter-spacing:.2px; line-height:1.2; overflow-wrap:anywhere }
 .subline{ display:flex; align-items:center; gap:6px; margin-top:2px; color:var(--muted); font-weight:600; font-size:13px }
 .subline .dot{ color:var(--muted) }
@@ -117,7 +94,7 @@ body{
   border:2px solid color-mix(in srgb, var(--ink) 20%, transparent);
   border-top-color:var(--accent); animation:spin 1s linear infinite;
 }
-/* aca aseguramos de que se bloquee el composer x si no hay login (el data locked 1, la bandera) */
+/* bloquea el composer si no hay login */
 .composer[data-locked="1"] textarea,
 .composer[data-locked="1"] .btn,
 .composer[data-locked="1"] label[for="imgUp"]{
@@ -125,7 +102,7 @@ body{
   opacity: .55;
   cursor: not-allowed;
 }
-/*footer estilardo jejox*/
+/* footer */
 .site-footer {
   text-align: center;
   padding: 16px;
@@ -134,7 +111,7 @@ body{
   border-top: 1px solid var(--line);
   background: var(--panel);
 }
-.chip{ /*darle estilo al boton de like jejeee*/
+.chip{
   border:1px solid var(--line);
   background:transparent;
   color:var(--muted);
@@ -144,14 +121,8 @@ body{
   cursor:pointer;
   transition: background .2s ease, color .2s ease, border-color .2s ease;
 }
-.chip:hover{
-  background:#162034;
-  color:var(--ink);
-}
-.chip[disabled]{
-  opacity:.55;
-  cursor:not-allowed;
-}
+.chip:hover{ background:#162034; color:var(--ink); }
+.chip[disabled]{ opacity:.55; cursor:not-allowed; }
 @keyframes spin{ to{ transform:rotate(360deg) } }
 
 /* responsivo */
@@ -159,28 +130,53 @@ body{
   .name{ font-size:15px } .subline{ font-size:13px }
 }
 
-/* ——— Overlay clickeable (override final) ——— */
-.post{ position:relative; }
-.post-overlay{
-  position:absolute; inset:0; display:block;
-  z-index:999; text-indent:-9999px; /* invisible pero clickeable */
-}
-.post > *:not(.post-overlay){ position:relative; z-index:0; }  /* el contenido no tapa el overlay */
-.post .chip, .post .actions *{ pointer-events:none; }          /* en el feed, decorativos */
-.post:hover{ cursor:pointer; }
+/* ====== OVERRIDES FINALES ====== */
 
-/* --- FORZAR overlay clickeable --- */
+/* Overlay clickeable en toda la tarjeta */
 .post { position: relative; }
-.post-overlay{
+.post-overlay {
   position: absolute;
   inset: 0;
   display: block;
-  z-index: 2147483647;   /* bien arriba, incluso con stacking contexts */
+  z-index: 100;          /* por encima del contenido */
+  text-indent: -9999px;  /* invisible */
   pointer-events: auto;
-  text-indent: -9999px;  /* invisible pero clickeable */
 }
-/* nada por encima del overlay dentro de .post */
-.post > *:not(.post-overlay){ position: relative; z-index: 0; }
-/* en el feed, que los botones no “roben” el click */
-.post .actions, .post .chip, .post .actions *{ pointer-events: none; }
-.post:hover{ cursor: pointer; }
+/* El contenido no debe tapar el overlay */
+.post > *:not(.post-overlay) { position: relative; z-index: 0; }
+
+/* Botón like por encima del overlay, para que reciba click */
+.post .chip.like {
+  position: relative;
+  z-index: 200;
+  pointer-events: auto;
+}
+
+/* Estado visual de like activo (rojo) */
+.chip.like.liked{
+  border-color: var(--like);
+  color: #fff;
+  background: color-mix(in srgb, var(--like) 30%, transparent);
+}
+
+/* Overlay ocupa todo el post, PERO queda por debajo de los botones de acción */
+.post { position: relative; }
+
+.post-overlay {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 50;            /* más bajo que el botón like */
+  text-indent: -9999px;   /* invisible */
+  pointer-events: auto;   /* clickeable en general */
+}
+
+/* El contenido normal se dibuja encima del overlay */
+.post > *:not(.post-overlay) { position: relative; z-index: 100; }
+
+/* Botón like SIEMPRE por encima del overlay */
+.post .chip.like {
+  position: relative;
+  z-index: 200;    /* más alto que overlay */
+  pointer-events: auto; /* debe recibir clicks */
+}
