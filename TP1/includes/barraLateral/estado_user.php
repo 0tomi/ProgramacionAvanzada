@@ -25,6 +25,7 @@ if (!preg_match('#^https?://#', $profilePicture) && $profilePicture[0] !== '/') 
 
 // Referencias de los otros botones
 $boton_perfil = $preruta.'perfil.php';
+$boton_inicio = $preruta.'index.php';
 
 // CTA (botón inferior)
 if ($isLoggedIn) {
