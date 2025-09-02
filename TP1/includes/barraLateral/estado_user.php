@@ -15,8 +15,8 @@ echo "<pre>";*/
 if ($isLoggedIn)
     $profilePicture = !empty($_SESSION['user_profile_picture']) ?
         $_SESSION['user_profile_picture']
-        : '../imagenes/profilePictures/user.png';
-else $profilePicture = '../imagenes/profilePictures/defaultProfilePicture.png';
+        : 'imagenes/profilePictures/user.png';
+else $profilePicture = 'imagenes/profilePictures/defaultProfilePicture.png';
 
 // Asegurar que la ruta funcione desde subdirectorios
 if (!preg_match('#^https?://#', $profilePicture) && $profilePicture[0] !== '/') {
