@@ -19,7 +19,8 @@ $usuarios[] = [
     "id" => "u" . (count($usuarios) + 1),
     "username" => $username,
     "password" => password_hash($password, PASSWORD_DEFAULT),
-    "user_profile_picture" => ""    // Sin foto de perfil x default
+    "user_profile_picture" => "",    // Sin foto de perfil x default,
+    "description" => ""
 ];
 
 guardarUsuarios($usuarios);
