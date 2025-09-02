@@ -1,12 +1,13 @@
 <?php // /POSTS/index.php ?>
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <title>Detalle del Post</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
+<?php $source = 'Post'; $require_boostrap = false; $preruta = '../'; 
+  require_once __DIR__.'/../includes/header.php'; 
+?>
+
 <body>
+  <?php $preruta = '../'; 
+    require_once __DIR__ . '/../includes/autentificacion.php'; 
+    require_once __DIR__ . '/../includes/barraLateral/barraLateral.php';
+    ?>
   <main class="container">
     <section id="feed"></section> <!-- aquí se inyecta el post individual -->
   </main>

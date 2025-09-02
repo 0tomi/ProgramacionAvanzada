@@ -1,4 +1,26 @@
-<?php require_once __DIR__ . '/estado_user.php'; ?>
+<?php 
+// debug xq no se veian las fotos de perfil
+/*echo "<pre>";
+var_dump($_SESSION['user_profile_picture']);
+echo "<pre>";*/
+
+// Referencias de los otros botones
+$boton_perfil = $preruta.'perfil.php';
+$boton_inicio = $preruta.'index.php';
+
+// CTA (botón inferior)
+if ($isLoggedIn) {
+    $ctaHref = $preruta.'logout.php';
+    $ctaText = 'Cerrar sesión';
+} else {
+    $ctaHref = $preruta.'login.php';
+    $ctaText = 'Iniciar sesión';
+}
+
+// Sanitizar salidas ????????????????
+$ctaHrefSafe       = htmlspecialchars($ctaHref ?? '#', ENT_QUOTES, 'UTF-8');
+$ctaTextSafe       = htmlspecialchars($ctaText ?? '', ENT_QUOTES, 'UTF-8');
+?>
 
 <!-- Botón de apertura -->
 <button id="sidebarToggle"
