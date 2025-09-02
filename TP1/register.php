@@ -6,7 +6,7 @@ $error   = isset($_GET['error']) ? $_GET['error'] : null;
 $success = isset($_GET['success']) ? $_GET['success'] : null;
 ?>
 
-<nav class="bg-[#15212c] drop-shadow-xl w-full h-24">
+<nav class="bg-[#141e27] drop-shadow-xl w-full h-24">
   <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex items-center relative">
       
       <!-- Texto de saludo -->
@@ -28,7 +28,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
 <script src="js/validations.js"></script>
 
 <!-- Grid padre -->
-<main class="grid grid-cols-1 lg:grid-cols-2 bg-gradient-to-b from-[#192734] via-[#303e4d] to-[#15202b]">
+<main class="grid grid-cols-1 lg:grid-cols-2 bg-gradient-to-b from-[#192734] via-[#313e4b] to-[#15202b]">
     
     <!-- Columna izquierda: formulario -->
     <div class="flex flex-col justify-center items-center py-12 px-6 lg:px-8 mt-20 mb-24">
@@ -48,7 +48,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
             </p>
         <?php endif; ?>
 
-        <div class="w-full max-w-md bg-[#15212c] p-6 rounded-lg shadow-lg mt-8 hover:scale-x-95 transition-transform">
+        <div class="w-full max-w-md bg-[#141e27] p-6 rounded-lg shadow-lg mt-8 hover:scale-x-95 transition-transform">
             <form class="space-y-6" action="includes/procesoRegister.php" id="registerForm" method="POST">
                 <div>
                     <label for="username" class="block text-sm/6 font-medium text-[#ffffff]">Usuario</label>

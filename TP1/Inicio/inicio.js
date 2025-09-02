@@ -126,10 +126,10 @@ async function onCreatePostSubmit(e) {
 /** Inserta el post recién creado al principio del feed (sin @handle) */
 function insertarPostEnFeed(p) {
   const id = p.id;
-  const name = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
+  const name = p.author?.name ? escapeHtml(p.author.name) : 'Anónimo';
   const avatar = p.author?.avatar_url || '/imagenes/profilePictures/defaultProfilePicture.png';
 
-  const tsHuman = new Date(p.created_at).toLocaleString();
+  const ts = new Date(p.created_at).toLocaleString();
   const media = p.media_url ? `<figure class="media"><img src="${escapeHtml(p.media_url)}" alt="Imagen del post"></figure>` : "";
 
   const html = `
