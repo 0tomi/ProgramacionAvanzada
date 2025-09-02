@@ -1,5 +1,5 @@
 <?php
-include "includes/funciones.php";
+include "funciones.php";
 
 $username = trim($_POST['username']);
 $password = trim($_POST['password']);
@@ -12,11 +12,11 @@ foreach ($usuarios as $user) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $username;
         $_SESSION['user_profile_picture'] = $user['user_profile_picture'];
-        header("Location: Inicio/inicio.php");
+        header("Location: ../Inicio/inicio.php");
         exit;
     }
 }
 
 // Si no encontró coincidencias
-header("Location: login.php?error=Usuario+o+contraseña+incorrectos");
+header("Location: ../login.php?error=Usuario+o+contraseña+incorrectos");
 exit;
