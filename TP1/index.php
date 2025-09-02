@@ -11,15 +11,10 @@ if (!empty($_SESSION['username'])) { //si esta logeado que mande al inicio!!!!!!
     header("Location: Inicio/inicio.php");
     exit;
 }
+
+$source = 'Inicio'; $require_boostrap = false; require_once('includes/header.php');
 ?>
 
-<!DOCTYPE html>
-<html lang="en" class="h-full bg-[#15202b]">
-<head>
-  <meta charset="UTF-8">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <title>Inicio</title>
-</head>
 <body class="min-h-screen bg-[#15202b] flex flex-col">
 
   <div class="min-h-full">
@@ -36,8 +31,6 @@ if (!empty($_SESSION['username'])) { //si esta logeado que mande al inicio!!!!!!
         </div>
       </div>
     </nav>
-
-    <?php require 'includes/barraLateral/barraLateral.php'; ?>
 
     <!-- CONTENIDO CENTRADO -->
     <main class="flex-grow flex items-center justify-center bg-gradient-to-b from-[#192734] via-[#22303c] to-[#15202b] ">

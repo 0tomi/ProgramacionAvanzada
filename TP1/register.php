@@ -1,4 +1,4 @@
-<?php require("includes/headertw.php") ?>
+<?php $source = 'Registro'; $require_boostrap = true; require("includes/header.php") ?>
 
 <?php
 // Capturar mensajes de error o éxito
@@ -49,7 +49,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
         <?php endif; ?>
 
         <div class="w-full max-w-md bg-[#15212c] p-6 rounded-lg shadow-lg mt-8 hover:scale-x-95 transition-transform">
-            <form class="space-y-6" action="procesoRegister.php" id="registerForm" method="POST">
+            <form class="space-y-6" action="includes/procesoRegister.php" id="registerForm" method="POST">
                 <div>
                     <label for="username" class="block text-sm/6 font-medium text-[#ffffff]">Usuario</label>
                     <div class="mt-2">

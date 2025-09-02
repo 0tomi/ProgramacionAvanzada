@@ -29,7 +29,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     exit;
 }
 
-require_once __DIR__ . "/includes/headertw.php";
+$source = 'Perfil'; $require_boostrap = true;
+require_once __DIR__ . "/includes/header.php";
 require_once __DIR__ . "/includes/barraLateral/barraLateral.php";
 require_once __DIR__ . "/Inicio/headerInicio.php";
 ?>

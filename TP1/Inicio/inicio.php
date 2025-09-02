@@ -18,6 +18,7 @@ if (is_readable($POSTS_JSON)) {
   $posts = json_decode($raw ?: '[]', true) ?: [];
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>

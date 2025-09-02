@@ -1,5 +1,4 @@
-<?php require("includes/headertw.php") ?>
-
+<?php $source = 'Login'; $require_boostrap = true; require("includes/header.php") ?>
 
 <nav class="bg-[#15212c] drop-shadow-xl w-full h-24">
   <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex items-center relative">
@@ -37,7 +36,7 @@
                 </div>
             <?php endif; ?>
 
-            <form class="space-y-6" action="procesoLogin.php" method="POST" id="loginForm">
+            <form class="space-y-6" action="includes/procesoLogin.php" method="POST" id="loginForm">
 
                 <div>
                     <label for="username" class="block text-sm/6 font-medium text-[#ffffff]">Usuario</label>
