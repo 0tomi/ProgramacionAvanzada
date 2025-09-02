@@ -15,24 +15,24 @@ echo "<pre>";*/
 if ($isLoggedIn)
     $profilePicture = !empty($_SESSION['user_profile_picture']) ?
         $_SESSION['user_profile_picture']
-        : '../imagenes/profilePictures/user.png';
-else $profilePicture = '../imagenes/profilePictures/defaultProfilePicture.png';
-
-
+        : 'imagenes/profilePictures/user.png';
+else $profilePicture = 'imagenes/profilePictures/defaultProfilePicture.png';
 
 // Asegurar que la ruta funcione desde subdirectorios
 if (!preg_match('#^https?://#', $profilePicture) && $profilePicture[0] !== '/') {
-    $profilePicture = ltrim($profilePicture, '/');
+    $profilePicture = $preruta . ltrim($profilePicture, '/');
 }
 
-
+// Referencias de los otros botones
+$boton_perfil = $preruta.'perfil.php';
+$boton_inicio = $preruta.'index.php';
 
 // CTA (botón inferior)
 if ($isLoggedIn) {
-    $ctaHref = '../logout.php';
+    $ctaHref = $preruta.'logout.php';
     $ctaText = 'Cerrar sesión';
 } else {
-    $ctaHref = '../login.php';
+    $ctaHref = $preruta.'login.php';
     $ctaText = 'Iniciar sesión';
 }
 
