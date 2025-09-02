@@ -31,7 +31,6 @@ $source = 'Inicio'; $require_boostrap = false; require_once('includes/header.php
         </div>
       </div>
     </nav>
-
     <!-- CONTENIDO CENTRADO -->
     <main class="flex-grow flex items-center justify-center bg-gradient-to-b from-[#192734] via-[#22303c] to-[#15202b] ">
       <div class="bg-[#192734] rounded-2xl shadow-2xl p-10 text-center w-full max-w-md hover:scale-x-95 transition-transform mb-48 mt-48">
