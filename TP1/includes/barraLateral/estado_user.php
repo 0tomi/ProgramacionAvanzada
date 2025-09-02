@@ -18,21 +18,23 @@ if ($isLoggedIn)
         : 'imagenes/profilePictures/user.png';
 else $profilePicture = 'imagenes/profilePictures/defaultProfilePicture.png';
 
+
+
 // Asegurar que la ruta funcione desde subdirectorios
 if (!preg_match('#^https?://#', $profilePicture) && $profilePicture[0] !== '/') {
-    $profilePicture = $preruta . ltrim($profilePicture, '/');
+    $profilePicture = ltrim($profilePicture, '/');
 }
 
 // Referencias de los otros botones
-$boton_perfil = $preruta.'perfil.php';
-$boton_inicio = $preruta.'index.php';
+$boton_perfil = 'perfil.php';
+$boton_inicio = 'index.php';
 
 // CTA (botón inferior)
 if ($isLoggedIn) {
-    $ctaHref = $preruta.'logout.php';
+    $ctaHref = 'logout.php';
     $ctaText = 'Cerrar sesión';
 } else {
-    $ctaHref = $preruta.'login.php';
+    $ctaHref = 'login.php';
     $ctaText = 'Iniciar sesión';
 }
 

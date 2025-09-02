@@ -28,8 +28,8 @@ if (is_readable($POSTS_JSON)) {
   <link rel="stylesheet" href="inicio.css">
 </head>
 <body>
-  <?php include __DIR__ . '/headerInicio.php'; ?>
-  <?php $preruta ="../"; require('../includes/barraLateral/barraLateral.php'); ?>
+  <?php require '../includes/headerInicio.php'; ?>
+  <?php require '../includes/barraLateral/barraLateral.php'; ?>
 
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
