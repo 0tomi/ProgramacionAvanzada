@@ -6,7 +6,7 @@ $error   = isset($_GET['error']) ? $_GET['error'] : null;
 $success = isset($_GET['success']) ? $_GET['success'] : null;
 ?>
 
-<nav class="bg-[#192734] drop-shadow-xl w-full h-24">
+<nav class="bg-[#15212c] drop-shadow-xl w-full h-24">
   <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex items-center relative">
       
       <!-- Texto de saludo -->
@@ -15,10 +15,10 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
       </div>
 
       <!-- Botón ir a inicio -->
-      <div class="ml-auto mt-2">
+      <div class="ml-auto mt-2 hover:text-[#15202b] hover:scale-105 transition-transform">
           <a href="index.php" 
              class="rounded bg-[#8899ac] px-5 py-2 text-[#15202b] font-semibold shadow 
-                    hover:bg-[#ffffff] hover:text-[#15202b] hover:scale-105 transition-transform">
+                    hover:bg-[#ffffff]">
               Volver
           </a>
       </div>
@@ -28,12 +28,12 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
 <script src="js/validations.js"></script>
 
 <!-- Grid padre -->
-<main class="grid grid-cols-1 lg:grid-cols-2 bg-gradient-to-b from-[#192734] via-[#22303c] to-[#15202b]">
+<main class="grid grid-cols-1 lg:grid-cols-2 bg-gradient-to-b from-[#192734] via-[#303e4d] to-[#15202b]">
     
     <!-- Columna izquierda: formulario -->
     <div class="flex flex-col justify-center items-center py-12 px-6 lg:px-8 mt-20 mb-24">
-        <img class="mx-auto h-10 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg" alt="Your Company" />
-        <h2 class="mt-10 text-left text-2xl/9 font-bold tracking-tight text-[#ffffff]">Registrarse!!</h2>
+        <img class="mx-auto size-16 w-auto" src="imagenes/profilePictures/Ritual.png" alt="Your Company" />
+        <h2 class="mt-4 text-left text-2xl/9 font-bold tracking-tight text-[#ffffff]">Registrate en Ritual</h2>
 
         <!-- Mostrar mensajes -->
         <?php if ($error): ?>
@@ -48,7 +48,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
             </p>
         <?php endif; ?>
 
-        <div class="w-full max-w-md bg-[#192734] p-6 rounded-lg shadow-lg mt-10">
+        <div class="w-full max-w-md bg-[#15212c] p-6 rounded-lg shadow-lg mt-8 hover:scale-x-95 transition-transform">
             <form class="space-y-6" action="procesoRegister.php" id="registerForm" method="POST">
                 <div>
                     <label for="username" class="block text-sm/6 font-medium text-[#ffffff]">Usuario</label>

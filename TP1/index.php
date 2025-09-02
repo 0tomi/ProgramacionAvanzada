@@ -28,10 +28,10 @@ if (!empty($_SESSION['username'])) { //si esta logeado que mande al inicio!!!!!!
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-18 items-center justify-between">
           
-
           <!-- Texto usuario -->
           <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-            <h1 class="text-3xl font-bold tracking-tight text-[#ffffff]"> Ritual</h1>
+            <img src="imagenes/profilePictures/Ritual.png" class="flex absolute size-12 w-12 left-24">
+            <h1 class="text-3xl mb-2 font-bold tracking-tight text-[#ffffff]"> Ritual</h1>
           </div>
         </div>
       </div>
