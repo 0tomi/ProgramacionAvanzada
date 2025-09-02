@@ -2,7 +2,7 @@
 
 <!-- Botón de apertura -->
 <button id="sidebarToggle"
-        class="fixed top-4 left-4 z-50 p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600">
+        class="fixed top-4 left-4 z-50 mt-2 p-2 rounded-md bg-gray-700 text-white hover:bg-gray-600">
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
        stroke="currentColor" class="w-6 h-6">
     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 6h16.5m-16.5 6h16.5" />
