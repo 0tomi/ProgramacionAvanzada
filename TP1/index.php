@@ -37,7 +37,7 @@ if (!empty($_SESSION['username'])) { //si esta logeado que mande al inicio!!!!!!
       </div>
     </nav>
 
-    <?php $preruta =""; include 'includes/barraLateral/barraLateral.php'; ?>
+    <?php require 'includes/barraLateral/barraLateral.php'; ?>
 
     <!-- CONTENIDO CENTRADO -->
     <main class="flex-grow flex items-center justify-center bg-gradient-to-b from-[#192734] via-[#22303c] to-[#15202b] ">
