@@ -37,6 +37,7 @@ function wireEventosClick() {
     // 1) Like en el feed (♥)
     const likeBtn = e.target.closest('.chip.like');
     if (likeBtn) {
+      if (likeBtn.hasAttribute('disabled')) return; // 🚫 invitado
       e.preventDefault();
       e.stopPropagation();
       await manejarLike(likeBtn);
@@ -125,8 +126,9 @@ async function onCreatePostSubmit(e) {
 /** Inserta el post recién creado al principio del feed (sin @handle) */
 function insertarPostEnFeed(p) {
   const id = p.id;
-  const name = p.author?.name || 'Anónimo';
-  const avatarL = (name[0] || 'U').toUpperCase(); // inicial desde el nombre
+  const name = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
+  const avatar = p.author?.avatar_url || '/imagenes/profilePictures/defaultProfilePicture.png';
+
   const tsHuman = new Date(p.created_at).toLocaleString();
   const media = p.media_url ? `<figure class="media"><img src="${escapeHtml(p.media_url)}" alt="Imagen del post"></figure>` : "";
 
@@ -134,12 +136,10 @@ function insertarPostEnFeed(p) {
     <article class="post" data-id="${escapeHtml(id)}">
       <a class="post-overlay" href="../POSTS/?id=${encodeURIComponent(id)}" aria-label="Ver post"></a>
       <header class="post-header">
-        <div class="avatar">${escapeHtml(avatarL)}</div>
+        <img class="avatar" src="${escapeHtml(avatar)}" alt="${escapeHtml(name)}">
         <div class="meta">
-          <div class="name">${escapeHtml(name)}</div>
-          <div class="subline">
-            <time datetime="${escapeHtml(p.created_at)}">${escapeHtml(tsHuman)}</time>
-          </div>
+          <div class="name">${name}</div>
+          <div class="subline"><time>${ts}</time></div>
         </div>
       </header>
       <p class="text">${escapeHtml(p.text)}</p>
@@ -151,10 +151,11 @@ function insertarPostEnFeed(p) {
       </div>
     </article>
   `;
-
-  const feed = document.getElementById('feed');
-  feed.insertAdjacentHTML('afterbegin', html);
+  document.getElementById('feed').insertAdjacentHTML('afterbegin', html);
 }
+
+
+
 
 /* Utilidad para evitar inyección de HTML */
 function escapeHtml(s) {

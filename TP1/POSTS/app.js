@@ -29,6 +29,8 @@ function renderPost(post){
   const name = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
   const initial = (post.author?.name || 'U').charAt(0).toUpperCase(); // ← desde el nombre
   const ts = formatDate(post.created_at);
+  const canInteract = !!post.viewer?.authenticated;
+  const likeBtnAttrs = canInteract ? '' : 'disabled title="Inicia sesión para likear"';
   const likeClasses = `chip ${post.viewer?.liked ? "liked" : ""}`;
 
   return `
@@ -47,7 +49,7 @@ function renderPost(post){
     ${img}
 
     <div class="actions">
-      <button class="${likeClasses}" onclick="toggleLike('${post.id}', this)">
+      <button class="${likeClasses}" ${likeBtnAttrs} onclick="toggleLike('${post.id}', this)">
         ♥ <span class="like-count">${post.counts.likes}</span>
       </button>
     </div>
@@ -108,6 +110,7 @@ function renderCommentNode(node){
 
 /* ===== Likes ===== */
 async function toggleLike(id, btn){
+  if (btn.hasAttribute('disabled')) return;
   const countEl = btn.querySelector(".like-count");
   const wasLiked = btn.classList.contains("liked");
   const prev = parseInt(countEl.textContent, 10);

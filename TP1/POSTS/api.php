@@ -58,6 +58,14 @@ function enrich_post(array $p): array {
   $p['author']  = $p['author']  ?? ['id'=>'uX','handle'=>'anon','name'=>'Anónimo'];
   $likedSet     = array_flip($_SESSION['likes'] ?? []);
   $p['viewer']  = ['liked' => isset($likedSet[$p['id'] ?? ''])];
+
+  $logged = isset($_SESSION['username']) && $_SESSION['username'] !== '';
+  $likedSet = array_flip($_SESSION['likes'] ?? []);
+  $p['viewer'] = [
+    'liked'         => isset($likedSet[$p['id'] ?? '']),
+    'authenticated' => $logged,
+  ];
+
   return $p;
 }
 
@@ -94,9 +102,15 @@ try {
 
   // POST: toggle like
   if ($action === 'like' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $logged = isset($_SESSION['username']) && $_SESSION['username'] !== '';
+    if (!$logged) {
+      json_out(['ok'=>false, 'error'=>'Debes iniciar sesión para likear'], 401);
+    }
+
     $input  = json_decode(file_get_contents('php://input') ?: '{}', true) ?? [];
     $postId = (string)($input['post_id'] ?? '');
     if ($postId === '') json_out(['ok'=>false,'error'=>'post_id requerido'], 400);
+
 
     $items = read_posts();
     $found = false;

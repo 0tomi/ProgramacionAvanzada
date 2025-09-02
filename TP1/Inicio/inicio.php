@@ -3,6 +3,8 @@ session_start();
 
 $isAuth = isset($_SESSION['username']) && $_SESSION['username'] !== '';
 $guard  = $isAuth ? '' : 'disabled';
+$likeDisabledAttr = $isAuth ? '' : 'disabled title="Inicia sesión para likear"';
+
 
 $guestAvatar = "../imagenes/profilePictures/defaultProfilePicture.png";
 
@@ -96,8 +98,9 @@ if (is_readable($POSTS_JSON)) {
 
               <div class="actions">
                 <button type="button"
-                        class="chip like"
-                        data-id="<?= $idEsc ?>">
+                  class="chip like"
+                  data-id="<?= $idEsc ?>"
+                  <?= $likeDisabledAttr ?>>
                   ♥ <span class="count"><?= $likes ?></span>
                 </button>
               </div>
