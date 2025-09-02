@@ -31,19 +31,19 @@
         "id": "u6",
         "username": "tomitomi",
         "password": "$2y$10$yvIeT1LM5m0UyuVijFUv7.LAu0I2g2PgFqzYRCtOVfhQdNrXll2Y2",
-        "user_profile_picture": "../imagenes/profilePictures/Ritual.png"
+        "user_profile_picture": "imagenes/profilePictures/Ritual.png"
     },
     {
         "id": "u5",
         "username": "fcytuader",
         "password": "$2y$10$MUoAvg4NqJgZXE38LlBMuOc7ymN6mPpJ1SOzKPeEnbjeg3nVZ2VE6",
-        "user_profile_picture": "../imagenes/profilePictures/uader.png"
+        "user_profile_picture": "imagenes/profilePictures/uader.png"
     },
     {
         "id": "u6",
         "username": "fcytuader.",
         "password": "$2y$10$fyZlASqDe381cq1pCiBJl.zQygHKqh2n1SbZW1cqWTagUzwvWHAFu",
-        "user_profile_picture": "../imagenes/profilePictures/uader.png"
+        "user_profile_picture": "imagenes/profilePictures/uader.png"
     },
     {
         "id": "u9",
