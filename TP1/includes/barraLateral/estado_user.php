@@ -15,8 +15,8 @@ echo "<pre>";*/
 if ($isLoggedIn)
     $profilePicture = !empty($_SESSION['user_profile_picture']) ?
         $_SESSION['user_profile_picture']
-        : 'imagenes/profilePictures/user.png';
-else $profilePicture = 'imagenes/profilePictures/defaultProfilePicture.png';
+        : '../imagenes/profilePictures/user.png';
+else $profilePicture = '../imagenes/profilePictures/defaultProfilePicture.png';
 
 
 
@@ -25,16 +25,14 @@ if (!preg_match('#^https?://#', $profilePicture) && $profilePicture[0] !== '/') 
     $profilePicture = ltrim($profilePicture, '/');
 }
 
-// Referencias de los otros botones
-$boton_perfil = 'perfil.php';
-$boton_inicio = 'index.php';
+
 
 // CTA (botón inferior)
 if ($isLoggedIn) {
-    $ctaHref = 'logout.php';
+    $ctaHref = '../logout.php';
     $ctaText = 'Cerrar sesión';
 } else {
-    $ctaHref = 'login.php';
+    $ctaHref = '../login.php';
     $ctaText = 'Iniciar sesión';
 }
 

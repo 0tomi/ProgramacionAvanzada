@@ -28,9 +28,13 @@ if (is_readable($POSTS_JSON)) {
   <link rel="stylesheet" href="inicio.css">
 </head>
 <body>
-  <?php require '../includes/headerInicio.php'; ?>
+
+
+  <?php require 'headerInicio.php'; ?>
   <?php require '../includes/barraLateral/barraLateral.php'; ?>
 
+
+  
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
       <header class="feed-head">
