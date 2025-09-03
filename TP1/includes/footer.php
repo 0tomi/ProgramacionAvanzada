@@ -10,11 +10,6 @@ $year = date('Y');
           Red social inspirada en X (Twitter). Feed, likes y comentarios.
         </p>
         <p class="mb-0" style="color:#8899ac;">Login, validación de acceso, estructura organizada, cabecera y pie de página.</p>
-        <a href="index.php" class="text-decoration-none" style="color:#1da1f2;">Inicio</a>
-        <span class="mx-2" style="color:#8899ac;">·</span>
-        <a href="POSTS/index.php" class="text-decoration-none" style="color:#1da1f2;">Posts</a>
-        <span class="mx-2" style="color:#8899ac;">·</span>
-        <a href="perfil.php" class="text-decoration-none" style="color:#1da1f2;">Perfil</a>
       </div>
 
       <div class="col-12 col-md-3">
