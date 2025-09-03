@@ -49,7 +49,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
         <?php endif; ?>
 
         <div class="w-full max-w-md bg-[#15212c] p-6 rounded-lg shadow-lg mt-8 hover:scale-x-95 transition-transform">
-            <form class="space-y-6" action="includes/procesoRegister.php" id="registerForm" method="POST">
+            <form class="space-y-6" action="includes/procesoRegister.php" id="registerForm" method="POST" enctype="multipart/form-data">
                 <div>
                     <label for="username" class="block text-sm/6 font-medium text-[#ffffff]">Usuario</label>
                     <div class="mt-2">
@@ -63,10 +63,27 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
                 <div>
                     <label for="password" class="block text-sm/6 font-medium text-[#ffffff]">Contraseña</label>
                     <div class="mt-2">
-                        <input type="password" name="password" id="password" autocomplete="current-password" required 
-                            class="block w-full rounded-md bg-[#22303c] px-3 py-1.5 text-base text-[#ffffff] 
-                                   outline-none placeholder:text-[#8899ac] 
+                        <input type="password" name="password" id="password" autocomplete="current-password" required
+                            class="block w-full rounded-md bg-[#22303c] px-3 py-1.5 text-base text-[#ffffff]
+                                   outline-none placeholder:text-[#8899ac]
                                    focus:ring-2 focus:ring-[#8899ac] sm:text-sm/6" />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="profile_picture" class="block text-sm/6 font-medium text-[#ffffff]">Foto de perfil</label>
+                    <div class="mt-2">
+                        <input type="file" name="profile_picture" id="profile_picture" accept="image/*"
+                            class="block w-full text-sm text-[#ffffff]" />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="description" class="block text-sm/6 font-medium text-[#ffffff]">Descripción</label>
+                    <div class="mt-2">
+                        <textarea name="description" id="description" rows="3"
+                            class="block w-full rounded-md bg-[#22303c] px-3 py-1.5 text-base text-[#ffffff] outline-none
+                                   placeholder:text-[#8899ac] focus:ring-2 focus:ring-[#8899ac] sm:text-sm/6"></textarea>
                     </div>
                 </div>
 
