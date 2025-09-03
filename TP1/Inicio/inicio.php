@@ -1,15 +1,13 @@
 <?php
-session_start();
+$preruta ="../";
+require_once __DIR__ . '/../includes/autentificacion.php';
+$isAuth = $isLoggedIn;
 
-$isAuth = isset($_SESSION['username']) && $_SESSION['username'] !== '';
 $guard  = $isAuth ? '' : 'disabled';
 $likeDisabledAttr = $isAuth ? '' : 'disabled title="Inicia sesión para likear"';
-
-
-$guestAvatar = "../imagenes/profilePictures/defaultProfilePicture.png";
-
 $lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
-
+$flash = $_SESSION['flash'] ?? null;
+unset($_SESSION['flash']);
 // === FEED: leer posts desde /JSON/POST.json ===
 $POSTS_JSON = __DIR__ . '/../JSON/POST.json';
 $posts = [];
@@ -19,18 +17,23 @@ if (is_readable($POSTS_JSON)) {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <title>Inicio — Feed</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="inicio.css">
-</head>
+<?php $require_boostrap = false; $source = 'Inicio'; require_once __DIR__ . '/../includes/header.php'; ?>
+
 <body>
   <?php include __DIR__ . '/headerInicio.php'; ?>
-  <?php $preruta ="../"; require('../includes/barraLateral/barraLateral.php'); ?>
+  <?php require('../includes/barraLateral/barraLateral.php'); ?>
+  <?php if (!empty($flash)): ?>
+  <div id="flash"
+       data-type="<?= htmlspecialchars($flash['type'], ENT_QUOTES) ?>"
+       data-msg="<?= htmlspecialchars($flash['msg'], ENT_QUOTES) ?>">
+  </div>
+
+  <div id="toast" class="toast" data-msg="<?= htmlspecialchars($flash['msg'], ENT_QUOTES, 'UTF-8') ?>">
+    <span class="toast__icon"></span>
+    <span class="toast__msg"></span>
+  </div>
+<?php endif; ?>
+
 
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
@@ -116,11 +119,9 @@ if (is_readable($POSTS_JSON)) {
       </div>
     </section>
   </div>
-
+  <!-- js -->
+  <script src="inicio.js?v=3"></script>
   <?php require_once __DIR__ . '/../includes/footer.php'; ?>
-
-  <!-- JS separado -->
-  <script src="inicio.js?v=20250901"></script>
 
 </body>
 </html>

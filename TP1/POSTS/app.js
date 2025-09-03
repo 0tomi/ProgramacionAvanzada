@@ -15,7 +15,10 @@ async function cargarPost(id){
     const res = await fetch(`${API}?action=get&id=${encodeURIComponent(id)}`, { credentials:"same-origin" });
     const data = await res.json();
     if(!data.ok || !data.item) throw new Error(data.error || "Post no encontrado");
+    
+    // Simplemente renderiza el post. No más inyección de estilos ni creación de botones.
     feed.innerHTML = renderPost(data.item);
+
   }catch(err){
     feed.innerHTML = `<div class="error">${escapeHtml(String(err.message || err))}</div>`;
   }
@@ -23,54 +26,57 @@ async function cargarPost(id){
 
 /* ===== Render post + acciones ===== */
 function renderPost(post){
+  // avatar (con fallback)
+  const avatar = post.author?.avatar_url || '/imagenes/profilePictures/defaultProfilePicture.png';
+  const name   = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
+  const ts     = formatDate(post.created_at);
+
   const img = post.media_url
     ? `<figure class="media"><img class="post-image" src="${escapeHtml(post.media_url)}" alt="Imagen del post"></figure>`
     : "";
-  const name = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
-  const initial = (post.author?.name || 'U').charAt(0).toUpperCase(); // ← desde el nombre
-  const ts = formatDate(post.created_at);
-  const canInteract = !!post.viewer?.authenticated;
-  const likeBtnAttrs = canInteract ? '' : 'disabled title="Inicia sesión para likear"';
-  const likeClasses = `chip ${post.viewer?.liked ? "liked" : ""}`;
 
+  const canInteract  = !!post.viewer?.authenticated;
+  const likeBtnAttrs = canInteract ? '' : 'disabled title="Inicia sesión para likear"';
+  const likeClasses  = `chip ${post.viewer?.liked ? "liked" : ""}`;
+
+  // Se eliminó la barra <nav class="post-topbar"> de aquí
   return `
     <article class="post" data-id="${post.id}">
-    <header class="post-header">
-      <div class="avatar">${initial}</div>
-      <div class="meta">
-        <div class="name">${name}</div>
-        <div class="subline">
-          <time>${ts}</time>
+      <header class="post-header">
+        <img class="avatar" src="${escapeHtml(avatar)}" alt="${name}">
+        <div class="meta">
+          <div class="name">${name}</div>
+          <div class="subline">
+            <time>${ts}</time>
+          </div>
         </div>
+      </header>
+
+      <p class="text">${escapeHtml(post.text)}</p>
+      ${img}
+
+      <div class="actions">
+        <button class="${likeClasses}" ${likeBtnAttrs} onclick="toggleLike('${post.id}', this)">
+          ♥ <span class="like-count">${post.counts.likes}</span>
+        </button>
       </div>
-    </header>
 
-    <p class="text">${escapeHtml(post.text)}</p>
-    ${img}
-
-    <div class="actions">
-      <button class="${likeClasses}" ${likeBtnAttrs} onclick="toggleLike('${post.id}', this)">
-        ♥ <span class="like-count">${post.counts.likes}</span>
-      </button>
-    </div>
-
-    <details open>
-      <summary>Comentarios (${post.counts.replies})</summary>
-      <div class="comentarios">
-        ${renderCommentsTree(post.replies || [])}
-      </div>
-      <form class="comment-root" onsubmit="event.preventDefault(); return comentar('${post.id}', null, this, event)">
-        <input name="author" placeholder="Tu nombre">
-        <input name="text" required maxlength="280" placeholder="Escribe un comentario">
-        <button class="btn primary">Comentar</button>
-      </form>
-    </details>
-  </article>
+      <details open>
+        <summary>Comentarios (${post.counts.replies})</summary>
+        <div class="comentarios">
+          ${renderCommentsTree(post.replies || [])}
+        </div>
+        <form class="comment-root" onsubmit="event.preventDefault(); return comentar('${post.id}', null, this, event)">
+          <input name="author" placeholder="Tu nombre">
+          <input name="text" required maxlength="280" placeholder="Escribe un comentario">
+          <button class="btn primary">Comentar</button>
+        </form>
+      </details>
+    </article>
   `;
 }
 
-
-/* ===== Árbol de comentarios ===== */
+/* ===== Árbol de comentarios (sin cambios) ===== */
 function buildTree(list){
   const byId = new Map();
   list.forEach(c => byId.set(c.id || cryptoRand(), { ...c, children: [] }));
@@ -108,7 +114,7 @@ function renderCommentNode(node){
   `;
 }
 
-/* ===== Likes ===== */
+/* ===== Likes (sin cambios) ===== */
 async function toggleLike(id, btn){
   if (btn.hasAttribute('disabled')) return;
   const countEl = btn.querySelector(".like-count");
@@ -138,7 +144,7 @@ async function toggleLike(id, btn){
   }
 }
 
-/* ===== Comentar ===== */
+/* ===== Comentar (sin cambios) ===== */
 async function comentar(postId, parentCommentId, form, ev){
   if (ev) ev.preventDefault();
   const payload = {
@@ -187,7 +193,7 @@ async function comentar(postId, parentCommentId, form, ev){
   return false;
 }
 
-/* ===== Utils ===== */
+/* ===== Utils (sin cambios) ===== */
 function toggleReplyForm(_commentId, btn){
   const bubble = btn.closest(".c-bubble");
   const f = bubble.querySelector(".c-reply-form");
@@ -197,3 +203,8 @@ function getPostId(el){ return el.closest("article.post").dataset.id; }
 function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])); }
 function formatDate(iso){ try{ return new Date(iso).toLocaleString(); }catch{ return ""; } }
 function cryptoRand(){ return String(Date.now()) + Math.floor(Math.random()*10000); }
+
+// Se eliminaron las funciones:
+// - ensureBackButton()
+// - ensureBackInline()
+// - injectBackStyles()

@@ -12,6 +12,11 @@
   <?php endif; ?>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>$source</title>
+  <?php if ($source === 'Inicio'): ?>
+    <link rel="stylesheet" href="../Inicio/inicio.css">
+  <?php elseif ($source === 'Post'): ?>
+    <link rel="stylesheet" href="../POSTS/styles.css">
+  <?php endif; ?>
 </head>
 
 <?php if ($require_boostrap): ?>

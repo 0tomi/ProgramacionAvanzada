@@ -113,24 +113,37 @@ async function onCreatePostSubmit(e) {
     const data = await res.json();
     if (!data.ok || !data.item) throw new Error(data.error || 'No se pudo crear el post');
 
-    // Insertar en el feed SIN redirigir
-    insertarPostEnFeed(data.item);
+    console.log('[create] item:', data.item); // 👈 verificá en consola qué llega
 
-    // limpiar form
+    // Insertar en el feed SIN redirigir (con catch local para ver exactamente dónde truena)
+    try {
+      insertarPostEnFeed(data.item);
+    } catch (err) {
+      console.error('Fallo insertarPostEnFeed:', err);
+      alert('Hubo un error renderizando el nuevo post (ver consola).');
+    }
+
     form.reset();
   } catch (err) {
     alert(String(err.message || err));
   }
 }
 
+
 /** Inserta el post recién creado al principio del feed (sin @handle) */
 function insertarPostEnFeed(p) {
-  const id = p.id;
-  const name = p.author?.name ? escapeHtml(p.author.name) : 'Anónimo';
-  const avatar = p.author?.avatar_url || '/imagenes/profilePictures/defaultProfilePicture.png';
+  // defensivo por si algo viene raro
+  if (!p || typeof p !== 'object') throw new Error('insertarPostEnFeed: objeto post inválido');
 
-  const ts = new Date(p.created_at).toLocaleString();
-  const media = p.media_url ? `<figure class="media"><img src="${escapeHtml(p.media_url)}" alt="Imagen del post"></figure>` : "";
+  const id      = String(p.id ?? '');
+  const name    = (p.author && p.author.name) ? String(p.author.name) : 'Anónimo';
+  const avatar  = (p.author && p.author.avatar_url) ? String(p.author.avatar_url) : '/imagenes/profilePictures/defaultProfilePicture.png';
+  const created = String(p.created_at ?? new Date().toISOString());
+  const tsHuman = new Date(created).toLocaleString();
+
+  const media = p.media_url
+    ? `<figure class="media"><img src="${escapeHtml(String(p.media_url))}" alt="Imagen del post"></figure>`
+    : "";
 
   const html = `
     <article class="post" data-id="${escapeHtml(id)}">
@@ -138,11 +151,13 @@ function insertarPostEnFeed(p) {
       <header class="post-header">
         <img class="avatar" src="${escapeHtml(avatar)}" alt="${escapeHtml(name)}">
         <div class="meta">
-          <div class="name">${name}</div>
-          <div class="subline"><time>${ts}</time></div>
+          <div class="name">${escapeHtml(name)}</div>
+          <div class="subline">
+            <time datetime="${escapeHtml(created)}">${escapeHtml(tsHuman)}</time>
+          </div>
         </div>
       </header>
-      <p class="text">${escapeHtml(p.text)}</p>
+      <p class="text">${escapeHtml(String(p.text ?? ''))}</p>
       ${media}
       <div class="actions">
         <button type="button" class="chip like" data-id="${escapeHtml(id)}">
@@ -151,10 +166,11 @@ function insertarPostEnFeed(p) {
       </div>
     </article>
   `;
-  document.getElementById('feed').insertAdjacentHTML('afterbegin', html);
+
+  const feed = document.getElementById('feed');
+  if (!feed) throw new Error('No existe #feed en el DOM');
+  feed.insertAdjacentHTML('afterbegin', html);
 }
-
-
 
 
 /* Utilidad para evitar inyección de HTML */
@@ -163,3 +179,75 @@ function escapeHtml(s) {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[ch]));
 }
+
+//mensaje login correcto
+const FancyAlerts = (() => {
+  const api = {};
+
+  api.show = function (options = {}) {
+    // cerrar cualquier alerta previa
+    const prev = document.querySelector(".fancy-alert");
+    if (prev) prev.remove();
+
+    const defaults = {
+      type: "success",
+      msg: "Success",
+      timeout: 2500,
+      icon: "✓", 
+      closable: false,
+      onClose: () => {}
+    };
+    const o = { ...defaults, ...options };
+
+    // crear elementos
+    const alert = document.createElement("div");
+    alert.className = `fancy-alert ${o.type}`;
+
+    alert.innerHTML = `
+      <div>
+        <div class="fancy-alert--icon">${o.icon}</div>
+        <div class="fancy-alert--content">
+          <div class="fancy-alert--words">${o.msg}</div>
+          ${o.closable ? `<a class="fancy-alert--close" href="#">×</a>` : ""}
+        </div>
+      </div>
+    `;
+
+    document.body.prepend(alert);
+
+    // animaciones
+    setTimeout(() => alert.classList.add("fancy-alert__active"), 10);
+    setTimeout(() => alert.classList.add("fancy-alert__extended"), 500);
+
+    // autocierre
+    if (o.timeout) api.hide(o.timeout, o.onClose);
+  };
+
+  api.hide = function (delay = 0, cb = () => {}) {
+    const alert = document.querySelector(".fancy-alert");
+    if (!alert) return;
+    setTimeout(() => {
+      alert.classList.remove("fancy-alert__extended");
+      setTimeout(() => alert.classList.remove("fancy-alert__active"), 500);
+      setTimeout(() => {
+        alert.remove();
+        cb();
+      }, 1000);
+    }, delay);
+  };
+
+  return api;
+})();
+
+document.addEventListener("DOMContentLoaded", () => {
+  const flash = document.getElementById("flash");
+  if (flash) {
+    FancyAlerts.show({
+      type: flash.dataset.type,
+      msg: flash.dataset.msg,
+      timeout: 2500,
+      closable: false
+    });
+    flash.remove();
+  }
+});
