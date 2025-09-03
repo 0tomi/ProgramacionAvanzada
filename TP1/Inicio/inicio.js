@@ -179,3 +179,75 @@ function escapeHtml(s) {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[ch]));
 }
+
+//mensaje login correcto
+const FancyAlerts = (() => {
+  const api = {};
+
+  api.show = function (options = {}) {
+    // cerrar cualquier alerta previa
+    const prev = document.querySelector(".fancy-alert");
+    if (prev) prev.remove();
+
+    const defaults = {
+      type: "success",
+      msg: "Success",
+      timeout: 2500,
+      icon: "✓", 
+      closable: false,
+      onClose: () => {}
+    };
+    const o = { ...defaults, ...options };
+
+    // crear elementos
+    const alert = document.createElement("div");
+    alert.className = `fancy-alert ${o.type}`;
+
+    alert.innerHTML = `
+      <div>
+        <div class="fancy-alert--icon">${o.icon}</div>
+        <div class="fancy-alert--content">
+          <div class="fancy-alert--words">${o.msg}</div>
+          ${o.closable ? `<a class="fancy-alert--close" href="#">×</a>` : ""}
+        </div>
+      </div>
+    `;
+
+    document.body.prepend(alert);
+
+    // animaciones
+    setTimeout(() => alert.classList.add("fancy-alert__active"), 10);
+    setTimeout(() => alert.classList.add("fancy-alert__extended"), 500);
+
+    // autocierre
+    if (o.timeout) api.hide(o.timeout, o.onClose);
+  };
+
+  api.hide = function (delay = 0, cb = () => {}) {
+    const alert = document.querySelector(".fancy-alert");
+    if (!alert) return;
+    setTimeout(() => {
+      alert.classList.remove("fancy-alert__extended");
+      setTimeout(() => alert.classList.remove("fancy-alert__active"), 500);
+      setTimeout(() => {
+        alert.remove();
+        cb();
+      }, 1000);
+    }, delay);
+  };
+
+  return api;
+})();
+
+document.addEventListener("DOMContentLoaded", () => {
+  const flash = document.getElementById("flash");
+  if (flash) {
+    FancyAlerts.show({
+      type: flash.dataset.type,
+      msg: flash.dataset.msg,
+      timeout: 2500,
+      closable: false
+    });
+    flash.remove();
+  }
+});

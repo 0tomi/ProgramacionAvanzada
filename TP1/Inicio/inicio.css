@@ -2,6 +2,10 @@
   --bg:#0c0f14; --panel:#0f131a; --panel-2:#0b0f15;
   --ink:#e8edf5; --muted:#8ea0b5; --line:#1b2431;
   --accent:#4aa3ff; --like:#ff4d7a; --shadow:0 12px 36px rgb(0 0 0 / .28);
+  --fa-h: 44px; /*tamaño del success*/              
+  --fa-icon-w: var(--fa-h);         
+  --fa-gutter: 24px;        
+  --fa-max: 400px;          
 }
 @media (prefers-color-scheme: light){
   :root{
@@ -131,37 +135,12 @@ body{
   .name{ font-size:15px } .subline{ font-size:13px }
 }
 
-/* ====== OVERRIDES FINALES ====== */
-
-/* Overlay clickeable en toda la tarjeta */
-.post { position: relative; }
-.post-overlay {
-  position: absolute;
-  inset: 0;
-  display: block;
-  z-index: 100;          /* por encima del contenido */
-  text-indent: -9999px;  /* invisible */
-  pointer-events: auto;
-}
-/* El contenido no debe tapar el overlay */
-.post > *:not(.post-overlay) { position: relative; z-index: 0; }
-
-/* Botón like por encima del overlay, para que reciba click */
-.post .chip.like {
-  position: relative;
-  z-index: 200;
-  pointer-events: auto;
-}
-
 /* Estado visual de like activo (rojo) */
 .chip.like.liked{
   border-color: var(--like);
   color: #fff;
   background: color-mix(in srgb, var(--like) 30%, transparent);
 }
-
-/* Overlay ocupa todo el post, PERO queda por debajo de los botones de acción */
-.post { position: relative; }
 
 .post-overlay {
   position: absolute;
@@ -181,3 +160,60 @@ body{
   z-index: 200;    /* más alto que overlay */
   pointer-events: auto; /* debe recibir clicks */
 }
+
+/*success del login*/
+.fancy-alert{
+  width:var(--fa-icon-w); height:var(--fa-h);
+  position:fixed; left:0; right:0; top:0; margin:0 auto;
+  z-index:1020; overflow:hidden; border-radius:2px;
+  background:gray; box-shadow:0 2px rgba(0,0,0,.12);
+  border-bottom:3px solid rgba(0,0,0,.16);
+  opacity:0; transform:scale(0); transform-origin:top center;
+  transition:all .5s;
+  will-change: transform, opacity;
+  contain: layout paint;
+}
+.fancy-alert.fancy-alert__active{
+  opacity:1; top:20px; transform:scale(1);
+}
+
+.fancy-alert.fancy-alert__extended{
+  width:min(var(--fa-max), calc(100vw - var(--fa-gutter) * 2));
+  max-width:100%;
+}
+.fancy-alert .fancy-alert--content{
+  position:relative;
+  height:100%; opacity:0;
+  padding:0;
+  transition:opacity .5s;
+  padding-left: calc(var(--fa-icon-w));
+}
+.fancy-alert .fancy-alert--words{
+  font-size:15px; font-weight:700; line-height:var(--fa-h);
+  padding:0 16px 0 calc(var(--fa-icon-w) + 40px);
+  max-width:90%;
+  position:relative;  opacity:0;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  transition: transform .3s .5s, opacity .3s .5s;
+  transform: translateY(-22px);
+  top:auto;
+}
+.fancy-alert.fancy-alert__extended .fancy-alert--content{ opacity:1; }
+.fancy-alert.fancy-alert__extended .fancy-alert--words{ top:0; opacity:1;transform: translateY(0); }
+.fancy-alert .fancy-alert--icon{
+  float:none;
+  position:absolute;
+  width: var(--fa-icon-w);
+  top:0; bottom:0; left:0;
+  height: 100%;
+  display: grid;
+  place-items: center;   
+  font-size: calc(var(--fa-h) * .42);
+  line-height: 1;
+  background: rgba(0,0,0,.15);
+  padding: 0;            
+}
+.fancy-alert.error{   background:#D64646; }
+.fancy-alert.success{ background:#3CB971; }
+.fancy-alert.info{    background:#E8C22C; color:#0b0b0b; }
+.fancy-alert.info .fancy-alert--icon{ color:inherit; }
