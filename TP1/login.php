@@ -18,8 +18,6 @@
   </div>
 </nav>
 
-<script src="js/validations.js"></script>
-
 <main class="flex flex-grow items-center justify-center bg-gradient-to-b from-[#192734] via-[#313e4b] to-[#15202b]">
     <div class="flex flex-col justify-center text-center w-full max-w-md px-6 py-12 lg:px-8 mb-32 mt-20">
 
@@ -103,5 +101,6 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     }
 });
 </script>
+
 
 <?php require("includes/footer.php") ?>

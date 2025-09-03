@@ -4,9 +4,13 @@ require_once __DIR__ . '/../includes/autentificacion.php';
 $isAuth = $isLoggedIn;
 
 $guard  = $isAuth ? '' : 'disabled';
+
 $likeDisabledAttr = $isAuth ? '' : 'disabled title="Inicia sesión para likear"';
+
 $lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
+
 $flash = $_SESSION['flash'] ?? null;
+
 unset($_SESSION['flash']);
 // === FEED: leer posts desde /JSON/POST.json ===
 $POSTS_JSON = __DIR__ . '/../JSON/POST.json';

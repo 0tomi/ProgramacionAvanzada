@@ -25,7 +25,6 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
   </div>
 </nav>
 
-<script src="js/validations.js"></script>
 
 <!-- Grid padre -->
 <main class="grid grid-cols-1 lg:grid-cols-2 bg-gradient-to-b from-[#192734] via-[#313e4b] to-[#15202b]">

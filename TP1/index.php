@@ -15,8 +15,6 @@ if (!empty($_SESSION['username'])) { //si esta logeado que mande al inicio!!!!!!
 $source = 'Inicio'; $require_boostrap = false; require_once('includes/header.php');
 ?>
 
-<body class="min-h-screen bg-[#15202b] flex flex-col">
-
   <div class="min-h-full">
       <!-- NAV -->
     <nav class="bg-[#141e27] drop-shadow-xl shadow-lg">
@@ -68,7 +66,6 @@ $source = 'Inicio'; $require_boostrap = false; require_once('includes/header.php
       </div>
     </main>
   </div>
-</body>
+  
+<?php require_once('includes/footer.php'); ?>
 
-<?php include('includes/footer.php'); ?>
-</html>
