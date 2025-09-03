@@ -39,8 +39,7 @@ main.container{
 #feed{
   width:100%;
   max-width:760px;
-  margin-top: 24px;   /* Mantenemos márgenes verticales */
-  margin-bottom: 24px;
+  margin:24px auto; /* Centra horizontalmente y mantiene márgenes verticales */
   padding:0 16px;
 }
 
