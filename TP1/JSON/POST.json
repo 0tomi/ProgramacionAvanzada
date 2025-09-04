@@ -1,195 +1,19 @@
 [
     {
-        "id": "1756910542591978",
-        "author": {
-            "id": "u5",
-            "handle": "",
-            "name": "fcytuader"
-        },
-        "text": "asdads",
-        "media_url": "",
-        "counts": {
-            "likes": 0,
-            "replies": 0
-        },
-        "replies": [],
-        "created_at": "2025-09-03T14:42:22+00:00"
-    },
-    {
-        "id": "1756910062347380",
-        "author": {
-            "id": "u5",
-            "handle": "",
-            "name": "fcytuader"
-        },
-        "text": "asd",
-        "media_url": "",
-        "counts": {
-            "likes": 0,
-            "replies": 0
-        },
-        "replies": [],
-        "created_at": "2025-09-03T14:34:22+00:00"
-    },
-    {
-        "id": "1756909858980287",
-        "author": {
-            "id": "u5",
-            "handle": "",
-            "name": "fcytuader"
-        },
-        "text": "asd",
-        "media_url": "",
-        "counts": {
-            "likes": 0,
-            "replies": 0
-        },
-        "replies": [],
-        "created_at": "2025-09-03T14:30:58+00:00"
-    },
-    {
-        "id": "1756909840881240",
-        "author": {
-            "id": "u5",
-            "handle": "",
-            "name": "fcytuader"
-        },
-        "text": "asd",
-        "media_url": "",
-        "counts": {
-            "likes": 0,
-            "replies": 0
-        },
-        "replies": [],
-        "created_at": "2025-09-03T14:30:40+00:00"
-    },
-    {
-        "id": "1756908974589832",
-        "author": {
-            "id": "u5",
-            "handle": "",
-            "name": "fcytuader"
-        },
-        "text": "asdasd",
-        "media_url": "",
-        "counts": {
-            "likes": 1,
-            "replies": 0
-        },
-        "replies": [],
-        "created_at": "2025-09-03T14:16:14+00:00"
-    },
-    {
-        "id": "1756850548919353",
+        "id": "1756930693589964",
         "author": {
             "id": "u6",
             "handle": "",
             "name": "tomitomi"
         },
-        "text": "hola chaval",
+        "text": "Hola este es mi post!",
         "media_url": "",
         "counts": {
-            "likes": 0,
+            "likes": 2,
             "replies": 0
         },
         "replies": [],
-        "created_at": "2025-09-02T22:02:28+00:00"
-    },
-    {
-        "id": "1756850004753853",
-        "author": {
-            "id": "u6",
-            "handle": "",
-            "name": "tomitomi"
-        },
-        "text": "asdddasd",
-        "media_url": "",
-        "counts": {
-            "likes": 0,
-            "replies": 0
-        },
-        "replies": [],
-        "created_at": "2025-09-02T21:53:24+00:00"
-    },
-    {
-        "id": "1756849995510920",
-        "author": {
-            "id": "u6",
-            "handle": "",
-            "name": "tomitomi"
-        },
-        "text": "asd",
-        "media_url": "",
-        "counts": {
-            "likes": 0,
-            "replies": 0
-        },
-        "replies": [],
-        "created_at": "2025-09-02T21:53:15+00:00"
-    },
-    {
-        "id": "1756849987884902",
-        "author": {
-            "id": "u6",
-            "handle": "",
-            "name": "tomitomi"
-        },
-        "text": "asd",
-        "media_url": "",
-        "counts": {
-            "likes": 0,
-            "replies": 0
-        },
-        "replies": [],
-        "created_at": "2025-09-02T21:53:07+00:00"
-    },
-    {
-        "id": "1756849942942546",
-        "author": {
-            "id": "u6",
-            "handle": "",
-            "name": "tomitomi"
-        },
-        "text": "asd",
-        "media_url": "",
-        "counts": {
-            "likes": 0,
-            "replies": 0
-        },
-        "replies": [],
-        "created_at": "2025-09-02T21:52:22+00:00"
-    },
-    {
-        "id": "1756849875691845",
-        "author": {
-            "id": "u6",
-            "handle": "",
-            "name": "tomitomi"
-        },
-        "text": "asd",
-        "media_url": "",
-        "counts": {
-            "likes": 0,
-            "replies": 0
-        },
-        "replies": [],
-        "created_at": "2025-09-02T21:51:15+00:00"
-    },
-    {
-        "id": "1756754806938624",
-        "author": {
-            "id": "u6",
-            "handle": "",
-            "name": "tomitomi"
-        },
-        "text": "godeano",
-        "media_url": "",
-        "counts": {
-            "likes": 0,
-            "replies": 0
-        },
-        "replies": [],
-        "created_at": "2025-09-01T19:26:46+00:00"
+        "created_at": "2025-09-03T20:18:13+00:00"
     },
     {
         "id": "197041291234567000",

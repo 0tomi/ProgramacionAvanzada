@@ -14,7 +14,7 @@ foreach ($usuarios as $user) {
     }
 }
 
-// Guardar con contraseña encriptada
+// Guardar con contrasenia encriptada
 $usuarios[] = [
     "id" => "u" . (count($usuarios) + 1),
     "username" => $username,
@@ -25,4 +25,4 @@ $usuarios[] = [
 
 guardarUsuarios($usuarios);
 
-header("Location: ../Inicio/inicio.php?success=Registro+exitoso");
+header("Location: ../login.php?success=Registro+exitoso");

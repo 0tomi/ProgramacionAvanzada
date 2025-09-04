@@ -1,6 +1,6 @@
 <?php $source = 'Login'; $require_boostrap = true; require("includes/header.php") ?>
 
-<nav class="bg-[#15212c] drop-shadow-xl w-full h-24">
+<nav class="bg-[#141e27] drop-shadow-xl w-full h-24">
   <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex items-center relative">
       
       <!-- Texto de saludo -->
@@ -18,9 +18,7 @@
   </div>
 </nav>
 
-<script src="js/validations.js"></script>
-
-<main class="flex flex-grow items-center justify-center bg-gradient-to-b from-[#192734] via-[#22303c] to-[#15202b]">
+<main class="flex flex-grow items-center justify-center bg-gradient-to-b from-[#192734] via-[#313e4b] to-[#15202b]">
     <div class="flex flex-col justify-center text-center w-full max-w-md px-6 py-12 lg:px-8 mb-32 mt-20">
 
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -28,7 +26,7 @@
             <h2 class="mt-4 text-center text-2xl/9 font-bold tracking-tight text-[#ffffff]">Inicia Sesión en Ritual</h2>
         </div>
 
-        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-sm bg-[#15212c] p-6 rounded-lg shadow-lg hover:scale-x-95 transition-transform">
+        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-sm bg-[#141e27] p-6 rounded-lg shadow-lg hover:scale-x-95 transition-transform">
 
             <?php if (isset($_GET['error'])): ?>
                 <div class="mb-4 rounded bg-red-500 px-4 py-2 text-white text-center font-semibold">
@@ -103,5 +101,6 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     }
 });
 </script>
+
 
 <?php require("includes/footer.php") ?>

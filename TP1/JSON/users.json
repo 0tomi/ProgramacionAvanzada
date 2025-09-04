@@ -51,5 +51,12 @@
         "password": "$2y$10$vZd0IPi0Wds4Kk\/z68LgcutBfib31\/ixfOtUH3UVRYYcNrTzdpy..",
         "user_profile_picture": "",
         "description": ""
+    },
+    {
+        "id": "u10",
+        "username": "usuarioejemplo",
+        "password": "$2y$10$pzkaEIEOlnkiZ\/\/FIZnvzu0bTw66VKh1dVUve8QGMK8h1eu1nTIky",
+        "user_profile_picture": "",
+        "description": ""
     }
 ]

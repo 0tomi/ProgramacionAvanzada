@@ -1,12 +1,17 @@
 <?php
 $preruta ="../";
-require_once __DIR__ . '/../includes/autentificacion.php';
+require_once __DIR__ . '/../includes/autenticacion.php';
 $isAuth = $isLoggedIn;
 
 $guard  = $isAuth ? '' : 'disabled';
+
 $likeDisabledAttr = $isAuth ? '' : 'disabled title="Inicia sesión para likear"';
+
 $lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
 
+$flash = $_SESSION['flash'] ?? null;
+
+unset($_SESSION['flash']);
 // === FEED: leer posts desde /JSON/POST.json ===
 $POSTS_JSON = __DIR__ . '/../JSON/POST.json';
 $posts = [];
@@ -21,6 +26,18 @@ if (is_readable($POSTS_JSON)) {
 <body>
   <?php include __DIR__ . '/headerInicio.php'; ?>
   <?php require('../includes/barraLateral/barraLateral.php'); ?>
+  <?php if (!empty($flash)): ?>
+  <div id="flash"
+       data-type="<?= htmlspecialchars($flash['type'], ENT_QUOTES) ?>"
+       data-msg="<?= htmlspecialchars($flash['msg'], ENT_QUOTES) ?>">
+  </div>
+
+  <div id="toast" class="toast" data-msg="<?= htmlspecialchars($flash['msg'], ENT_QUOTES, 'UTF-8') ?>">
+    <span class="toast__icon"></span>
+    <span class="toast__msg"></span>
+  </div>
+<?php endif; ?>
+
 
   <div class="shell">
     <section class="feed-col" role="feed" aria-label="Inicio">
@@ -106,12 +123,9 @@ if (is_readable($POSTS_JSON)) {
       </div>
     </section>
   </div>
-
-  <?php require_once __DIR__ . '/../includes/footer.php'; ?>
-
-  <!-- JS separado -->
+  <!-- js -->
   <script src="inicio.js?v=3"></script>
-
+  <?php require_once __DIR__ . '/../includes/footer.php'; ?>
 
 </body>
 </html>
