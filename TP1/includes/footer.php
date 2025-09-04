@@ -1,7 +1,7 @@
 <?php
 $year = date('Y');
 ?>
-<footer class="mt-auto" style="background:#192734; color:#fff; border-top:1px solid #22303c;">
+<footer class="w-full" style="background:#192734; color:#fff; border-top:1px solid #22303c;">
   <div class="container py-4 m-auto">
     <div class="row g-2">
       <div class="col-12 col-md-4">
