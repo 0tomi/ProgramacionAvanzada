@@ -60,7 +60,7 @@ require_once __DIR__ . "/includes/header.php";
         <textarea rows="4" 
         class="form-control form-control-lg"
         style="background:#0f1419; border:1px solid #22303c; color:#ffffff;"
-        name="descripcion"><?= $_SESSION['description']; ?> </textarea>
+        name="descripcion"><?= htmlspecialchars($_SESSION['description']); ?> </textarea>
       </div>
 
       <button type="submit" class="btn btn-lg w-100"
