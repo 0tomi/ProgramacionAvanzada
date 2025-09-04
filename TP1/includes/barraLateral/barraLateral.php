@@ -61,12 +61,14 @@ $ctaTextSafe       = htmlspecialchars($ctaText ?? '', ENT_QUOTES, 'UTF-8');
       </svg>
       Inicio
     </a>
-    <a href=" <?= $boton_perfil; ?> " class="flex items-center px-3 py-2 rounded-lg hover:bg-slate-700">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-      </svg>
-      Perfil
-    </a>
+    <?php if ($isLoggedIn): ?>
+      <a href=" <?= $boton_perfil; ?> " class="flex items-center px-3 py-2 rounded-lg hover:bg-slate-700">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+        </svg>
+        Perfil
+      </a>
+    <?php endif;?>
     <a href="#" class="flex items-center px-3 py-2 rounded-lg hover:bg-slate-700">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.5c-.806 0-1.533.446-1.902 1.166l-1.045 2.09A2.166 2.166 0 0 0 5.595 16.5h12.81a2.166 2.166 0 0 0 1.909-2.744l-1.045-2.09a2.166 2.166 0 0 0-1.903-1.166H6.633Z" />
