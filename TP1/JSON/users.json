@@ -38,14 +38,14 @@
         "username": "fcytuader",
         "password": "$2y$10$MUoAvg4NqJgZXE38LlBMuOc7ymN6mPpJ1SOzKPeEnbjeg3nVZ2VE6",
         "user_profile_picture": "imagenes\/profilePictures\/uader.png",
-        "description": "Facultad de Ciencias y Tecnología - Universidad Autónoma de Entre Ríos"
+        "description": "Facultad de Ciencias y Tecnolog\u00eda - Universidad Aut\u00f3noma de Entre R\u00edos"
     },
     {
         "id": "u6",
         "username": "fcytuader.",
         "password": "$2y$10$fyZlASqDe381cq1pCiBJl.zQygHKqh2n1SbZW1cqWTagUzwvWHAFu",
         "user_profile_picture": "imagenes\/profilePictures\/uader.png",
-        "description": "Facultad de Ciencias y Tecnología - Universidad Autónoma de Entre Ríos"
+        "description": "Facultad de Ciencias y Tecnolog\u00eda - Universidad Aut\u00f3noma de Entre R\u00edos"
     },
     {
         "id": "u9",
@@ -59,6 +59,13 @@
         "username": "usuarioejemplo",
         "password": "$2y$10$pzkaEIEOlnkiZ\/\/FIZnvzu0bTw66VKh1dVUve8QGMK8h1eu1nTIky",
         "user_profile_picture": "",
+        "description": ""
+    },
+    {
+        "id": "u11",
+        "username": "PelaAprobanosPorfa",
+        "password": "$2y$10$O\/D6raHxTxt7Cz4dcSJOIedImQQH3odqdZqORQDLpr4mzZh9XaS9y",
+        "user_profile_picture": "imagenes\/profilePictures\/VinDiesel.webp",
         "description": ""
     }
 ]
