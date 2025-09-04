@@ -7,13 +7,7 @@
   --fa-gutter: 24px;        
   --fa-max: 400px;          
 }
-@media (prefers-color-scheme: light){
-  :root{
-    --bg:#f6f8fb; --panel:#ffffff; --panel-2:#f9fbff;
-    --ink:#0e1724; --muted:#5b6b7f; --line:#e6ecf2;
-    --accent:#1662d1; --like:#d61a2c; --shadow:0 12px 36px rgb(16 45 90 / .10);
-  }
-}
+
 
 *{ box-sizing:border-box }
 html,body{ min-height:100% }
