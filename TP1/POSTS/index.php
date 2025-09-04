@@ -6,7 +6,7 @@
 <body>
   
   <?php $preruta = '../'; 
-    require_once __DIR__ . '/../includes/autentificacion.php'; 
+    require_once __DIR__ . '/../includes/autenticacion.php'; 
     require_once __DIR__ . '/../includes/barraLateral/barraLateral.php';
     ?>
   <main class="container">

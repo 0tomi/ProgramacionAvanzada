@@ -1,8 +1,5 @@
 # ProgramacionAvanzada
-Repo para programacion avanzada
 
-Para inicializar el proyecto de manera totalmente funcional, es requerimiento tener instalado Docker
+Mini-Proyecto para programacion avanzada intentando simular la famosa red social X, con una interfaz simple y validaciones básicas.
 
-Posteriormente podras utilizar el comando
-
-docker compose up --build
+Ritual es una Red Social que busca conectar a las personas afines a Sistemas, en ella podras ver, interactuar y crear tus propios Posts, únete y sé parte de una gran experiencia.
