@@ -37,7 +37,9 @@
             <form class="space-y-6" action="includes/procesoLogin.php" method="POST" id="loginForm">
 
                 <div>
-                    <label for="username" class="block text-sm/6 font-medium text-[#ffffff]">Usuario</label>
+                    <div class="flex items-center justify-between">
+                        <label for="username" class="block text-sm/6 font-medium text-[#ffffff]">Usuario</label>
+                    </div>
                     <div class="mt-2">
                         <input type="text" name="username" id="username" autocomplete="username" required 
                             class="block w-full rounded-md bg-[#22303c] px-3 py-1.5 text-base text-[#ffffff] 
