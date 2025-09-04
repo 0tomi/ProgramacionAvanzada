@@ -16,5 +16,7 @@ else $profilePicture = 'imagenes/profilePictures/defaultProfilePicture.png';
 
 // Asegurar que la ruta funcione desde subdirectorios
 if (!preg_match('#^https?://#', $profilePicture) && $profilePicture[0] !== '/') {
-    $profilePicture = $preruta . ltrim($profilePicture, '/');
+    if (!empty($preruta))
+        $profilePicture = $preruta . ltrim($profilePicture, '/');
+    else $profilePicture = ltrim($profilePicture, '/');
 }
