@@ -1,65 +1,50 @@
 <?php
-if (!isset($_SESSION["usuario"])) {
-    $_SESSION["usuario"] = [
-        "nombre"      => "Facundo",
-        "usuario"     => "facuperez",
-        "contrasena"  => "123456",
-        "descripcion" => "¡Hola! Soy nuevo en la red social.",
-        "imagen"      => "imagenes/profilePictures/defaultProfilePicture.png"
-    ];
-}
-
-$usuarioName = $_SESSION["username"];
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (isset($_POST["descripcion"])) {
-        $usuario["descripcion"] = htmlspecialchars($_POST["descripcion"], ENT_QUOTES, 'UTF-8');
-    }
-    if (!empty($_FILES["imagen"]["name"])) {
-        $targetDir = __DIR__ . "/uploads/";
-        if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
-        $safeName   = preg_replace('/[^a-zA-Z0-9._-]/', '_', $_FILES["imagen"]["name"]);
-        $targetFile = $targetDir . $safeName;
-        if (move_uploaded_file($_FILES["imagen"]["tmp_name"], $targetFile)) {
-            $usuario["imagen"] = "uploads/" . $safeName;
-        }
-    }
-    $_SESSION["usuario"] = $usuario;
-    header("Location: perfil.php?saved=1");
-    exit;
-}
-
-$source = 'Perfil'; $require_boostrap = true;
-
 $preruta = '';
-require_once __DIR__ . "/includes/header.php";
 require_once __DIR__ . "/includes/autenticacion.php";
-require_once __DIR__ . "/includes/barraLateral/barraLateral.php";
-require_once __DIR__ . "/Inicio/headerInicio.php";
+$source = 'Perfil'; $require_boostrap = true;
+require_once __DIR__ . "/includes/header.php";
+?>
+
+<header class="flex items-center justify-between px-6 py-4 border-b border-[color:var(--line)] bg-[color:var(--panel)]">
+  <?php if ($isLoggedIn): ?>
+    <!-- mostrar logout papaa -->
+    <a href="logout.php"
+       class="ml-auto px-4 py-2 rounded-full font-bold border border-[color:var(--line)] bg-red-600 text-white hover:opacity-90 transition">
+      Cerrar sesión
+    </a>
+  <?php else: ?>
+    <!-- inicia sesion pibe -->
+    <a href="index.php"
+       class="ml-auto px-4 py-2 rounded-full font-bold border border-[color:var(--line)] bg-[color:var(--accent)] text-white hover:opacity-90 transition">
+      Iniciar sesión
+    </a>
+  <?php endif; ?>
+</header>
+
+<?php 
+/*
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['description'] = $user['description'];
+*/
 ?>
 
 <main class="min-vh-100 d-flex align-items-center justify-content-center px-4 py-5"
       style="background:#0f1419;">
+  <?php require_once __DIR__ . "/includes/barraLateral/barraLateral.php"; ?>
   <div class="w-100" style="max-width: 900px; background:#15202b; border:1px solid #22303c; border-radius:20px; padding:50px; box-shadow:0 8px 24px rgba(0,0,0,0.4);">
 
     <h1 class="text-center mb-5" style="color:#ffffff; font-size:2.2rem;">Perfil del Usuario</h1>
 
     <!-- Imagen -->
     <div class="text-center mb-4">
-      <img src="<?= htmlspecialchars($usuario["imagen"]) ?>" alt="Imagen de perfil"
+      <img src="<?= htmlspecialchars($_SESSION['user_profile_picture']) ?>" alt="Imagen de perfil"
            style="width:200px;height:200px;object-fit:cover;border-radius:50%;
                   border:3px solid #1da1f2;">
     </div>
 
     <!-- Datos -->
     <div class="mb-5 text-center" style="font-size:1.2rem;">
-      <p style="color:#8899ac;"><strong style="color:#ffffff;">Nombre:</strong> <?= htmlspecialchars($usuario["nombre"]) ?></p>
-      <p style="color:#8899ac;"><strong style="color:#ffffff;">Usuario:</strong> <?= htmlspecialchars($usuario["usuario"]) ?></p>
-      <p style="color:#8899ac;">
-        <strong style="color:#ffffff;">Contraseña:</strong>
-        <span id="contrasena" style="color:#ffffff;">******</span>
-        <button type="button" class="btn btn-lg btn-primary ms-3" onclick="togglePassword()">Mostrar</button>
-      </p>
+      <p style="color:#8899ac;"><strong style="color:#ffffff;">Nombre:</strong> <?= htmlspecialchars($_SESSION['username']) ?></p>
     </div>
 
     <!-- Formulario -->
@@ -84,21 +69,5 @@ require_once __DIR__ . "/Inicio/headerInicio.php";
     <?php endif; ?>
   </div>
 </main>
-
-<script>
-  let visible = false;
-  const contrasena = "<?= htmlspecialchars($usuario['contrasena'], ENT_QUOTES, 'UTF-8'); ?>";
-  function togglePassword() {
-    const span = document.getElementById("contrasena");
-    if (visible) {
-      span.textContent = "******";
-      event.target.textContent = "Mostrar";
-    } else {
-      span.textContent = contrasena;
-      event.target.textContent = "Ocultar";
-    }
-    visible = !visible;
-  }
-</script>
 
 <?php require_once __DIR__ . "/includes/footer.php"; ?>
