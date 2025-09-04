@@ -9,7 +9,7 @@ if (!isset($_SESSION["usuario"])) {
     ];
 }
 
-$usuario = $_SESSION["usuario"];
+$usuarioName = $_SESSION["username"];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST["descripcion"])) {
