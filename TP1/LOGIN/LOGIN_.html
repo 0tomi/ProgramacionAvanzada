@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login</title>
+  <link rel="stylesheet" href="LOGIN_.css">
+</head>
+<body>
+    <div class="separar">
+    <div class="left">
+        <div class="contenido">
+
+        </div>
+    </div>
+  <!-- Pantalla usuario -->
+   <div class="right">
+    <div class="user what visible" id="stepUser">
+    ¿Cuál es tu usuario?
+    <input type="text" id="username" class="focus" autocomplete="username" />
+    <div class="actions">
+      <button id="btnContinuar" class="btn">Continuar</button>
+      <a href="register.html" class="link">¿No tenés cuenta? Registrate</a>
+    </div>
+  </div>
+
+  <!-- Pantalla contraseña -->
+  <div class="pass what" id="stepPass">
+    ¿Cuál es tu contraseña?
+    <input type="password" id="password" class="cool" autocomplete="current-password" />
+    <div class="actions">
+      <button id="btnIngresar" class="btn">Ingresar</button>
+      <a href="recuperar.html" class="link">¿Olvidaste tu contraseña?</a>
+    </div>
+  </div>
+
+   </div>
+      </div>
+
+  <script>
+    // Elementos
+    const stepUser = document.getElementById('stepUser');
+    const stepPass = document.getElementById('stepPass');
+    const username = document.getElementById('username');
+    const password = document.getElementById('password');
+    const btnContinuar = document.getElementById('btnContinuar');
+    const btnIngresar = document.getElementById('btnIngresar');
+
+    // Muestra la etapa de contraseña
+    function goToPassword() {
+      if (!username.value.trim()) {
+        username.focus();
+        return;
+      }
+      stepPass.style.display = 'block';
+      stepUser.style.display = 'none';
+      password.focus();
+    }
+
+    // Simula envío (acá iría tu lógica real)
+    function submitLogin() {
+      if (!password.value) {
+        password.focus();
+        return;
+      }
+      // Reemplazá esto con tu submit real
+      console.log('Usuario:', username.value, 'Password:', password.value);
+      alert('Inicio de sesión simulado ✅');
+    }
+
+    // Clicks
+    btnContinuar.addEventListener('click', goToPassword);
+    btnIngresar.addEventListener('click', submitLogin);
+
+    // Focus inicial
+    username.focus();
+  </script>
+</body>
+</html>
