@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>RITUAL</title>
 
-  <!-- Bootstrap 5.3 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Fonts similares a tu diseño -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -38,8 +36,6 @@
       background: linear-gradient(90deg, var(--bg-left) 0%, var(--bg-right) 100%);
       display:flex; align-items:center;
     }
-
-    /* Columna izquierda */
     .brand h1{
       font-family: Montserrat, Inter, sans-serif;
       font-weight:800; letter-spacing:.02em;
@@ -52,8 +48,6 @@
       font-size: clamp(18px, 2.3vw, 30px);
     }
     .brand p{ color:var(--muted) }
-
-    /* Tarjeta */
     .ritual-card{
       background: linear-gradient(180deg, var(--card-a), var(--card-b));
       border-radius: var(--r-xl);
@@ -67,8 +61,6 @@
       background: radial-gradient(closest-side, rgba(255,255,255,.08), transparent 70%);
       pointer-events:none;
     }
-
-    /* Botón volver (solo en Registro) */
     .btn-back{
       position:absolute; top:14px; left:14px;
       width:42px; height:42px; border-radius:50%;
@@ -80,8 +72,6 @@
       visibility:hidden; opacity:0; transition:.15s;
     }
     .show-register .btn-back{visibility:visible; opacity:1}
-
-    /* Inputs píldora */
     .form-control.ritual-input{
       background: linear-gradient(180deg, #274C86, var(--input));
       border:0; color:var(--ink);
@@ -95,7 +85,6 @@
     }
     label{ color:var(--ink); opacity:.9; font-weight:600 }
 
-    /* Botones */
     .btn-ritual-primary{
       background: linear-gradient(180deg, var(--btnA1), var(--btnA2));
       color:#10203d; font-weight:800; letter-spacing:.04em;
@@ -109,7 +98,6 @@
       box-shadow: 0 8px 20px rgba(0,0,0,.35), inset 0 -2px 0 rgba(0,0,0,.12);
     }
 
-    /* Login/Registro toggle */
     .only-register{ display:none; }
     .show-register .only-register{ display:block; }
     .show-register .only-login{ display:none; }
@@ -128,8 +116,6 @@
       <div class="col-lg-6">
         <div id="panel" class="ritual-card p-4 p-md-5">
           <button id="btnVolver" class="btn btn-back" type="button" aria-label="Volver">←</button>
-
-          <!-- LOGIN -->
           <div class="only-login">
             <div class="mb-3">
               <label for="userLogin" class="form-label">Usuario</label>
@@ -148,7 +134,6 @@
             <button id="goRegister" class="btn btn-ritual-secondary d-block mx-auto">REGISTRARSE</button>
           </div>
 
-          <!-- REGISTRO -->
           <div class="only-register">
             <div class="mb-3">
               <label for="userReg" class="form-label">Usuario</label>
@@ -171,9 +156,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const panel = document.getElementById('panel');
     const goRegister = document.getElementById('goRegister');

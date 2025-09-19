@@ -1,0 +1,103 @@
+:root{
+  --bg:#0c0f14; --panel:#0f131a; --panel-2:#0b0f15;
+  --ink:#e8edf5; --muted:#8ea0b5; --line:#1b2431;
+  --accent:#4aa3ff; --like:#ff4d7a; --shadow:0 12px 36px rgb(0 0 0 / .28);  
+}
+html, body{
+    background: white;
+    height: 100%;
+    margin:0;
+    padding:0;
+}
+.grid{
+    display:flex;
+    height:100vh;
+    font-family:'Poppins', sans-serif;
+}
+.grid >div{
+    flex: 1 1 0;
+    min-width: none;
+}
+
+.grid .leftRitual{
+    background: linear-gradient(360deg, #1b4aaf -40%, #0c0f14 400px);
+    color:var(--ink);
+}
+.grid .rightAuth{
+    display: flex;
+    color:#4b5563;
+    font-weight: 400;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 400px;
+    margin-left: -200px;
+}
+.Login{
+    margin-left: 25%;
+    margin-bottom: -30%;
+    transform: scale(1.1);
+}
+.Login h1{
+    text-align: left;
+    font-weight:bolder;
+    padding-top: 15px;
+}
+.Login #formLogin *{
+    display: flex;
+    flex-direction: column;
+}
+
+    input{
+    background: #f9fafb;
+    height: 45px;
+    width: 400px;
+    border: none;
+    border-radius: 10px;
+    padding-left: 20px;
+    box-sizing: border-box;
+}
+
+    label{
+    font-size: 14px;
+    padding-bottom: 5px;
+}
+    label, input{
+        font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif ;
+        font-weight: 500;
+    }
+    input::placeholder{
+    color: #dbdee2;
+    font-weight: 400;
+}
+
+.nameUser ,
+.passWord{
+    padding:10px 0px;
+}
+button {
+  font: inherit;     
+  -webkit-appearance: none;
+  appearance: none;   
+  border: none;
+  cursor: pointer;
+}
+.botonLogin #buttonLogin{
+
+    box-sizing: border-box;
+    margin-top: 10px;
+}
+.botonLogin *{
+    box-sizing: border-box;
+    justify-content: center;
+    background: linear-gradient(180deg, #2563eb 0%, #000000 350%);
+    color:var(--ink);
+    height: 55px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 15px;
+    
+}
+.botonLogin *:hover{
+  
+  background: linear-gradient(180deg, #1b4aaf 0%, #000000 300%);
+}

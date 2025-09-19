@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./_login.css?v=1">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <title>Ritual</title>
+    </head>
+    <body>
+            <div class="grid"> 
+                <div class="leftRitual">
+                    <h1>Ritual</h1>
+                    <h3>La red social de sistemas</h3>
+                    <p>Encontrá tu mundo, viví tu ritual</p>
+                    <p>El momento es tuyo.</p>
+                </div>
+                <div class="rightAuth">
+                    <div class="Login">
+                        <h1>Iniciar Sesión.</h1>
+                        <form id="formLogin"> 
+                            <div class="nameUser">
+                                <label for="userName" >Usuario</label>
+                                <input type="text" id="userName" name="userName" required autocomplete="username" placeholder="Tu usuario acá">
+                            </div>
+                            <div class="passWord">
+                                <label for="password">Contraseña</label>
+                                <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
+                            </div>
+                            <div class="botonLogin">
+                                <button id="buttonLogin" type="submit">Iniciar sesión</button>
+                            </div>
+                        </form>
+
+                     </div>
+
+                    </div>
+            
+            </div>
+            
+
+
+<script>
+    const es = new EventSource('/ProgramacionAvanzada/TP1/watch.php');
+    let current = null;
+    es.onmessage = (e) => {
+      if (current && e.data !== current) location.reload();
+      current = e.data;
+    };
+</script>
+
+    </body>
