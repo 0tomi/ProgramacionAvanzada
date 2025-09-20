@@ -19,16 +19,12 @@ html, body{
     padding:0;
 }
 .grid{
-    display:flex;
-    flex-direction: row;
-    height:100vh;
+    display:grid;
+    grid-template-columns: minmax(0,1.5fr) minmax(0,1fr);
+    min-height:100vh;
     font-family:'Poppins', sans-serif;
-    flex-wrap: wrap;
 }
-.grid >div{
-    flex: 1 1 0;
-    min-width: 0;
-}
+.grid > div{min-width:0}
 
 .grid .leftRitual{
     display: flex;
@@ -36,16 +32,18 @@ html, body{
     color:var(--ink);
 }
 .RITUAL{
+    
     display: flex;
     flex-direction: column;
     text-align: left;
     justify-content: center;
     padding-left: 13%;
-    
+    width:min(720px, 90%);
+    margin-left: 0%;
 }
 .RITUAL h1{
-    font-size: 170px;
-    margin:0;
+    font-size: clamp(70px, 12vw, 200px);
+    margin:0 0 16px 0;
     line-height: 0.95;
     font-weight: 800;
 }
@@ -68,15 +66,15 @@ html, body{
     font-weight: 400;
     justify-content: center;
     align-items: center;
-    margin-bottom: 400px;
-    margin-left: -300px;
+    margin:0;
 }
 .Login{
     display: flex;
     flex-direction: column;
-    margin-left: 33%;
-    margin-bottom: -35%;
-    transform: scale(1.1);
+    max-width: 420px;
+    transform: none;
+    margin:0;
+    overflow: hidden;
 }
 .Login h1{
     text-align: left;
@@ -141,3 +139,5 @@ button {
   
   background: linear-gradient(180deg, #1b4aaf 0%, #000000 300%);
 }
+font-size: clamp(56px, 10vw, 140px);
+
