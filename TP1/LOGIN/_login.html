@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="./_login.css?v=1">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <title>Ritual</title>
     </head>
     <body>
@@ -29,6 +29,11 @@
                                 <label for="password">Contraseña</label>
                                 <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
                             </div>
+                            <div class="remember">
+                                <label><input type="checkbox"/>Recordarme</label>
+                                <a href="#">Olvidaste tu contraseña?</a>
+                            </div>
+                            <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
                             <div class="botonLogin">
                                 <button id="buttonLogin" type="submit">Iniciar sesión</button>
                             </div>
@@ -43,12 +48,7 @@
 
 
 <script>
-    const es = new EventSource('/ProgramacionAvanzada/TP1/watch.php');
-    let current = null;
-    es.onmessage = (e) => {
-      if (current && e.data !== current) location.reload();
-      current = e.data;
-    };
+    
 </script>
 
     </body>
