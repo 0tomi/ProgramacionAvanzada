@@ -3,15 +3,7 @@
   --ink:#e8edf5; --muted:#8ea0b5; --line:#1b2431;
   --accent:#4aa3ff; --like:#ff4d7a; --shadow:0 12px 36px rgb(0 0 0 / .28);  
 }
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  text-decoration: none;
-  list-style-type: none;
-  border: none;
-  outline: none;
-}
+
 html, body{
     background: white;
     height: 100%;
@@ -44,7 +36,7 @@ html, body{
 .RITUAL h1{
     font-size: clamp(70px, 12vw, 200px);
     margin:0 0 16px 0;
-    line-height: 0.95;
+    line-height: 0.7;
     font-weight: 800;
 }
 .RITUAL h3, .RITUAL p{
@@ -71,24 +63,26 @@ html, body{
 .Login{
     display: flex;
     flex-direction: column;
+    width: 100%;
     max-width: 420px;
     transform: none;
     margin:0;
     overflow: hidden;
+    
 }
 .Login h1{
     text-align: left;
     font-weight:bolder;
     padding-top: 15px;
 }
-.Login #formLogin *{
+.Login #formLogin{
     display: flex;
     flex-direction: column;
 }
     input{
     background: #f9fafb;
     height: 45px;
-    width: 400px;
+    width: 100%;
     border: none;
     border-radius: 10px;
     padding-left: 20px;
@@ -119,25 +113,139 @@ button {
   border: none;
   cursor: pointer;
 }
-.botonLogin #buttonLogin{
-
-    box-sizing: border-box;
-    margin-top: 10px;
-}
-.botonLogin *{
+.btn{
     box-sizing: border-box;
     justify-content: center;
     background: linear-gradient(180deg, #2563eb 0%, #000000 350%);
     color:var(--ink);
+    width: 100%;
     height: 55px;
     font-size: 14px;
     font-weight: 500;
     border-radius: 15px;
-    
+    margin-top:10px;
+    text-decoration: none;
 }
-.botonLogin *:hover{
-  
-  background: linear-gradient(180deg, #1b4aaf 0%, #000000 300%);
+.btn:hover{
+    background: linear-gradient(180deg, #1b4aaf 0%, #000000 300%);
 }
+
 font-size: clamp(56px, 10vw, 140px);
 
+.remember{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    
+}
+.remember label *{
+    width: 18px;
+    height: 18px;
+}
+.remember #recovery{
+    color:#4fadf6;
+    text-decoration: none;
+    margin-left: 110px;
+}
+.remember #recovery:hover{
+    color: #8acdff;
+}
+.g-recaptcha{
+    margin: 10px 0;
+}
+.dividir {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #6b7280; 
+  font-size: 14px;
+  margin: 20px 0;
+}
+.dividir::before,
+.dividir::after {
+  content: "";
+  flex: 1; 
+  border-bottom: 1px solid #d1d5db; 
+  margin: 0 10px; 
+}
+
+.botonRegistrarse a{
+    background: black;
+    color: #ffffff;
+    margin-top: -5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.botonRegistrarse a:hover{
+ background: #34455e;
+}
+.Login{
+    transform: scale(0.97);
+}
+
+
+
+
+
+
+
+
+
+
+
+/* para celu */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .leftRitual {
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+  }
+  .RITUAL {
+    padding-left: 0;
+    margin: 0 auto;
+    width: 100%;
+    align-items: center;
+  }
+  .RITUAL h1 {
+    font-size: clamp(40px, 15vw, 90px);
+    line-height: 1;
+    text-align: center;
+  }
+  .RITUAL h3,
+  .RITUAL p {
+    padding-left: 0;
+    text-align: center;
+  }
+  .rightAuth {
+    margin: 0;
+    padding: 20px;
+    align-items: flex-start;
+  }
+  .Login {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    transform: none;
+  }
+  .btn {
+    font-size: 16px;
+    height: 50px;
+  }
+  .remember {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px; 
+  }
+  .remember #recovery {
+    margin-left: 0;
+  }
+  .dividir {
+    font-size: 13px;
+    margin: 15px 0;
+  }
+}

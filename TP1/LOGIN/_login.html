@@ -29,13 +29,18 @@
                                 <label for="password">Contraseña</label>
                                 <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
                             </div>
-                            <div class="remember">
-                                <label><input type="checkbox"/>Recordarme</label>
-                                <a href="#">Olvidaste tu contraseña?</a>
-                            </div>
                             <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+                            <div class="remember">
+                                <label><input type="checkbox" id="checkbox"/> Recordarme</label>
+                                <a href="#" id="recovery">Olvidaste tu contraseña?</a>
+                            </div>
+                            
                             <div class="botonLogin">
-                                <button id="buttonLogin" type="submit">Iniciar sesión</button>
+                                <button class="btn" type="submit">Iniciar sesión</button>
+                            </div>
+                            <div class="dividir">O crear cuenta</div>
+                            <div class="botonRegistrarse">
+                                <a href="#" class="btn">Registrarse</a>
                             </div>
                         </form>
 
