@@ -67,5 +67,12 @@
         "password": "$2y$10$O\/D6raHxTxt7Cz4dcSJOIedImQQH3odqdZqORQDLpr4mzZh9XaS9y",
         "user_profile_picture": "imagenes\/profilePictures\/VinDiesel.webp",
         "description": ""
+    },
+    {
+        "id": "u12",
+        "username": "tomitomitomi",
+        "password": "$2y$10$\/Ci7dH0SLQ3NET85U8ZJWunE9dhE.1XaEJLaMZvf2lAVpMQTI0sXu",
+        "user_profile_picture": "",
+        "description": ""
     }
 ]

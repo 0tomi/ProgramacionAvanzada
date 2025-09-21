@@ -1,10 +1,8 @@
 <?php 
 
 ?>
-<link rel="stylesheet" href="./_login.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <body>
 <div class="grid"> 
     <div class="leftRitual">
@@ -21,11 +19,11 @@
             <h1>Iniciar Sesión.</h1>
             <form id="formLogin" method="POST" action="../includes/procesoLogin.php"> 
                 <div class="nameUser">
-                    <label for="userName">Usuario</label>
+                    <label for="username">Usuario</label>
                     <input type="text" id="userName" name="username" required placeholder="Tu usuario acá">
                 </div>
 
-                <div class="passWord">
+                <div class="password">
                     <label for="password">Contraseña</label>
                     <input type="password" id="password" name="password" required placeholder="••••••••">
                 </div>
@@ -122,7 +120,7 @@ html, body{
     max-width: 420px;
     margin:0;
     overflow: hidden;
-    top:2%;
+    bottom:2%;
 }
 .Login h1{
     text-align: left;
@@ -147,17 +145,22 @@ html, body{
     font-size: 14px;
     padding-bottom: 5px;
 }
-    label, input{
+    label{
         font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif ;
-        font-weight: 500;
+        font-weight: 600;
+    }
+    input{
+        font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif ;
+        font-weight: 600;
     }
     input::placeholder{
+    font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif ;
     color: #dbdee2;
-    font-weight: 400;
+    font-weight: 500;
 }
 
-.nameUser ,
-.passWord{
+.nameuser ,
+.password{
     padding:10px 0px;
 }
 button {
