@@ -19,10 +19,10 @@
     <div class="rightAuth">
         <div class="Login">
             <h1>Iniciar Sesión.</h1>
-            <form id="formLogin"> 
+            <form id="formLogin" method="POST" action="../includes/procesoLogin.php"> 
                 <div class="nameUser">
                     <label for="userName">Usuario</label>
-                    <input type="text" id="userName" name="userName" required placeholder="Tu usuario acá">
+                    <input type="text" id="userName" name="username" required placeholder="Tu usuario acá">
                 </div>
 
                 <div class="passWord">
