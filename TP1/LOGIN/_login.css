@@ -61,14 +61,14 @@ html, body{
     margin:0;
 }
 .Login{
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 100%;
     max-width: 420px;
-    transform: none;
     margin:0;
     overflow: hidden;
-    
+    bottom:4%;
 }
 .Login h1{
     text-align: left;
