@@ -130,7 +130,7 @@ button {
     background: linear-gradient(180deg, #1b4aaf 0%, #000000 300%);
 }
 
-font-size: clamp(56px, 10vw, 140px);
+
 
 .remember{
     display: flex;
