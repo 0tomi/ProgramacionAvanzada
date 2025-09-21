@@ -1,15 +1,16 @@
+<?php
+// podés dejar vacío el bloque PHP si no usás nada todavía
+?>
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="./_login.css?v=1">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <title>Ritual</title>
-    </head>
-    <body>
-            <div class="grid"> 
+<head>
+  <meta charset="UTF-8">
+  <title>Registro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./_register.css?v=1">
+</head>
+<body>
+   <div class="grid"> 
                 <div class="leftRitual">
                     <div class="RITUAL"><h1>RITUAL</h1>
                     <h3>La red social de sistemas</h3>
@@ -19,28 +20,27 @@
                 </div>
                 <div class="rightAuth">
                     <div class="Login">
-                        <h1>Iniciar Sesión.</h1>
-                        <form id="formLogin"> 
-                            <div class="nameUser">
+                        <h1>Crear cuenta.</h1>
+                        <form id="formRegister"> 
+                            <div class="nameUser" method="POST" action="../includes/procesoRegister.php">
                                 <label for="userName" >Usuario</label>
                                 <input type="text" id="userName" name="userName" required autocomplete="username" placeholder="Tu usuario acá">
                             </div>
                             <div class="passWord">
                                 <label for="password">Contraseña</label>
                                 <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
-                            </div>
-                            <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
-                            <div class="remember">
-                                <label><input type="checkbox" id="checkbox"/> Recordarme</label>
-                                <a href="#" id="recovery">Olvidaste tu contraseña?</a>
+                                <label for="password"> Repetir contraseña</label>
+                                <input type="password" id="pass2" placeholder="••••••••">
+                                
                             </div>
                             
+                            
                             <div class="botonLogin">
-                                <button class="btn" type="submit">Iniciar sesión</button>
+                                <button class="btn" type="submit">Registrarse</button>
                             </div>
-                            <div class="dividir">¿No tenés cuenta?</div>
+                            <div class="dividir">¿Ya tenés cuenta?</div>
                             <div class="botonRegistrarse">
-                                <a href="#" class="btn">Registrarse</a>
+                                <a href="./_login.php" class="btn">Iniciar sesión</a>
                             </div>
                         </form>
 
@@ -49,10 +49,6 @@
                     </div>
             
             </div>
-            
-
-<script>
-    
-</script>
-
-    </body>
+</body>
+</html>
+<?php require("../includes/_footer.php"); ?>
