@@ -14,7 +14,7 @@ if (!empty($_SESSION['username'])) { //si esta logeado que mande al inicio!!!!!!
 
 $source = 'Inicio'; $require_boostrap = false; require_once('includes/header.php');
 ?>
-
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <div class="min-h-full">
       <!-- NAV -->
     <nav class="bg-[#141e27] drop-shadow-xl shadow-lg">
@@ -67,5 +67,5 @@ $source = 'Inicio'; $require_boostrap = false; require_once('includes/header.php
     </main>
   </div>
   
-<?php require_once('includes/footer.php'); ?>
+<?php require_once('includes/_footer.php'); ?>
 

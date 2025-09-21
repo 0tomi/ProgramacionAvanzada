@@ -1,3 +1,57 @@
+<?php 
+$require_boostrap = true; $source = 'Login';
+?>
+<link rel="stylesheet" href="./_login.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<body>
+<div class="grid"> 
+    <div class="leftRitual">
+        <div class="RITUAL">
+            <h1>RITUAL</h1>
+            <h3>La red social de sistemas</h3>
+            <p>Encontrá tu mundo, viví tu ritual</p>
+            <p>El momento es tuyo.</p>
+        </div>
+    </div>
+
+    <div class="rightAuth">
+        <div class="Login">
+            <h1>Iniciar Sesión.</h1>
+            <form id="formLogin"> 
+                <div class="nameUser">
+                    <label for="userName">Usuario</label>
+                    <input type="text" id="userName" name="userName" required placeholder="Tu usuario acá">
+                </div>
+
+                <div class="passWord">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" required placeholder="••••••••">
+                </div>
+
+                <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+
+                <div class="remember">
+                    <label><input type="checkbox" id="checkbox"/> Recordarme</label>
+                    <a href="#" id="recovery">Olvidaste tu contraseña?</a>
+                </div>
+
+                <div class="botonLogin">
+                    <button class="btn" type="submit">Iniciar sesión</button>
+                </div>
+
+                <div class="dividir">O crear cuenta</div>
+
+                <div class="botonRegistrarse">
+                    <a href="#" class="btn">Registrarse</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<style>
 :root{
   --bg:#0c0f14; --panel:#0f131a; --panel-2:#0b0f15;
   --ink:#e8edf5; --muted:#8ea0b5; --line:#1b2431;
@@ -5,7 +59,7 @@
 }
 
 html, body{
-    background: white;
+    background: rgb(255, 255, 255);
     height: 100%;
     margin:0;
     padding:0;
@@ -185,17 +239,7 @@ button {
     transform: scale(0.97);
 }
 
-
-
-
-
-
-
-
-
-
-
-/* para celu */
+/* resoluciones angostas o sea chile afafafafa */
 @media (max-width: 768px) {
   .grid {
     grid-template-columns: 1fr;
@@ -249,4 +293,5 @@ button {
     margin: 15px 0;
   }
 }
-
+    </style>
+<?php require("../includes/_footer.php"); ?>
