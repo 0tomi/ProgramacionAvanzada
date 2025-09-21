@@ -1,5 +1,5 @@
 <?php 
-$require_boostrap = true; $source = 'Login';
+
 ?>
 <link rel="stylesheet" href="./_login.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -122,7 +122,7 @@ html, body{
     max-width: 420px;
     margin:0;
     overflow: hidden;
-    bottom:4%;
+    top:2%;
 }
 .Login h1{
     text-align: left;
@@ -181,6 +181,7 @@ button {
     text-decoration: none;
 }
 .btn:hover{
+    color: #FFFFFF;
     background: linear-gradient(180deg, #1b4aaf 0%, #000000 300%);
 }
 

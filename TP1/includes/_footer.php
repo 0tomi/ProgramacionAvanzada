@@ -4,7 +4,7 @@ $year = date('Y');
 <footer class="site-footer">
   <style>
     .site-footer{
-      background:linear-gradient(360deg, #10295eff -40%, #0c0f14 200px);;
+      background:linear-gradient(360deg, #10295eff -60%, #0c0f14 200px);;
       color:#fff;
       border-top:1px solid #22303c;
       width:100%;

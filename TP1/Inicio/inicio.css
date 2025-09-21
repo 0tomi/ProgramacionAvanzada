@@ -102,15 +102,7 @@ body{
   opacity: .55;
   cursor: not-allowed;
 }
-/* footer */
-.site-footer {
-  text-align: center;
-  padding: 16px;
-  color: var(--muted);
-  font-size: 14px;
-  border-top: 1px solid var(--line);
-  background: var(--panel);
-}
+
 .chip{
   border:1px solid var(--line);
   background:transparent;
