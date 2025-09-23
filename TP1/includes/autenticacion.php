@@ -11,7 +11,7 @@ $userName = $isLoggedIn
 
 if ($isLoggedIn)
     $profilePicture = !empty($_SESSION['user']->getProfilePhoto()) ?
-        $_SESSION['user_profile_picture']
+        $_SESSION['user']->getProfilePhoto()
         : 'imagenes/profilePictures/user.png';
 else $profilePicture = 'imagenes/profilePictures/defaultProfilePicture.png';
 
