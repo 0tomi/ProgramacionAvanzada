@@ -1,15 +1,16 @@
 <?php
+include("./Usuario.php");
 session_start();
 // Estado
-$isLoggedIn = !empty($_SESSION['user_id']);
+$isLoggedIn = !empty($_SESSION['user']);
 
 // Datos del perfil que se van a mostrar
 $userName = $isLoggedIn
-    ? $_SESSION['username']
+    ? $_SESSION['user']->getNombre()
     : 'Invitado'; 
 
 if ($isLoggedIn)
-    $profilePicture = !empty($_SESSION['user_profile_picture']) ?
+    $profilePicture = !empty($_SESSION['user']->getProfilePhoto()) ?
         $_SESSION['user_profile_picture']
         : 'imagenes/profilePictures/user.png';
 else $profilePicture = 'imagenes/profilePictures/defaultProfilePicture.png';

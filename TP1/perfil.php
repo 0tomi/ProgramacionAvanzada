@@ -44,7 +44,7 @@ require_once __DIR__ . "/includes/header.php";
 
     <!-- Datos -->
     <div class="mb-5 text-center" style="font-size:1.5rem;">
-      <p style="color:#8899ac;"><strong style="color:#ffffff;">Nombre:</strong> <?= htmlspecialchars($_SESSION['username']) ?></p>
+      <p style="color:#8899ac;"><strong style="color:#ffffff;">Nombre:</strong> <?= htmlspecialchars($_SESSION['user']->getNombre()) ?></p>
     </div>
 
     <!-- Formulario -->

@@ -1,5 +1,6 @@
 <?php
 session_start();
+include("include/Usuario.php");
 
 // Si recibe método DELETE (logout)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_method'] ?? '') === 'DELETE') {
@@ -7,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_method'] ?? '') === 'DELE
     header("Location: index.php");
     exit;
 }
-if (!empty($_SESSION['username'])) { //si esta logeado que mande al inicio!!!!!!
+if (!empty($_SESSION['user'])) { //si esta logeado que mande al inicio!!!!!!
     header("Location: Inicio/inicio.php");
     exit;
 }
@@ -40,7 +41,7 @@ $source = 'Inicio'; $require_boostrap = false; require_once('includes/header.php
           La red social de Sistemas.
         </p>
         
-        <?php if ($_SESSION['username'] ?? false): ?>
+        <?php if (!empty($_SESSION['user']) ?? false): ?>
           <!-- Botón logout -->
           <form method="POST" action="index.php">
             <input type="hidden" name="_method" value="DELETE">

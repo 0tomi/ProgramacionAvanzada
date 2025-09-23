@@ -1,6 +1,7 @@
 <?php
 // /POSTS/api.php
 declare(strict_types=1);
+include("../includes/Usuario.php");
 
 // ---- Ajustes de errores y cabeceras ----
 ini_set('display_errors', '0'); // evita HTML en respuestas
@@ -59,7 +60,8 @@ function enrich_post(array $p): array {
   $likedSet     = array_flip($_SESSION['likes'] ?? []);
   $p['viewer']  = ['liked' => isset($likedSet[$p['id'] ?? ''])];
 
-  $logged = isset($_SESSION['username']) && $_SESSION['username'] !== '';
+  $usuarioNombre = $_SESSION['user']->getNombre();
+  $logged = isset($usuarioNombre) && $usuarioNombre !== '';
   $likedSet = array_flip($_SESSION['likes'] ?? []);
   $p['viewer'] = [
     'liked'         => isset($likedSet[$p['id'] ?? '']),
@@ -102,7 +104,8 @@ try {
 
   // POST: toggle like
   if ($action === 'like' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $logged = isset($_SESSION['username']) && $_SESSION['username'] !== '';
+    $usuarioNombre = $_SESSION['user']->getNombre();
+    $logged = isset($usuarioNombre) && $usuarioNombre !== '';
     if (!$logged) {
       json_out(['ok'=>false, 'error'=>'Debes iniciar sesión para likear'], 401);
     }
@@ -172,7 +175,8 @@ try {
   // POST (multipart/form-data): crear post (texto + imagen opcional)
   if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     // Debe estar logueado
-    $logged = isset($_SESSION['username']) && $_SESSION['username'] !== '';
+    $usuarioNombre = $_SESSION['user']->getNombre();
+    $logged = isset($usuarioNombre) && $usuarioNombre !== '';
     if (!$logged) {
       json_out(['ok'=>false,'error'=>'Debes iniciar sesión para publicar'], 401);
     }
@@ -206,7 +210,7 @@ try {
     }
 
     // Autor desde sesión (sin @)
-    $username = $_SESSION['username'];                       // viene de tu login
+    $username = $_SESSION['user']->getNombre();                       // viene de tu login
     $display  = $_SESSION['display_name'] ?? $username;      // por si tenés nombre para mostrar
     $userId   = $_SESSION['user_id'] ?? ('u_' . preg_replace('/\W+/', '', strtolower($username)));
 
