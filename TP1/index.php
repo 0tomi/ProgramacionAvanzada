@@ -51,10 +51,10 @@ $source = 'Inicio'; $require_boostrap = false; require_once('includes/header.php
         <?php else: ?>
           <!-- Botones login/register -->
           <div class="space-y-4">
-            <a href="login.php" class="block px-6 py-3 w-full rounded-xl bg-[#22303c] text-[#ffffff] font-semibold shadow-md hover:bg-[#8899ac] hover:text-[#15202b] hover:scale-105 transition">
+            <a href="LOGIN/_login.php" class="block px-6 py-3 w-full rounded-xl bg-[#22303c] text-[#ffffff] font-semibold shadow-md hover:bg-[#8899ac] hover:text-[#15202b] hover:scale-105 transition">
               Iniciar Sesión
             </a>
-            <a href="register.php" class="block px-6 py-3 w-full rounded-xl bg-[#8899ac] text-[#15202b] font-semibold shadow-md hover:bg-[#ffffff] hover:text-[#15202b] hover:scale-105 transition">
+            <a href="LOGIN/_register.php" class="block px-6 py-3 w-full rounded-xl bg-[#8899ac] text-[#15202b] font-semibold shadow-md hover:bg-[#ffffff] hover:text-[#15202b] hover:scale-105 transition">
               Registrarse
             </a>
             <a href="Inicio/inicio.php" class="block px-6 py-3 w-full rounded-xl bg-[#22303c] text-[#ffffff] font-semibold shadow-md hover:bg-[#8899ac] hover:text-[#15202b] hover:scale-105 transition">
@@ -67,5 +67,5 @@ $source = 'Inicio'; $require_boostrap = false; require_once('includes/header.php
     </main>
   </div>
   
-<?php require_once('includes/footer.php'); ?>
+<?php require_once('includes/_footer.php'); ?>
 

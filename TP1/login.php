@@ -105,4 +105,4 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 </script>
 
 
-<?php require("includes/footer.php") ?>
+<?php require("includes/_footer.php") ?>

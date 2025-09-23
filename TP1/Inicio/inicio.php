@@ -125,7 +125,7 @@ if (is_readable($POSTS_JSON)) {
   </div>
   <!-- js -->
   <script src="inicio.js?v=3"></script>
-  <?php require_once __DIR__ . '/../includes/footer.php'; ?>
+  <?php require_once __DIR__ . '/../includes/_footer.php'; ?>
 
 </body>
 </html>
