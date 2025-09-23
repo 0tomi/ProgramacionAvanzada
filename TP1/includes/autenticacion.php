@@ -1,5 +1,5 @@
 <?php
-include("./Usuario.php");
+require_once __DIR__ . '/Usuario.php';
 session_start();
 // Estado
 $isLoggedIn = !empty($_SESSION['user']);
