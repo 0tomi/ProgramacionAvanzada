@@ -14,7 +14,7 @@ foreach ($usuarios as $user) {
         $_SESSION['username'] = $username;
         $_SESSION['user_profile_picture'] = $user['user_profile_picture'];
         $_SESSION['description'] = $user['description'];
-        $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Inicio de sesión correcto'];
+        $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Bienvenido a Ritual, '.$username];
         header("Location: ../Inicio/inicio.php");
         exit;
     }
