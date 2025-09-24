@@ -28,7 +28,7 @@ require_once __DIR__ . '/../config.php';
                     <label for="password">Contraseña</label>
                     <input type="password" id="password" name="password" required placeholder="••••••••">
                 </div>
-                <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
+                <div class="g-recaptcha" data-sitekey="6LdELdMrAAAAADXu2Q9TNUIdKA-9U6I9NV4wuJDm"></div>
                 <div class="remember">
                     <label><input type="checkbox" id="checkbox"/> Recordarme</label>
                     <a href="#" id="recovery">Olvidaste tu contraseña?</a>
