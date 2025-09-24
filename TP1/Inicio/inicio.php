@@ -10,9 +10,12 @@ $likeDisabledAttr = $isAuth ? '' : 'disabled title="Inicia sesión para likear"'
 
 $lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
 
-$flash = $_SESSION['user']->getFlash() ?? null;
-
-$_SESSION['user']->setFlash('');
+$flash = null;
+if (isset($_SESSION['user']) && $_SESSION['user'] instanceof User) { 
+    $u = $_SESSION['user'];
+    $flash = $u->getFlash(); 
+    $u->setFlash(null); 
+}
 // === FEED: leer posts desde /JSON/POST.json ===
 $POSTS_JSON = __DIR__ . '/../JSON/POST.json';
 $posts = [];
