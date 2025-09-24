@@ -2,7 +2,8 @@
 
 ?>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+ <script src="https://www.google.com/recaptcha/api.js?render=6Lc4LNMrAAAAAPFWoz0N_xAAbNsswgPF5k3bV-oX"></script>
+
 <body>
 <div class="grid"> 
     <div class="leftRitual">
@@ -28,8 +29,10 @@
                     <input type="password" id="password" name="password" required placeholder="••••••••">
                 </div>
 
-                <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
-
+                <button class="g-recaptcha" 
+                     data-sitekey="6Lc4LNMrAAAAAPFWoz0N_xAAbNsswgPF5k3bV-oX" 
+                     data-callback='onSubmit' 
+                     data-action='submit'>Submit</button>
                 <div class="remember">
                     <label><input type="checkbox" id="checkbox"/> Recordarme</label>
                     <a href="#" id="recovery">Olvidaste tu contraseña?</a>
@@ -298,4 +301,9 @@ button {
   }
 }
     </style>
+    <script>
+         function onSubmit(token) {
+     document.getElementById("demo-form").submit();
+   }
+        </script>
 <?php require("../includes/_footer.php"); ?>
