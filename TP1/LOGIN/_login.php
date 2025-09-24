@@ -1,5 +1,5 @@
-<?php 
-
+<?php
+require_once __DIR__ . '/../config.php';
 ?>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
@@ -28,7 +28,7 @@
                     <label for="password">Contraseña</label>
                     <input type="password" id="password" name="password" required placeholder="••••••••">
                 </div>
-                <div class="g-recaptcha" data-sitekey="6LdELdMrAAAAADXu2Q9TNUIdKA-9U6I9NV4wuJDm"></div>
+                <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
                 <div class="remember">
                     <label><input type="checkbox" id="checkbox"/> Recordarme</label>
                     <a href="#" id="recovery">Olvidaste tu contraseña?</a>

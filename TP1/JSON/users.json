@@ -74,5 +74,12 @@
         "password": "$2y$10$\/Ci7dH0SLQ3NET85U8ZJWunE9dhE.1XaEJLaMZvf2lAVpMQTI0sXu",
         "user_profile_picture": "",
         "description": ""
+    },
+    {
+        "id": "u13",
+        "username": "daniel",
+        "password": "$2y$10$UDfNEn8jHsb5SgBT2iNQj.\/0niWkgtnlBr4o\/A7C9xDIiTrQCTrpO",
+        "user_profile_picture": "",
+        "description": ""
     }
 ]
