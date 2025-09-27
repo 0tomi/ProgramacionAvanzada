@@ -3,6 +3,7 @@ $preruta = '';
 require_once __DIR__ . "/includes/autenticacion.php";
 $source = 'Perfil'; $require_boostrap = true;
 require_once __DIR__ . "/includes/header.php";
+require_once __DIR__ . "/includes/Usuario.php";
 ?>
 
 <header class="flex items-center justify-between px-6 py-4 border-b border-[color:var(--line)] bg-[color:var(--panel)]">
@@ -37,7 +38,7 @@ require_once __DIR__ . "/includes/header.php";
 
     <!-- Imagen -->
     <div class="text-center mb-4">
-      <img src="<?= htmlspecialchars($_SESSION['user_profile_picture']) ?>" alt="Imagen de perfil"
+      <img src="<?= htmlspecialchars($_SESSION['user']->getProfilePhoto()) ?>" alt="Imagen de perfil"
            style="width:200px;height:200px;object-fit:cover;border-radius:50%;
                   border:3px solid #1da1f2; margin:auto;">
     </div>

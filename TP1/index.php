@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("include/Usuario.php");
+require_once __DIR__ . "/includes/Usuario.php";
 
 // Si recibe método DELETE (logout)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['_method'] ?? '') === 'DELETE') {
@@ -40,16 +40,6 @@ $source = 'Inicio'; $require_boostrap = false; require_once('includes/header.php
         <p class="text-[#ffffff] mb-8 text-">
           La red social de Sistemas.
         </p>
-        
-        <?php if (!empty($_SESSION['user']) ?? false): ?>
-          <!-- Botón logout -->
-          <form method="POST" action="index.php">
-            <input type="hidden" name="_method" value="DELETE">
-            <button class="px-6 py-3 w-full rounded-xl bg-[#22303c] text-[#ffffff] font-semibold shadow-md hover:bg-[#8899ac] hover:text-[#15202b] hover:scale-105 transition">
-              Cerrar Sesión
-            </button>
-          </form>
-        <?php else: ?>
           <!-- Botones login/register -->
           <div class="space-y-4">
             <a href="LOGIN/_login.php" class="block px-6 py-3 w-full rounded-xl bg-[#22303c] text-[#ffffff] font-semibold shadow-md hover:bg-[#8899ac] hover:text-[#15202b] hover:scale-105 transition">
@@ -62,8 +52,6 @@ $source = 'Inicio'; $require_boostrap = false; require_once('includes/header.php
               Continuar como Invitado
             </a>
           </div>
-        <?php endif; ?>
-
       </div>
     </main>
   </div>
