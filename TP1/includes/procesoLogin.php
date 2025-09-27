@@ -3,9 +3,7 @@ include "funciones.php";
 include "Usuario.php";
 include "../config.php";
 
-//$secret  = '6LdELdMrAAAAACqktniyEYfKBsP9hGg9Wvs5Anua'; // NO PONERLA EN LA ENTREGA FINAL PORFAVOR SE LOS PIDO
-
-$secret = 6LdELdMrAAAAACqktniyEYfKBsP9hGg9Wvs5Anua; // la clave secreta que te da Google
+$secret  = '6LdELdMrAAAAACqktniyEYfKBsP9hGg9Wvs5Anua'; // NO PONERLA EN LA ENTREGA FINAL PORFAVOR SE LOS PIDO
 $token   = $_POST['g-recaptcha-response'] ?? '';
 $ip      = $_SERVER['REMOTE_ADDR'] ?? '';
 
