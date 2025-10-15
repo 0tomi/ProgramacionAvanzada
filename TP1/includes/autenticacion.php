@@ -4,6 +4,11 @@ session_start();
 // Estado
 $isLoggedIn = !empty($_SESSION['user']);
 
+if ($isLoggedIn) {
+  header("Location: Inicio/inicio.php");
+  exit;
+}
+
 // Datos del perfil que se van a mostrar
 $userName = $isLoggedIn
     ? $_SESSION['user']->getNombre()
