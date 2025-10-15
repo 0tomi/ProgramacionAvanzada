@@ -1,28 +1,50 @@
 <?php
-include "funciones.php";
+$host = 'localhost';
+$dbname = 'RitualBD';
+$dbUser = 'admin';
+$dbPassword = 'admin123';
 
-$username = trim($_POST['username']);
-$password = trim($_POST['password']);
+$username = trim($_POST['username'] ?? '');
+$password = trim($_POST['password'] ?? '');
 
-$usuarios = leerUsuarios();
-
-// Verificar si el usuario ya existe
-foreach ($usuarios as $user) {
-    if ($user['username'] === $username) {
-        header("Location: ../register.php?error=Usuario+ya+existe");
-        exit;
-    }
+if ($username === '' || $password === '') {
+    header('Location: ../register.php?error=Datos+incompletos');
+    exit;
 }
 
-// Guardar con contrasenia encriptada
-$usuarios[] = [
-    "id" => "u" . (count($usuarios) + 1),
-    "username" => $username,
-    "password" => password_hash($password, PASSWORD_DEFAULT),
-    "user_profile_picture" => "",    // Sin foto de perfil x default,
-    "description" => ""
-];
+try {
+    $pdo = new PDO(
+        "mysql:host={$host};dbname={$dbname};charset=utf8mb4",
+        $dbUser,
+        $dbPassword,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]
+    );
 
-guardarUsuarios($usuarios);
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM Usuario WHERE nombre = :nombre');
+    $stmt->execute([':nombre' => $username]);
 
-header("Location: ../login.php?success=Registro+exitoso");
+    if ($stmt->fetchColumn() > 0) {
+        header('Location: ../register.php?error=Usuario+ya+existe');
+        exit;
+    }
+
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+    $insertStmt = $pdo->prepare(
+        'INSERT INTO Usuario (nombre, passw) VALUES (:nombre, :passw)'
+    );
+
+    $insertStmt->execute([
+        ':nombre' => $username,
+        ':passw' => $hashedPassword,
+    ]);
+
+    header('Location: ../login.php?success=Registro+exitoso');
+    exit;
+} catch (PDOException $e) {
+    header('Location: ../register.php?error=Error+al+registrar');
+    exit;
+}
