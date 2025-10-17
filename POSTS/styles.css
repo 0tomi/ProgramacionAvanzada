@@ -182,6 +182,12 @@ form input::placeholder{ color:var(--muted) }
   background:linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
   color:var(--ink);
 }
+.notice{
+  max-width:760px; margin:16px auto; padding:10px 12px;
+  border:1px solid #1b8a5a; border-radius:12px;
+  background:rgba(27, 138, 90, 0.2);
+  color:#b7f5d8;
+}
 
 /* ================== RESPONSIVO ================== */
 @media (max-width:560px){

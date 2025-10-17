@@ -1,7 +1,14 @@
 <?php
+declare(strict_types=1);
+
+use Posts\Lib\PostService;
+
 $preruta ="../";
 require_once __DIR__ . '/../includes/autenticacion.php';
 require_once __DIR__ . '/../includes/Usuario.php';
+require_once __DIR__ . '/../POSTS/lib/PostStorage.php';
+require_once __DIR__ . '/../POSTS/lib/PostService.php';
+
 $isAuth = $isLoggedIn;
 
 // Redirigir si no esta logueado el usuario o no existe la sesion
@@ -12,8 +19,6 @@ if (!$isAuth) {
 
 $guard  = $isAuth ? '' : 'disabled';
 
-$likeDisabledAttr = $isAuth ? '' : 'disabled title="Inicia sesión para likear"';
-
 $lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
 
 $flash = null;
@@ -22,12 +27,14 @@ if (isset($_SESSION['user']) && $_SESSION['user'] instanceof User) {
     $flash = $u->getFlash(); 
     $u->setFlash(null); 
 }
-// === FEED: leer posts desde /JSON/POST.json ===
-$POSTS_JSON = __DIR__ . '/../JSON/POST.json';
+// === FEED: obtener posts usando el servicio compartido ===
 $posts = [];
-if (is_readable($POSTS_JSON)) {
-  $raw = file_get_contents($POSTS_JSON);
-  $posts = json_decode($raw ?: '[]', true) ?: [];
+$feedError = null;
+try {
+  $service = new PostService();
+  $posts = $service->listPosts($_SESSION);
+} catch (\Throwable $e) {
+  $feedError = $e->getMessage();
 }
 ?>
 
@@ -73,7 +80,9 @@ if (is_readable($POSTS_JSON)) {
 
       <!-- FEED desde /JSON/POST.json -->
       <div id="feed">
-        <?php if (empty($posts)): ?>
+        <?php if ($feedError !== null): ?>
+          <p class="error"><?= htmlspecialchars($feedError, ENT_QUOTES, 'UTF-8') ?></p>
+        <?php elseif (empty($posts)): ?>
           <p class="muted">No hay posts todavía.</p>
         <?php else: ?>
           <?php foreach ($posts as $p):
@@ -89,6 +98,9 @@ if (is_readable($POSTS_JSON)) {
             $text    = htmlspecialchars($p['text'] ?? '');
             $likes   = (int)($p['counts']['likes'] ?? 0);
             $media   = trim((string)($p['media_url'] ?? ''));
+            $liked   = !empty($p['viewer']['liked']);
+            $likeClass = 'chip like' . ($liked ? ' liked' : '');
+            $buttonDisabled = !empty($p['viewer']['authenticated']) ? '' : 'disabled title="Inicia sesión para likear"';
           ?>
             <article class="post" data-id="<?= $idEsc ?>">
               <!-- Capa clickeable que abre el detalle del post -->
@@ -116,9 +128,9 @@ if (is_readable($POSTS_JSON)) {
 
               <div class="actions">
                 <button type="button"
-                  class="chip like"
+                  class="<?= $likeClass ?>"
                   data-id="<?= $idEsc ?>"
-                  <?= $likeDisabledAttr ?>>
+                  <?= $buttonDisabled ?>>
                   ♥ <span class="count"><?= $likes ?></span>
                 </button>
               </div>

@@ -1,16 +1,43 @@
-<?php // /POSTS/index.php ?>
-<?php $source = 'Post'; $require_boostrap = false; $preruta = '../'; 
-  require_once __DIR__.'/../includes/header.php'; 
+<?php
+declare(strict_types=1);
+
+use Posts\App\PostPageController;
+
+$source = 'Post';
+$require_boostrap = false;
+$preruta = '../';
+require_once __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/app.php';
 ?>
 
 <body>
-  
-  <?php $preruta = '../'; 
-    require_once __DIR__ . '/../includes/autenticacion.php'; 
+  <?php
+    $preruta = '../';
+    require_once __DIR__ . '/../includes/autenticacion.php';
+
+    $controller = new PostPageController();
+    $result = $controller->handle($_SESSION);
+    $post = $result['post'];
+    $errors = $result['errors'];
+    $flashMessage = $result['flash'];
+
     require_once __DIR__ . '/../includes/barraLateral/barraLateral.php';
-    ?>
+  ?>
+
   <main class="container">
-    <section id="feed"></section> <!-- aquí se inyecta el post individual -->
+    <?php if (!empty($flashMessage)): ?>
+      <div class="notice"><?= htmlspecialchars($flashMessage, ENT_QUOTES, 'UTF-8') ?></div>
+    <?php endif; ?>
+
+    <?php foreach ($errors as $error): ?>
+      <div class="error"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
+    <?php endforeach; ?>
+
+    <?php if ($post !== null): ?>
+      <section id="feed">
+        <?= $controller->render($post) ?>
+      </section>
+    <?php endif; ?>
   </main>
 
   <a href="../Inicio/inicio.php"
@@ -31,7 +58,22 @@
    ">
   ← Volver
 </a>
-  <script src="app.js"></script>
 
+  <script>
+    document.addEventListener('click', (event) => {
+      const toggle = event.target.closest('[data-reply-toggle]');
+      if (!toggle) {
+        return;
+      }
+      const bubble = toggle.closest('.c-bubble');
+      if (!bubble) {
+        return;
+      }
+      const form = bubble.querySelector('.c-reply-form');
+      if (form) {
+        form.classList.toggle('hidden');
+      }
+    });
+  </script>
 </body>
 </html>
