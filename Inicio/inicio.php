@@ -3,13 +3,6 @@ $preruta ="../";
 require_once __DIR__ . '/../includes/autenticacion.php';
 require_once __DIR__ . '/../includes/Usuario.php';
 $isAuth = $isLoggedIn;
-
-// Redirigir si no esta logueado el usuario o no existe la sesion
-if (!$isAuth) {
-    header('Location: ../LOGIN/_login.php');
-    exit;
-}
-
 $guard  = $isAuth ? '' : 'disabled';
 
 $likeDisabledAttr = $isAuth ? '' : 'disabled title="Inicia sesión para likear"';
