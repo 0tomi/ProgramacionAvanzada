@@ -1,1 +1,2 @@
-app/views/perfil.php
+<?php
+require_once __DIR__ . '/app/views/perfil.php';

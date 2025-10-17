@@ -1,5 +1,5 @@
 // /POSTS/app.js
-const API = "api.php";
+const API = "/app/controllers/Posts/api.php";
 const feed = document.getElementById("feed");
 
 init();
@@ -27,7 +27,7 @@ async function cargarPost(id){
 /* ===== Render post + acciones ===== */
 function renderPost(post){
   // avatar (con fallback)
-  const avatar = post.author?.avatar_url || '/imagenes/profilePictures/defaultProfilePicture.png';
+  const avatar = post.author?.avatar_url || '/public/assets/images/profilePictures/defaultProfilePicture.png';
   const name   = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
   const ts     = formatDate(post.created_at);
 

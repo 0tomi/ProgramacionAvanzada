@@ -1,7 +1,7 @@
 <?php
 ?>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../CSS/login.css">
+<link rel="stylesheet" href="/public/assets/css/login.css">
 
 <body>
 <div class="grid"> 
@@ -17,7 +17,7 @@
     <div class="rightAuth">
         <div class="Login">
             <h1>Iniciar Sesión</h1>
-            <form id="formLogin" method="POST" action="../includes/procesoLogin.php"> 
+            <form id="formLogin" method="POST" action="/app/controllers/Auth/procesoLogin.php">
                 <div class="nameUser">
                     <label for="username">Usuario</label>
                     <input type="text" id="userName" name="username" required placeholder="Tu usuario acá">
@@ -40,7 +40,7 @@
                 <div class="dividir">O crear cuenta</div>
 
                 <div class="botonRegistrarse">
-                    <a href="./_register.php" class="btn">Registrarse</a>
+                    <a href="/LOGIN/_register.php" class="btn">Registrarse</a>
                 </div>
             </form>
         </div>
@@ -48,4 +48,4 @@
 </div>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
-<?php require("../includes/_footer.php"); ?>
+<?php require dirname(__DIR__) . "/layout/_footer.php"; ?>

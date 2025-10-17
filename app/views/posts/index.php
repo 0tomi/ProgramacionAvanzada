@@ -1,19 +1,19 @@
 <?php // /POSTS/index.php ?>
-<?php $source = 'Post'; $require_boostrap = false; $preruta = '../'; 
-  require_once __DIR__.'/../includes/header.php'; 
+<?php $source = 'Post'; $require_boostrap = false; $preruta = '../';
+  require_once dirname(__DIR__) . '/layout/header.php';
 ?>
 
 <body>
   
-  <?php $preruta = '../'; 
-    require_once __DIR__ . '/../includes/autenticacion.php'; 
-    require_once __DIR__ . '/../includes/barraLateral/barraLateral.php';
+  <?php $preruta = '../';
+    require_once dirname(__DIR__, 2) . '/controllers/Auth/autenticacion.php';
+    require_once dirname(__DIR__) . '/layout/barraLateral/barraLateral.php';
     ?>
   <main class="container">
     <section id="feed"></section> <!-- aquí se inyecta el post individual -->
   </main>
 
-  <a href="../Inicio/inicio.php"
+  <a href="/Inicio/inicio.php"
    style="
      position:fixed;
      top:12px;
@@ -31,7 +31,7 @@
    ">
   ← Volver
 </a>
-  <script src="app.js"></script>
+  <script src="/public/assets/js/posts/app.js"></script>
 
 </body>
 </html>

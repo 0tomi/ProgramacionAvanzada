@@ -8,7 +8,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
   <meta charset="UTF-8">
   <title>Registro</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link href="../CSS/login.css" rel="stylesheet">
+  <link href="/public/assets/css/login.css" rel="stylesheet">
 </head>
 <body>
    <div class="grid"> 
@@ -22,7 +22,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
                 <div class="rightAuth">
                     <div class="Login">
                         <h1>Crear cuenta</h1>
-                        <form id="formRegister"action="../includes/procesoRegister.php" id="registerForm" method="POST"> 
+                        <form id="formRegister" action="/app/controllers/Auth/procesoRegister.php" id="registerForm" method="POST">
                             <div class="nameuser">
                                 <label for="username" >Usuario</label>
                                 <input type="text" id="username" name="username" required autocomplete="username" placeholder="Tu usuario acá">
@@ -36,7 +36,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
                             </div>
                             <div class="dividir">¿Ya tenés cuenta?</div>
                             <div class="botonRegistrarse">
-                                <a href="./_login.php" class="btn">Iniciar sesión</a>
+                                <a href="/LOGIN/_login.php" class="btn">Iniciar sesión</a>
                             </div>
                         </form>
 
@@ -47,4 +47,4 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
             </div>
 </body>
 </html>
-<?php require("../includes/_footer.php"); ?>
+<?php require dirname(__DIR__) . "/layout/_footer.php"; ?>

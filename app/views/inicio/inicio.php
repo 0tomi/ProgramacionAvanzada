@@ -1,12 +1,12 @@
 <?php
 $preruta ="../";
-require_once __DIR__ . '/../includes/autenticacion.php';
-require_once __DIR__ . '/../includes/Usuario.php';
+require_once dirname(__DIR__, 2) . '/controllers/Auth/autenticacion.php';
+require_once dirname(__DIR__, 2) . '/models/Usuario.php';
 $isAuth = $isLoggedIn;
 
 // Redirigir si no esta logueado el usuario o no existe la sesion
 if (!$isAuth) {
-    header('Location: ../LOGIN/_login.php');
+    header('Location: /LOGIN/_login.php');
     exit;
 }
 
@@ -22,8 +22,8 @@ if (isset($_SESSION['user']) && $_SESSION['user'] instanceof User) {
     $flash = $u->getFlash(); 
     $u->setFlash(null); 
 }
-// === FEED: leer posts desde /JSON/POST.json ===
-$POSTS_JSON = __DIR__ . '/../JSON/POST.json';
+// === FEED: leer posts desde el almacenamiento ===
+$POSTS_JSON = dirname(__DIR__, 2) . '/storage/data/posts/POST.json';
 $posts = [];
 if (is_readable($POSTS_JSON)) {
   $raw = file_get_contents($POSTS_JSON);
@@ -31,11 +31,11 @@ if (is_readable($POSTS_JSON)) {
 }
 ?>
 
-<?php $require_boostrap = false; $source = 'Inicio'; require_once __DIR__ . '/../includes/header.php'; ?>
+<?php $require_boostrap = false; $source = 'Inicio'; require_once dirname(__DIR__) . '/layout/header.php'; ?>
 
 <body>
   <?php include __DIR__ . '/headerInicio.php'; ?>
-  <?php require('../includes/barraLateral/barraLateral.php'); ?>
+  <?php require dirname(__DIR__) . '/layout/barraLateral/barraLateral.php'; ?>
   <?php if (!empty($flash)): ?>
   <div id="flash"
        data-type="<?= htmlspecialchars($flash['type'], ENT_QUOTES) ?>"
@@ -93,7 +93,7 @@ if (is_readable($POSTS_JSON)) {
             <article class="post" data-id="<?= $idEsc ?>">
               <!-- Capa clickeable que abre el detalle del post -->
               <a class="post-overlay"
-                 href="../POSTS/?id=<?= urlencode($id) ?>"
+                 href="/POSTS/index.php?id=<?= urlencode($id) ?>"
                  aria-label="Ver post"></a>
 
               <header class="post-header">
@@ -134,8 +134,8 @@ if (is_readable($POSTS_JSON)) {
     </section>
   </div>
   <!-- js -->
-  <script src="inicio.js?v=3"></script>
-  <?php require_once __DIR__ . '/../includes/_footer.php'; ?>
+  <script src="/public/assets/js/inicio.js?v=3"></script>
+  <?php require_once dirname(__DIR__) . '/layout/_footer.php'; ?>
 
 </body>
 </html>

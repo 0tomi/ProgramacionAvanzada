@@ -1,7 +1,7 @@
 // Inicio/inicio.js
 
 // Ruta base hacia la API del módulo POSTS (desde /Inicio)
-const API_BASE = '../POSTS/api.php';
+const API_BASE = '/app/controllers/Posts/api.php';
 
 document.addEventListener('DOMContentLoaded', () => {
   marcarLikesAlCargar();
@@ -137,7 +137,7 @@ function insertarPostEnFeed(p) {
 
   const id      = String(p.id ?? '');
   const name    = (p.author && p.author.name) ? String(p.author.name) : 'Anónimo';
-  const avatar  = (p.author && p.author.avatar_url) ? String(p.author.avatar_url) : '/imagenes/profilePictures/defaultProfilePicture.png';
+  const avatar  = (p.author && p.author.avatar_url) ? String(p.author.avatar_url) : '/public/assets/images/profilePictures/defaultProfilePicture.png';
   const created = String(p.created_at ?? new Date().toISOString());
   const tsHuman = new Date(created).toLocaleString();
 
@@ -147,7 +147,7 @@ function insertarPostEnFeed(p) {
 
   const html = `
     <article class="post" data-id="${escapeHtml(id)}">
-      <a class="post-overlay" href="../POSTS/?id=${encodeURIComponent(id)}" aria-label="Ver post"></a>
+      <a class="post-overlay" href="/POSTS/index.php?id=${encodeURIComponent(id)}" aria-label="Ver post"></a>
       <header class="post-header">
         <img class="avatar" src="${escapeHtml(avatar)}" alt="${escapeHtml(name)}">
         <div class="meta">

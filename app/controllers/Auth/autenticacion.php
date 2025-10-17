@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__ . '/Usuario.php';
+require_once dirname(__DIR__, 2) . '/models/Usuario.php';
 session_start();
 // Estado
 $isLoggedIn = !empty($_SESSION['user']);
 
 if ($isLoggedIn) {
-  header("Location: Inicio/inicio.php");
+  header("Location: /Inicio/inicio.php");
   exit;
 }
 
@@ -17,8 +17,8 @@ $userName = $isLoggedIn
 if ($isLoggedIn)
     $profilePicture = !empty($_SESSION['user']->getProfilePhoto()) ?
         $_SESSION['user']->getProfilePhoto()
-        : 'imagenes/profilePictures/user.png';
-else $profilePicture = 'imagenes/profilePictures/defaultProfilePicture.png';
+        : '/public/assets/images/profilePictures/user.png';
+else $profilePicture = '/public/assets/images/profilePictures/defaultProfilePicture.png';
 
 // Asegurar que la ruta funcione desde subdirectorios
 if (!preg_match('#^https?://#', $profilePicture) && $profilePicture[0] !== '/') {

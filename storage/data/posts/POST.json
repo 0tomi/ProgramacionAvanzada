@@ -39,7 +39,7 @@
             "name": "Tomás Sch"
         },
         "text": "Post de Tomás con imagen",
-        "media_url": "uploads/gato.jpg",
+        "media_url": "/public/uploads/posts/gato.jpg",
         "counts": {
             "likes": 1,
             "replies": 0

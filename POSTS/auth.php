@@ -1,1 +1,0 @@
-../app/controllers/Posts/auth.php

@@ -1,1 +1,0 @@
-../app/views/layout/footer.php

@@ -1,1 +1,2 @@
-../app/controllers/Posts/api.php
+<?php
+require_once __DIR__ . '/../app/controllers/Posts/api.php';

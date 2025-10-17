@@ -3,7 +3,7 @@
 // Archivo donde se almacenan los usuarios registrados.  Se utiliza la
 // constante __DIR__ para construir la ruta absoluta y evitar problemas de
 // directorio de trabajo al incluir este archivo desde distintos scripts.
-const USERS_FILE = __DIR__ . '/../JSON/users.json';
+const USERS_FILE = dirname(__DIR__, 2) . '/storage/data/users.json';
 
 /**
  * Lee la lista de usuarios desde el archivo JSON.

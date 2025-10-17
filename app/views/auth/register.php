@@ -1,4 +1,4 @@
-<?php $source = 'Registro'; $require_boostrap = true; require("includes/header.php") ?>
+<?php $source = 'Registro'; $require_boostrap = true; require dirname(__DIR__) . "/layout/header.php" ?>
 
 <?php
 // Capturar mensajes de error o éxito
@@ -16,7 +16,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
 
       <!-- Botón ir a inicio -->
       <div class="ml-auto mt-2 hover:text-[#15202b] hover:scale-105 transition-transform">
-          <a href="index.php" 
+          <a href="/index.php"
              class="rounded bg-[#8899ac] px-5 py-2 text-[#15202b] font-semibold shadow 
                     hover:bg-[#ffffff]">
               Volver
@@ -31,7 +31,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
     
     <!-- Columna izquierda: formulario -->
     <div class="flex flex-col justify-center items-center py-12 px-6 lg:px-8 mt-20 mb-24">
-        <img class="mx-auto size-16 w-auto" src="imagenes/profilePictures/Ritual.png" alt="Your Company" />
+        <img class="mx-auto size-16 w-auto" src="/public/assets/images/profilePictures/Ritual.png" alt="Your Company" />
         <h2 class="mt-4 text-left text-2xl/9 font-bold tracking-tight text-[#ffffff]">Registrate en Ritual</h2>
 
         <!-- Mostrar mensajes -->
@@ -48,7 +48,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
         <?php endif; ?>
 
         <div class="w-full max-w-md bg-[#141e27] p-6 rounded-lg shadow-lg mt-8 hover:scale-x-95 transition-transform">
-            <form class="space-y-6" action="includes/procesoRegister.php" id="registerForm" method="POST">
+            <form class="space-y-6" action="/app/controllers/Auth/procesoRegister.php" id="registerForm" method="POST">
                 <div>
                     <label for="username" class="block text-sm/6 font-medium text-[#ffffff]">Usuario</label>
                     <div class="mt-2">
@@ -79,7 +79,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
                 </div>
 
                 <div class="mt-8 flex justify-center">
-                    <a href="login.php" 
+                    <a href="/LOGIN/_login.php"
                        class="rounded bg-[#8899ac] px-5 py-2 text-[#15202b] font-semibold shadow 
                               hover:bg-[#ffffff] hover:text-[#15202b] hover:scale-105 transition-transform">
                         Iniciar Sesión
@@ -94,13 +94,13 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
         <div id="carouselExampleAutoplaying" class="carousel slide w-full max-w-md" data-bs-ride="carousel">
             <div class="carousel-inner rounded-lg shadow-lg">
                 <div class="carousel-item active">
-                    <img src="imagenes/images/1.png" class="d-block w-100 shadow-lg" alt="Imagen 1" style="height:300px; object-fit:cover;">
+                    <img src="/public/assets/images/images/1.png" class="d-block w-100 shadow-lg" alt="Imagen 1" style="height:300px; object-fit:cover;">
                 </div>
                 <div class="carousel-item">
-                    <img src="imagenes/images/2.png" class="d-block w-100 shadow-lg" alt="Imagen 2" style="height:300px; object-fit:cover;">
+                    <img src="/public/assets/images/images/2.png" class="d-block w-100 shadow-lg" alt="Imagen 2" style="height:300px; object-fit:cover;">
                 </div>
                 <div class="carousel-item">
-                    <img src="imagenes/images/3.png" class="d-block w-100 shadow-lg" alt="Imagen 3" style="height:300px; object-fit:cover;">
+                    <img src="/public/assets/images/images/3.png" class="d-block w-100 shadow-lg" alt="Imagen 3" style="height:300px; object-fit:cover;">
                 </div>
             </div>
         </div>
@@ -110,4 +110,4 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<?php require("includes/_footer.php") ?>
+<?php require dirname(__DIR__) . "/layout/_footer.php" ?>

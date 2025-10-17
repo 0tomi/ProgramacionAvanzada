@@ -20,11 +20,11 @@
 
   <?php if ($source === 'Inicio'): ?>
 
-    <link rel="stylesheet" href="../Inicio/inicio.css">
+    <link rel="stylesheet" href="/public/assets/css/inicio.css">
 
   <?php elseif ($source === 'Post'): ?>
 
-    <link rel="stylesheet" href="../POSTS/styles.css">
+    <link rel="stylesheet" href="/public/assets/css/posts/styles.css">
 
   <?php endif; ?>
 

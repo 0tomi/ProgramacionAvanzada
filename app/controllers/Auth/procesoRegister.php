@@ -1,5 +1,5 @@
 <?php
-include "funciones.php";
+require_once dirname(__DIR__, 2) . '/models/funciones.php';
 
 $username = trim($_POST['username']);
 $password = trim($_POST['password']);
@@ -9,7 +9,7 @@ $usuarios = leerUsuarios();
 // Verificar si el usuario ya existe
 foreach ($usuarios as $user) {
     if ($user['username'] === $username) {
-        header("Location: ../register.php?error=Usuario+ya+existe");
+        header("Location: /register.php?error=Usuario+ya+existe");
         exit;
     }
 }
@@ -25,4 +25,4 @@ $usuarios[] = [
 
 guardarUsuarios($usuarios);
 
-header("Location: ../login.php?success=Registro+exitoso");
+header("Location: /LOGIN/_login.php?success=Registro+exitoso");

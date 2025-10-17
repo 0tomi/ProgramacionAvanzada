@@ -1,7 +1,7 @@
 <?php
 // /POSTS/api.php
 declare(strict_types=1);
-include("../includes/Usuario.php");
+require_once dirname(__DIR__, 2) . '/models/Usuario.php';
 
 // ---- Ajustes de errores y cabeceras ----
 ini_set('display_errors', '0'); // evita HTML en respuestas
@@ -11,8 +11,8 @@ session_start(); // para likes por sesión, autor fake, etc.
 header('Content-Type: application/json; charset=utf-8');
 
 // ---- Rutas/Constantes ----
-const POSTS_JSON_PATH = __DIR__ . '/../JSON/POST.json';
-const UPLOADS_DIR     = __DIR__ . '/uploads';       // carpeta donde guardar imágenes
+const POSTS_JSON_PATH = dirname(__DIR__, 3) . '/storage/data/posts/POST.json';
+const UPLOADS_DIR     = dirname(__DIR__, 3) . '/public/uploads/posts';
 const MAX_IMG_BYTES   = 5 * 1024 * 1024;            // 5MB
 
 // ---- Helpers generales ----
@@ -205,8 +205,8 @@ try {
       if (!@move_uploaded_file($file['tmp_name'], $dest)) {
         json_out(['ok'=>false,'error'=>'No se pudo guardar la imagen'], 500);
       }
-      // URL relativa servible desde /POSTS/
-      $mediaUrl = 'uploads/'.$fname;
+      // URL absoluta servible desde /public/uploads/posts
+      $mediaUrl = '/public/uploads/posts/'.$fname;
     }
 
     // Autor desde sesión (sin @)
