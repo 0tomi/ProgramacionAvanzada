@@ -10,13 +10,6 @@ require_once __DIR__ . '/../POSTS/lib/PostStorage.php';
 require_once __DIR__ . '/../POSTS/lib/PostService.php';
 
 $isAuth = $isLoggedIn;
-
-// Redirigir si no esta logueado el usuario o no existe la sesion
-if (!$isAuth) {
-    header('Location: ../LOGIN/_login.php');
-    exit;
-}
-
 $guard  = $isAuth ? '' : 'disabled';
 
 $lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado

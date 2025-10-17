@@ -4,8 +4,9 @@ session_start();
 // Estado
 $isLoggedIn = !empty($_SESSION['user']);
 
-if ($isLoggedIn) {
-  header("Location: Inicio/inicio.php");
+$goBackRute = "Location: ".$preruta."LOGIN/_login.php";
+if (!$isLoggedIn) {
+  header($goBackRute);
   exit;
 }
 

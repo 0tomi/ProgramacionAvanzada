@@ -1,10 +1,6 @@
 <?php
 $preruta = '';
 require_once __DIR__ . "/includes/autenticacion.php";
-if (!$isLoggedIn) {
-  header("Location: Inicio/inicio.php");
-  exit;
-}
 $source = 'Perfil'; $require_boostrap = true;
 require_once __DIR__ . "/includes/header.php";
 require_once __DIR__ . "/includes/Usuario.php";
