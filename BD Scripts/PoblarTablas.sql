@@ -158,3 +158,17 @@ COMMIT;
 -- =============================================================================
 -- FIN DEL SEED
 -- =============================================================================
+
+-- ======================================================================
+-- Crear usuario con acceso total (VARIANTE 1: sólo desde localhost)
+-- ======================================================================
+CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY 'admin123';
+GRANT ALL PRIVILEGES ON *.* TO 'tp_admin'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+-- ======================================================================
+-- (ALTERNATIVA) Para acceder online, la usamos luego
+-- ======================================================================
+-- CREATE USER IF NOT EXISTS 'tp_admin'@'%' IDENTIFIED BY 'tp_admin_pass';
+-- GRANT ALL PRIVILEGES ON *.* TO 'tp_admin'@'%' WITH GRANT OPTION;
+-- FLUSH PRIVILEGES;
