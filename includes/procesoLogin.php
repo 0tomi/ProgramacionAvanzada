@@ -1,6 +1,6 @@
 <?php
 include "funciones.php";
-include "../MODELOS/Usuario.php";
+require_once __DIR__ . '/../Model/Usuario.php';
 include "../config.php";
 
 $secret  = '6LdELdMrAAAAACqktniyEYfKBsP9hGg9Wvs5Anua'; // NO PONERLA EN LA ENTREGA FINAL PORFAVOR SE LOS PIDO

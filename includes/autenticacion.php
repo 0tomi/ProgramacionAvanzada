@@ -1,6 +1,6 @@
 <?php
 //echo('holaaa');
-require_once '../MODELOS/Usuario.php';
+require_once __DIR__ . '/../Model/Usuario.php';
 session_start();
 // Estado
 $isLoggedIn = !empty($_SESSION['user']);
