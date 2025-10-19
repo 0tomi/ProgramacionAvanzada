@@ -1,6 +1,6 @@
 <?php
 $preruta = '';
-require_once __DIR__ . "/includes/autenticacion.php";
+require_once "./includes/autenticacion.php";
 $source = 'Perfil'; $require_boostrap = true;
 require_once __DIR__ . "/includes/header.php";
 ?>
