@@ -1,21 +1,22 @@
-[ ] Implementar BD
-    [ ] Scripts de creacion
-[ ] Mejorar Perfil
+[x] Implementar BD
+    [x] Scripts de creacion
+[] Mejorar Perfil
     [] Seccion Carrucel
     [] Seccion post del usuario
     [] Seccion descripcion del usuario 
 [ ] Implementar MVC
-    [] Modelos de la base de datos
+    [x] Modelos de la base de datos
         [] post
-        [] usuario
-        [] perfil
-        [] login
+        [x] usuario
+        [x] perfil > esta dentro d user
+        [x] login
         [] register
     [] Controladores
         [] post
         [] perfil
         [] inicio 
-        [] login y register
+        [x] login
+        [] register
     [] vistas 
         [] post, inicio, perfil
 
