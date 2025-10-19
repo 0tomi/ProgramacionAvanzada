@@ -22,7 +22,7 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
                 <div class="rightAuth">
                     <div class="Login">
                         <h1>Crear cuenta</h1>
-                        <form id="formRegister"action="../includes/procesoRegister.php" id="registerForm" method="POST"> 
+                        <form id="formRegister"action="../Controlers/procesoRegister.php" id="registerForm" method="POST"> 
                             <div class="nameuser">
                                 <label for="username" >Usuario</label>
                                 <input type="text" id="username" name="username" required autocomplete="username" placeholder="Tu usuario acá">

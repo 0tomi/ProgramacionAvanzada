@@ -1,6 +1,6 @@
 <?php
 $preruta ="../";
-require_once __DIR__ . '/../includes/autenticacion.php';
+require_once __DIR__ . '/../Controlers/autenticacion.php';
 $isAuth = $isLoggedIn;
 $guard  = $isAuth ? '' : 'disabled';
 

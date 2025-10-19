@@ -4,35 +4,12 @@ require_once 'lectorEnv.php';
 class User {
     private $idUsuario, $flash;
     private $nombre, $descripcion, $profilePhoto;
-    private $bd;
 
-    public function __construct($id){
-        
-        $bd = new mysqli($_ENV['DB_HOST'],$_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME'], $_ENV['DB_PORT']);
-        if ($bd->connect_errno) 
-            echo("Error en la bd: $bd->connect_error");
-        
-        
-        $query = 
-        "SELECT u.username as Username, u.profileImageRoute as PIR, p.Descripcion as Descr FROM `User` as u
-         inner join Profile as p on u.idUser = p.idUser
-         where u.idUser = $id";
-        
-        //echo("hasta aca llegamos");
-        $result = $bd->query($query);
-        if (!$result) {
-            error_log('Query error: ' . $bd->error);
-            throw new RuntimeException('No pude ejecutar la consulta');
-        }
-        $rows = $result->fetch_assoc();
-        if (!$rows) {
-            throw new RuntimeException("No hay fila para id $id");
-        }
-        
+    public function __construct($id, $name, $desc, $pp){        
         $this->idUsuario = $id;
-        $this->nombre = $rows['Username'];
-        $this->descripcion = $rows['Descr'];
-        $this->profilePhoto = $rows['PIR'];
+        $this->nombre = $name;
+        $this->descripcion = $desc;
+        $this->profilePhoto = $pp;
         $this->flash = ['type' => 'success', 'msg' => 'Bienvenido a Ritual, '.$this->nombre];
     }
 

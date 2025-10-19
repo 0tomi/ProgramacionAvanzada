@@ -1,5 +1,10 @@
 <?php
+$errorMsg = '';
+if (isset($_GET['error']) && $_GET['error'] !== '') {
+    $errorMsg = htmlspecialchars($_GET['error'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
 ?>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../CSS/login.css">
 
@@ -17,7 +22,11 @@
     <div class="rightAuth">
         <div class="Login">
             <h1>Iniciar Sesión</h1>
-            <form id="formLogin" method="POST" action="../includes/procesoLogin.php"> 
+            <form id="formLogin" method="POST" action="../Controlers/procesoLogin.php"> 
+                <?php if ($errorMsg !== ''): ?>
+                    <div class="login-error" id="login-error"><?= $errorMsg; ?></div>
+                <?php endif; ?>
+
                 <div class="nameUser">
                     <label for="username">Usuario</label>
                     <input type="text" id="userName" name="username" required placeholder="Tu usuario acá">
@@ -47,5 +56,14 @@
     </div>
 </div>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const banner = document.getElementById('login-error');
+    if (!banner) return;
+
+    setTimeout(() => banner.classList.add('fade-out'), 5000);
+    banner.addEventListener('transitionend', () => banner.remove());
+});
+</script>
 </body>
 <?php require("../includes/_footer.php"); ?>

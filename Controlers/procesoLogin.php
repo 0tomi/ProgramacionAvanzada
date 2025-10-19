@@ -1,7 +1,5 @@
 <?php
-include "funciones.php";
-include "../Model/Usuario.php";
-// include "../config.php"; Tira warnings
+include "../Model/UserFactory.php";
 
 $secret  = '6LdELdMrAAAAACqktniyEYfKBsP9hGg9Wvs5Anua'; // NO PONERLA EN LA ENTREGA FINAL PORFAVOR SE LOS PIDO
 $token   = $_POST['g-recaptcha-response'] ?? '';
@@ -31,18 +29,16 @@ if (!($res['success'] ?? false)) {//aca chequea ese JSON
 $username = trim($_POST['username']);
 $password = trim($_POST['password']);
 
-$usuarios = leerUsuarios();
-foreach ($usuarios as $user) {
-    if ($user['username'] === $username && password_verify($password, $user['password'])) {
-        session_start();
-        $usuario = new User($user['id']);
+$userFactory = new UserFactory($username, $password);
+$usuario = $userFactory->getUser();
 
-        $_SESSION['user'] = $usuario;
-        header("Location: ../Inicio/inicio.php");
-        exit;   
-    }
+if ($usuario === null){
+  header("Location: ../LOGIN/_login.php?error=$userFactory->error");
+  exit;
 }
 
-// Si no encontró coincidencias
-header("Location: ../login.php?error=Usuario+o+contraseña+incorrectos");
+session_start();
+$_SESSION['user'] = $usuario;
+header("Location: ../Inicio/inicio.php");
+
 exit;
