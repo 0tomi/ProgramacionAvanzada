@@ -3,14 +3,9 @@ $preruta ="../";
 require_once __DIR__ . '/../Controlers/autenticacion.php';
 require_once __DIR__ . '/../Controlers/InicioController.php';
 
-$flash = null;
-$viewerId = null;
-if (isset($_SESSION['user']) && $_SESSION['user'] instanceof User) {
-    $u = $_SESSION['user'];
-    $viewerId = (int)$u->getIdUsuario();
-    $flash = $u->getFlash();
-    $u->setFlash(null);
-}
+$u = $_SESSION['user'];
+$viewerId = (int)$u->getIdUsuario();
+$flash = $u->getFlash();
 
 $inicioController = new InicioController();
 $posts = $inicioController->getFeed($viewerId);
