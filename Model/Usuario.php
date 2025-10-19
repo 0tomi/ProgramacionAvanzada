@@ -2,6 +2,7 @@
 
 use Dba\Connection;
 require_once '../includes/lectorEnv.php';
+echo("holaaa2");
 class User {
     private $idUsuario, $flash;
     private $nombre, $descripcion, $profilePhoto;
@@ -10,7 +11,7 @@ class User {
     public function __construct($id){
         $bd = new mysqli($_ENV['DB_HOST'],$_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME'], $_ENV['DB_PORT']);
         if ($bd->connect_errno) 
-            throw new RuntimeException('Error al conectar: ' . $bd->connect_error);
+            echo("Error en la bd: $bd->connect_error");
         
         $query = 
         "SELECT u.username as Username, u.profileImageRoute as PIR, p.Descripcion as Descr FROM `User` as u

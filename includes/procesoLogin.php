@@ -36,7 +36,9 @@ $usuarios = leerUsuarios();
 foreach ($usuarios as $user) {
     if ($user['username'] === $username && password_verify($password, $user['password'])) {
         session_start();
+    
         $usuario = new User($user['id']);
+        echo('hasta aca llegamo');
 
         $_SESSION['user'] = $usuario;
         header("Location: ../Inicio/inicio.php");
