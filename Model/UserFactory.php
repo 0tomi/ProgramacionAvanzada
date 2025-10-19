@@ -1,4 +1,22 @@
 <?php 
+/*
+    Clase responsable de crear usuarios, la cree asi porque divide la logica de la creacion y recuperacion de datos de un usuario
+    del propio objeto que despues unicamente se utiliza para recuperar informacion. 
+
+    Constructor: (username = null, password = null)
+    Al instanciarse, puede instanciarse con o sin parametros. La diferencia esta en que,
+    en el caso de instanciarse usando parametros, la fabrica intentara recuperar la informacion dedicho usuario
+    y crear el usuario.
+    Se puede obtener dicho usuario mediante el metodo getUser, que puede devolver un nulo o el objeto usuario. Si devuelve 
+    un nulo, eso quiere decir que algo fallo, para conocer el error hay que consultar el atributo error del propio objeto, 
+    ya que guardara el error mas reciente.
+
+    createUser(username, password):
+    Intenta crear el objeto usuario con las credenciales pasadas por parametro, 
+    si no lo logra, devolvera NULL. Como antes, se puede consultar el error con el 
+    atributo publico error.
+*/
+
 require_once 'Usuario.php';
 require_once 'lectorEnv.php';
 class UserFactory {
