@@ -3,13 +3,6 @@ $preruta ="../";
 require_once __DIR__ . '/../Controlers/autenticacion.php';
 require_once __DIR__ . '/../Controlers/InicioController.php';
 
-$isAuth = $isLoggedIn;
-$guard  = $isAuth ? '' : 'disabled';
-
-$likeDisabledAttr = $isAuth ? '' : 'disabled title="Inicia sesión para likear"';
-
-$lockedAttr = $isAuth ? '' : 'data-locked="1"'; // bandera para bloquear botones en modo invitado
-
 $flash = null;
 $viewerId = null;
 if (isset($_SESSION['user']) && $_SESSION['user'] instanceof User) {
@@ -52,16 +45,16 @@ if (!is_array($posts)) {
       </header>
 
       <!-- Composer -->
-      <div class="composer" <?=$lockedAttr?> aria-label="Publicar">
+      <div class="composer" aria-label="Publicar">
         <img class="avatar" src="<?= htmlspecialchars($profilePicture) ?>" alt="Tu avatar">
 
         <!-- IMPORTANTE: id, name="text", name="image" -->
         <form id="createPostForm" class="compose" action="javascript:void(0)" method="post" enctype="multipart/form-data" novalidate>
-          <textarea name="text" placeholder="<?= $isAuth ? '¿Qué está pasando?' : 'Inicia sesión para postear' ?>" maxlength="280" required <?= $guard ?>></textarea>
+          <textarea name="text" placeholder="¿Qué está pasando?" maxlength="280" required></textarea>
           <div class="row">
-            <input type="file" id="imgUp" name="image" accept="image/*" style="display:none" <?= $guard ?>>
-            <label for="imgUp" class="btn ghost" aria-disabled="<?= $isAuth ? 'false' : 'true' ?>" <?= $guard ? 'tabindex="-1"' : '' ?>>Imagen</label>
-            <button class="btn primary" type="submit" <?= $guard ?>>Publicar</button>
+            <input type="file" id="imgUp" name="image" accept="image/*" style="display:none">
+            <label for="imgUp" class="btn ghost">Imagen</label>
+            <button class="btn primary" type="submit">Publicar</button>
           </div>
         </form>
       </div>
@@ -113,7 +106,7 @@ if (!is_array($posts)) {
           ?>
             <article class="post" data-id="<?= $idEsc ?>">
               <a class="post-overlay"
-                 href="../POSTS/?id=<?= urlencode($id) ?>"
+                 href="../Views/POSTS/index.php?id=<?= urlencode($id) ?>"
                  aria-label="Ver post"></a>
 
               <header class="post-header">
@@ -141,8 +134,7 @@ if (!is_array($posts)) {
               <div class="actions">
                 <button type="button"
                   class="<?= htmlspecialchars($likeClasses, ENT_QUOTES, 'UTF-8') ?>"
-                  data-id="<?= $idEsc ?>"
-                  <?= $likeDisabledAttr ?>>
+                  data-id="<?= $idEsc ?>">
                   ♥ <span class="count"><?= $likes ?></span>
                 </button>
                 <?php if ($canDelete): ?>

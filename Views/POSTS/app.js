@@ -1,5 +1,5 @@
 /**
- * /POSTS/app.js
+ * /Views/POSTS/app.js
  *
  * Cliente de la vista de publicaciones. Solicita el contenido al endpoint PHP,
  * compone el HTML del post y gestiona acciones de interacción (likes y
@@ -9,9 +9,9 @@
  *  - manejadores de eventos del usuario
  */
 
-const API_URL = 'api.php';
+const API_URL = '../../Controlers/PostsApi.php';
 const feed = document.getElementById('feed');
-const DEFAULT_AVATAR = '../Resources/profilePictures/defaultProfilePicture.png';
+const DEFAULT_AVATAR = '../../Resources/profilePictures/defaultProfilePicture.png';
 
 init();
 
@@ -53,8 +53,6 @@ async function fetchPost(id) {
  * Devuelve el marcado HTML para la vista completa del post.
  */
 function renderPost(post) {
-  const canInteract = Boolean(post.viewer?.authenticated);
-  const likeBtnAttrs = canInteract ? '' : 'disabled title="Inicia sesión para likear"';
   const likeClasses = `chip ${post.viewer?.liked ? 'liked' : ''}`;
   const avatar = post.author?.avatar_url || DEFAULT_AVATAR;
   const authorName = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
@@ -62,13 +60,11 @@ function renderPost(post) {
   const media = post.media_url
     ? `<figure class="media"><img class="post-image" src="${escapeHtml(post.media_url)}" alt="Imagen del post"></figure>`
     : '';
-  const comments = renderCommentsTree(post.replies || [], canInteract);
-  const commentForm = canInteract
-    ? commentFormTemplate(post.id)
-    : '<div class="muted">Inicia sesión para comentar.</div>';
+  const comments = renderCommentsTree(post.replies || []);
+  const commentForm = commentFormTemplate(post.id);
 
   return `
-    <article class="post" data-id="${post.id}" data-can-reply="${canInteract ? '1' : '0'}">
+    <article class="post" data-id="${post.id}">
       <header class="post-header">
         <img class="avatar" src="${escapeHtml(avatar)}" alt="${authorName}">
         <div class="meta">
@@ -79,7 +75,7 @@ function renderPost(post) {
       <p class="text">${escapeHtml(post.text)}</p>
       ${media}
       <div class="actions">
-        <button class="${likeClasses}" ${likeBtnAttrs} onclick="toggleLike('${post.id}', this)">
+        <button class="${likeClasses}" onclick="toggleLike('${post.id}', this)">
           ♥ <span class="like-count">${post.counts?.likes ?? 0}</span>
         </button>
       </div>
@@ -110,12 +106,12 @@ function commentFormTemplate(postId) {
  * Construye el árbol UL/LI de comentarios. Si el usuario no puede responder,
  * se devuelven los nodos sin botones de respuesta.
  */
-function renderCommentsTree(list, canReply) {
+function renderCommentsTree(list) {
   if (!Array.isArray(list) || list.length === 0) {
     return '<div class="muted">Sé el primero en comentar</div>';
   }
   const roots = buildTree(list);
-  return `<ul class="c-tree">${roots.map((node) => renderCommentNode(node, canReply)).join('')}</ul>`;
+  return `<ul class="c-tree">${roots.map((node) => renderCommentNode(node)).join('')}</ul>`;
 }
 
 /**
@@ -138,21 +134,9 @@ function buildTree(list) {
 /**
  * Renderiza un nodo individual del árbol de comentarios.
  */
-function renderCommentNode(node, canReply) {
+function renderCommentNode(node) {
   const children = node.children?.length
-    ? `<ul class="c-tree">${node.children.map((child) => renderCommentNode(child, canReply)).join('')}</ul>`
-    : '';
-
-  const replyControls = canReply
-    ? `
-        <div class="c-actions">
-          <button type="button" class="btn ghost small" onclick="toggleReplyForm('${node.id}', this)">Responder</button>
-        </div>
-        <form class="c-reply-form hidden" onsubmit="event.preventDefault(); return comentar(getPostId(this), '${node.id}', this, event)">
-          <input name="text" required maxlength="280" placeholder="Responder…">
-          <button class="btn">Enviar</button>
-        </form>
-      `
+    ? `<ul class="c-tree">${node.children.map((child) => renderCommentNode(child)).join('')}</ul>`
     : '';
 
   return `
@@ -160,7 +144,13 @@ function renderCommentNode(node, canReply) {
       <div class="c-bubble">
         <div class="c-meta"><b>${escapeHtml(node.author || 'Anónimo')}</b> · <span>${formatDate(node.created_at)}</span></div>
         <div class="c-text">${escapeHtml(node.text || '')}</div>
-        ${replyControls}
+        <div class="c-actions">
+          <button type="button" class="btn ghost small" onclick="toggleReplyForm('${node.id}', this)">Responder</button>
+        </div>
+        <form class="c-reply-form hidden" onsubmit="event.preventDefault(); return comentar(getPostId(this), '${node.id}', this, event)">
+          <input name="text" required maxlength="280" placeholder="Responder…">
+          <button class="btn">Enviar</button>
+        </form>
       </div>
       ${children}
     </li>
@@ -205,8 +195,6 @@ async function comentar(postId, parentCommentId, form, ev) {
   try {
     const comment = await apiPostComment(postId, parentCommentId, text);
     const commentsWrapper = form.closest('details').querySelector('.comentarios');
-    const article = form.closest('article.post');
-    const canReply = article?.dataset?.canReply === '1';
 
     if (parentCommentId) {
       const target = commentsWrapper.querySelector(`[data-cid="${parentCommentId}"]`);
@@ -217,7 +205,7 @@ async function comentar(postId, parentCommentId, form, ev) {
           subTree.className = 'c-tree';
           target.appendChild(subTree);
         }
-        subTree.insertAdjacentHTML('afterbegin', renderCommentNode({ ...comment, children: [] }, canReply));
+        subTree.insertAdjacentHTML('afterbegin', renderCommentNode({ ...comment, children: [] }));
       }
       form.classList.add('hidden');
     } else {
@@ -228,7 +216,7 @@ async function comentar(postId, parentCommentId, form, ev) {
         root.className = 'c-tree';
         commentsWrapper.appendChild(root);
       }
-      root.insertAdjacentHTML('afterbegin', renderCommentNode({ ...comment, children: [] }, canReply));
+      root.insertAdjacentHTML('afterbegin', renderCommentNode({ ...comment, children: [] }));
     }
 
     const summary = form.closest('details').querySelector('summary');
@@ -312,4 +300,3 @@ function formatDate(iso) {
 function cryptoRand() {
   return String(Date.now()) + Math.floor(Math.random() * 10000);
 }
-

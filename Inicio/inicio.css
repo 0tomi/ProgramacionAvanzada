@@ -94,15 +94,6 @@ body{
   border:2px solid color-mix(in srgb, var(--ink) 20%, transparent);
   border-top-color:var(--accent); animation:spin 1s linear infinite;
 }
-/* bloquea el composer si no hay login */
-.composer[data-locked="1"] textarea,
-.composer[data-locked="1"] .btn,
-.composer[data-locked="1"] label[for="imgUp"]{
-  pointer-events: none;
-  opacity: .55;
-  cursor: not-allowed;
-}
-
 .chip{
   border:1px solid var(--line);
   background:transparent;

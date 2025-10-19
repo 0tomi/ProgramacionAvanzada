@@ -66,7 +66,7 @@ final class InicioController
         $basePath = $scriptDir !== '' ? preg_replace('#/Inicio$#', '', $scriptDir) : '';
 
         return sprintf(
-            '%s://%s%s/POSTS/api.php',
+            '%s://%s%s/Controlers/PostsApi.php',
             $scheme,
             $host,
             $basePath === '' ? '' : $basePath

@@ -1,7 +1,7 @@
 // Inicio/inicio.js
 
 // Ruta base hacia la API del módulo POSTS (desde /Inicio)
-const API_BASE = '../POSTS/api.php';
+const API_BASE = '../Controlers/PostsApi.php';
 
 document.addEventListener('DOMContentLoaded', () => {
   loadFeed()
@@ -68,7 +68,6 @@ function buildPostHtml(p) {
   const viewer = p.viewer ?? {};
   const liked = !!viewer.liked;
   const canDelete = !!viewer.can_delete;
-  const authenticated = viewer.authenticated !== false;
 
   const mediaUrlRaw = p.media_url ? String(p.media_url) : '';
   const mediaUrl = mediaUrlRaw.trim();
@@ -77,7 +76,6 @@ function buildPostHtml(p) {
     : '';
 
   const likeClasses = `chip like${liked ? ' liked' : ''}`;
-  const likeDisabledAttr = authenticated ? '' : ' disabled title="Inicia sesión para likear"';
 
   const safeId = escapeHtml(id);
   const safeName = escapeHtml(name);
@@ -94,7 +92,7 @@ function buildPostHtml(p) {
 
   return `
     <article class="post" data-id="${safeId}">
-      <a class="post-overlay" href="../POSTS/?id=${encodeURIComponent(id)}" aria-label="Ver post"></a>
+      <a class="post-overlay" href="../Views/POSTS/index.php?id=${encodeURIComponent(id)}" aria-label="Ver post"></a>
       <header class="post-header">
         ${avatarHtml}
         <div class="meta">
@@ -107,7 +105,7 @@ function buildPostHtml(p) {
       <p class="text">${escapeHtml(String(p.text ?? ''))}</p>
       ${mediaHtml}
       <div class="actions">
-        <button type="button" class="${likeClasses}" data-id="${safeId}"${likeDisabledAttr}>
+        <button type="button" class="${likeClasses}" data-id="${safeId}">
           ♥ <span class="count">${likeCount}</span>
         </button>
         ${deleteBtn}

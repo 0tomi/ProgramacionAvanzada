@@ -424,7 +424,6 @@ final class PostRepository
                     'replies' => 0,
                 ],
                 'viewer' => [
-                    'authenticated' => $viewerId !== null,
                     'liked' => $viewerId !== null && isset($viewerLikesSet[$id]),
                     'can_delete' => $viewerId !== null && (int)$row['idUserOwner'] === $viewerId,
                 ],

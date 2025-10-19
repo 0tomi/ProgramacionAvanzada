@@ -1,6 +1,6 @@
 <?php
 /**
- * /POSTS/api.php
+ * /Controlers/PostsApi.php
  *
  * Punto de entrada de la API de publicaciones.
  * Expone un router muy simple (parámetro ?action=) y delega la interacción con la
