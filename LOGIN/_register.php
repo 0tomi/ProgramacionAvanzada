@@ -1,6 +1,8 @@
 <?php
-$error   = isset($_GET['error']) ? $_GET['error'] : null;
-$success = isset($_GET['success']) ? $_GET['success'] : null;
+    $errorMsg = '';
+    if (isset($_GET['error']) && $_GET['error'] !== '') {
+        $errorMsg = htmlspecialchars($_GET['error'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -23,6 +25,9 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
                     <div class="Login">
                         <h1>Crear cuenta</h1>
                         <form id="formRegister"action="../Controlers/procesoRegister.php" id="registerForm" method="POST"> 
+                            <?php if ($errorMsg !== ''): ?>
+                                <div class="login-banner login-error" data-autohide="5000"><?= $errorMsg; ?></div>
+                            <?php endif; ?>
                             <div class="nameuser">
                                 <label for="username" >Usuario</label>
                                 <input type="text" id="username" name="username" required autocomplete="username" placeholder="Tu usuario acá">
@@ -45,6 +50,15 @@ $success = isset($_GET['success']) ? $_GET['success'] : null;
                     </div>
             
             </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.login-banner').forEach(banner => {
+                const delay = Number(banner.dataset.autohide || 3000);
+                setTimeout(() => banner.classList.add('fade-out'), delay);
+                banner.addEventListener('transitionend', () => banner.remove());
+            });
+        });
+    </script>
 </body>
 </html>
 <?php require("../includes/_footer.php"); ?>

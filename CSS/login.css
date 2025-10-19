@@ -209,16 +209,23 @@ button {
     transform: scale(0.97);
 }
 
-.login-error {
-    background:#f24435;
-    color:#fff;
+.login-banner{
     padding:.75rem 1rem;
     border-radius:.75rem;
     margin-bottom:1rem;
+    color:#fff;
     opacity:1;
-    transition:opacity .6s ease;
+    transition:opacity .6s ease, margin .6s ease, padding .6s ease;
 }
-.login-error.fade-out { opacity:0; }
+.login-error{ background:#f24435; }
+.login-success{ background:#24b36b; }
+.login-banner.fade-out{
+    opacity:0;
+    margin-bottom:0;
+    padding-top:0;
+    padding-bottom:0;
+}
+
 
 
 /* resoluciones angostas */

@@ -31,35 +31,47 @@ class UserFactory {
 
     public function registerUser(string $username, $password): bool {
         $stmt = $this->dataBase->prepare(
-            'SELECT u.idUser FROM `User` u WHERE u.username = ?'
+            'SELECT 1 FROM `User` WHERE username = ?'
         );
+ 
         $stmt->bind_param('s', $username);
         $stmt->execute();
-
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
+            $stmt->close();
             $this->error = 'Nombre de usuario ya ocupado.';
             return false;
         }
+        $stmt->close();
 
         $this->dataBase->begin_transaction();
         try {
             $stmtUser = $this->dataBase->prepare(
-                'INSERT INTO `User` (username) VALUES (?)'
+                'INSERT INTO `User` (userTag, username) VALUES (?, ?)'
             );
-            $stmtUser->bind_param('s', $username);
+            if (!$stmtUser) { throw new mysqli_sql_exception($this->dataBase->error); }
+            $stmtUser->bind_param('ss', $username, $username);
             $stmtUser->execute();
-
             $newUserId = $this->dataBase->insert_id;
+            $stmtUser->close();
 
             $stmtPass = $this->dataBase->prepare(
                 'INSERT INTO `Password` (idUser, hash) VALUES (?, ?)'
             );
+            if (!$stmtPass) { throw new mysqli_sql_exception($this->dataBase->error); }
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
             $stmtPass->bind_param('is', $newUserId, $passwordHash);
             $stmtPass->execute();
-            
-            $stmtUser->close(); $stmtPass->close();
+            $stmtPass->close();
+
+            $stmtProfile = $this->dataBase->prepare(
+                'INSERT INTO `Profile` (idUser, Descripcion) VALUES (?, ?)'
+            );
+            if (!$stmtProfile) { throw new mysqli_sql_exception($this->dataBase->error); }
+            $emptyDesc = '';
+            $stmtProfile->bind_param('is', $newUserId, $emptyDesc);
+            $stmtProfile->execute();
+            $stmtProfile->close();
 
             $this->dataBase->commit();
             return true;

@@ -10,14 +10,16 @@
         [x] usuario
         [x] perfil > esta dentro d user
         [x] login
-        [] register
+        [x] register
     [] Controladores
         [] post
         [] perfil
         [] inicio 
         [x] login
-        [] register
+        [x] register
     [] vistas 
         [] post, inicio, perfil
+[] Implementar Captcha en REGISTRO     
+[x] Implementar mensaje de SUCCESS en LOGIN   
 
 

@@ -3,6 +3,10 @@ $errorMsg = '';
 if (isset($_GET['error']) && $_GET['error'] !== '') {
     $errorMsg = htmlspecialchars($_GET['error'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
+$successMsg = '';
+if (isset($_GET['success']) && $_GET['success'] !== '') {
+    $successMsg = htmlspecialchars($_GET['success'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
 ?>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -24,7 +28,10 @@ if (isset($_GET['error']) && $_GET['error'] !== '') {
             <h1>Iniciar Sesión</h1>
             <form id="formLogin" method="POST" action="../Controlers/procesoLogin.php"> 
                 <?php if ($errorMsg !== ''): ?>
-                    <div class="login-error" id="login-error"><?= $errorMsg; ?></div>
+                    <div class="login-banner login-error" data-autohide="5000"><?= $errorMsg; ?></div>
+                <?php endif; ?>
+                <?php if ($successMsg !== ''): ?>
+                    <div class="login-banner login-success" data-autohide="3000"><?= $successMsg; ?></div>
                 <?php endif; ?>
 
                 <div class="nameUser">
@@ -57,13 +64,13 @@ if (isset($_GET['error']) && $_GET['error'] !== '') {
 </div>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const banner = document.getElementById('login-error');
-    if (!banner) return;
-
-    setTimeout(() => banner.classList.add('fade-out'), 5000);
-    banner.addEventListener('transitionend', () => banner.remove());
-});
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.login-banner').forEach(banner => {
+            const delay = Number(banner.dataset.autohide || 3000);
+            setTimeout(() => banner.classList.add('fade-out'), delay);
+            banner.addEventListener('transitionend', () => banner.remove());
+        });
+    });
 </script>
 </body>
 <?php require("../includes/_footer.php"); ?>

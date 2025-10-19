@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Oct 19, 2025 at 10:39 PM
+-- Generation Time: Oct 19, 2025 at 11:36 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -94,14 +94,17 @@ INSERT INTO `Password` (`idUser`, `hash`) VALUES
 (6, '$2y$10$D2hOor7AqAuYZ7ADIcXvcOzm3vaXPqUTAopIZw66xf3LwxYAWpQ3a'),
 (7, '$2y$10$u1c9OAeuJdcuHmiVDUwoIuZfrgXYl.p3Xumv/W8IVuiQHQPgWF8IG'),
 (8, '$2y$10$0XTvbvTwdM8rsHHfZlm/POLnItc.VYO/hvU6Nd2Zw4fGQDhJpilj.'),
-(9, '$2y$10$qVzyj/DghrJi5sSHxuGGqO.YJzYYk5HtlfCeOEvlXp5nNR902ZRg.'),
 (10, '$2y$10$XpSJS2.D53nbbdkNII9HOeP0RmdIaoTiCK.Ze84lpEXeLdcHbzGFK'),
 (11, '$2y$10$yvIeT1LM5m0UyuVijFUv7.LAu0I2g2PgFqzYRCtOVfhQdNrXll2Y2'),
 (14, '$2y$10$vZd0IPi0Wds4Kk/z68LgcutBfib31/ixfOtUH3UVRYYcNrTzdpy..'),
 (15, '$2y$10$pzkaEIEOlnkiZ//FIZnvzu0bTw66VKh1dVUve8QGMK8h1eu1nTIky'),
 (16, '$2y$10$O/D6raHxTxt7Cz4dcSJOIedImQQH3odqdZqORQDLpr4mzZh9XaS9y'),
 (17, '$2y$10$/Ci7dH0SLQ3NET85U8ZJWunE9dhE.1XaEJLaMZvf2lAVpMQTI0sXu'),
-(18, '$2y$10$UDfNEn8jHsb5SgBT2iNQj./0niWkgtnlBr4o/A7C9xDIiTrQCTrpO');
+(18, '$2y$10$UDfNEn8jHsb5SgBT2iNQj./0niWkgtnlBr4o/A7C9xDIiTrQCTrpO'),
+(19, '$2y$10$2evhCSzzzOgkB4vyFcVQ.eSo3tsZZEatTusEGctPGhDfOcDGyxN2i'),
+(20, '$2y$10$ZyrejxuRuYpArdrKMLVzMOy9otQf7RucwaqXQmfUSQnzXzjJHWVr2'),
+(21, '$2y$10$3Tqww7ytk6EmO.ZM5Rhtw.pueR5eITpvVYV7nCQ4TwkGR4f.hGDaG'),
+(22, '$2y$10$zIzCwtJfwpsx8mhtOCRlcOqxFYNzuubZlT9ZP.WOVDYURvKvLmqGO');
 
 -- --------------------------------------------------------
 
@@ -152,14 +155,17 @@ INSERT INTO `Profile` (`idUser`, `Descripcion`) VALUES
 (6, ''),
 (7, ''),
 (8, ''),
-(9, ''),
 (10, ''),
 (11, ''),
 (14, ''),
 (15, ''),
 (16, ''),
 (17, ''),
-(18, '');
+(18, ''),
+(19, ''),
+(20, ''),
+(21, ''),
+(22, '');
 
 -- --------------------------------------------------------
 
@@ -181,21 +187,24 @@ CREATE TABLE `User` (
 
 INSERT INTO `User` (`idUser`, `userTag`, `username`, `profileImageRoute`, `dateCreated`) VALUES
 (1, 'fcytuader', 'fcytuader', 'Resources/profilePictures/uader.png', '2025-10-17 15:16:46'),
-(2, 'juanperez', 'eljuampi', NULL, '2025-10-17 15:16:46'),
-(3, 'maria.dev', 'mariapower', NULL, '2025-10-17 15:16:46'),
-(4, 'codermax', 'maxi', NULL, '2025-10-17 15:16:46'),
-(5, 'ana_lopez', 'anita', NULL, '2025-10-17 15:16:46'),
-(6, 'u1', 'Valentino Pettinato', NULL, '2025-10-19 00:39:19'),
-(7, 'u2', 'tomi', NULL, '2025-10-19 00:39:19'),
-(8, 'u3', 'marianocaminos', NULL, '2025-10-19 00:39:19'),
-(9, 'u4', 'MarianoCaminos', NULL, '2025-10-19 00:39:19'),
-(10, 'u5a', 'chinoo_vg', NULL, '2025-10-19 00:39:19'),
-(11, 'u6a', 'tomitomi', 'Resources/profilePictures/Ritual.png', '2025-10-19 00:39:19'),
-(14, 'u9', 'prueba', NULL, '2025-10-19 00:39:19'),
-(15, 'u10', 'usuarioejemplo', NULL, '2025-10-19 00:39:19'),
-(16, 'u11', 'PelaAprobanosPorfa', 'Resources/profilePictures/VinDiesel.webp', '2025-10-19 00:39:19'),
-(17, 'u12', 'tomitomitomi', NULL, '2025-10-19 00:39:19'),
-(18, 'u13', 'daniel', NULL, '2025-10-19 00:39:19');
+(2, 'eljuampi', 'eljuampi', NULL, '2025-10-17 15:16:46'),
+(3, 'mariapower', 'mariapower', NULL, '2025-10-17 15:16:46'),
+(4, 'maxi', 'maxi', NULL, '2025-10-17 15:16:46'),
+(5, 'anita', 'anita', NULL, '2025-10-17 15:16:46'),
+(6, 'Valentino Pettinato', 'Valentino Pettinato', NULL, '2025-10-19 00:39:19'),
+(7, 'tomi', 'tomi', NULL, '2025-10-19 00:39:19'),
+(8, 'marianocaminos', 'marianocaminos', NULL, '2025-10-19 00:39:19'),
+(10, 'chinoo_vg', 'chinoo_vg', NULL, '2025-10-19 00:39:19'),
+(11, 'tomitomi', 'tomitomi', 'Resources/profilePictures/Ritual.png', '2025-10-19 00:39:19'),
+(14, 'prueba', 'prueba', NULL, '2025-10-19 00:39:19'),
+(15, 'usuarioejemplo', 'usuarioejemplo', NULL, '2025-10-19 00:39:19'),
+(16, 'PelaAprobanosPorfa', 'PelaAprobanosPorfa', 'Resources/profilePictures/VinDiesel.webp', '2025-10-19 00:39:19'),
+(17, 'tomitomitomi', 'tomitomitomi', NULL, '2025-10-19 00:39:19'),
+(18, 'daniel', 'daniel', NULL, '2025-10-19 00:39:19'),
+(19, 'tomitomi1', 'tomitomi1', NULL, '2025-10-19 18:22:20'),
+(20, 'tomisch', 'tomisch', NULL, '2025-10-19 18:31:38'),
+(21, 'tomitest', 'tomitest', NULL, '2025-10-19 18:32:52'),
+(22, 'tomites', 'tomites', NULL, '2025-10-19 18:35:12');
 
 --
 -- Indexes for dumped tables
@@ -240,7 +249,7 @@ ALTER TABLE `Profile`
 --
 ALTER TABLE `User`
   ADD PRIMARY KEY (`idUser`),
-  ADD UNIQUE KEY `uk_user_userTag` (`userTag`);
+  ADD UNIQUE KEY `username_UNIQUE` (`username`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -256,7 +265,7 @@ ALTER TABLE `Post`
 -- AUTO_INCREMENT for table `User`
 --
 ALTER TABLE `User`
-  MODIFY `idUser` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `idUser` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- Constraints for dumped tables

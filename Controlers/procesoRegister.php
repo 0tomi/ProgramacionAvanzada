@@ -4,25 +4,13 @@ include "../Model/UserFactory.php";
 $username = trim($_POST['username']);
 $password = trim($_POST['password']);
 
-$usuarios = leerUsuarios();
+$userFactory = new UserFactory();
 
-// Verificar si el usuario ya existe
-foreach ($usuarios as $user) {
-    if ($user['username'] === $username) {
-        header("Location: ../register.php?error=Usuario+ya+existe");
-        exit;
-    }
+// Verificar si el usuario ya existe, y crearlo si no.
+if (!$userFactory->registerUser($username, $password)){
+    header("Location: ../LOGIN/_register.php?error=$userFactory->error");
+    exit;
 }
 
-// Guardar con contrasenia encriptada
-$usuarios[] = [
-    "id" => "u" . (count($usuarios) + 1),
-    "username" => $username,
-    "password" => password_hash($password, PASSWORD_DEFAULT),
-    "user_profile_picture" => "",    // Sin foto de perfil x default,
-    "description" => ""
-];
-
-guardarUsuarios($usuarios);
-
-header("Location: ../login.php?success=Registro+exitoso");
+// Exito
+header("Location: ../LOGIN/_login.php?success=Registro+exitoso");
