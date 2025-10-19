@@ -9,7 +9,10 @@ class User {
         $this->idUsuario = $id;
         $this->nombre = $name;
         $this->descripcion = $desc;
-        $this->profilePhoto = $pp;
+        if ($pp == null)
+            $this->profilePhoto = 'Resources/profilePictures/defaultProfilePicture.png';
+        else 
+            $this->profilePhoto = $pp;
         $this->flash = ['type' => 'success', 'msg' => 'Bienvenido a Ritual, '.$this->nombre];
     }
 

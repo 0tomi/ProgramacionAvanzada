@@ -41,8 +41,7 @@ if (!is_array($posts)) {
 
       <!-- Composer -->
       <div class="composer" aria-label="Publicar">
-        <img class="avatar" src="<?= htmlspecialchars($profilePicture) ?>" alt="Tu avatar">
-
+        <img class="avatar" src="<?= htmlspecialchars('../'.$_SESSION['user']->getProfilePhoto()) ?>" alt="Tu avatar">
         <!-- IMPORTANTE: id, name="text", name="image" -->
         <form id="createPostForm" class="compose" action="javascript:void(0)" method="post" enctype="multipart/form-data" novalidate>
           <textarea name="text" placeholder="¿Qué está pasando?" maxlength="280" required></textarea>
