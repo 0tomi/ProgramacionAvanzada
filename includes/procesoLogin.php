@@ -32,12 +32,11 @@ $username = trim($_POST['username']);
 $password = trim($_POST['password']);
 
 $usuarios = leerUsuarios();
-
 foreach ($usuarios as $user) {
     if ($user['username'] === $username && password_verify($password, $user['password'])) {
         session_start();
-    
         $usuario = new User($user['id']);
+
         $_SESSION['user'] = $usuario;
         header("Location: ../Inicio/inicio.php");
         exit;   

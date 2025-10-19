@@ -1,4 +1,5 @@
 <?php
+echo("hasta aca llegamos");
 $envPath = dirname(__DIR__) . '/includes/credenciales.env';
 if (!is_readable($envPath)) { return; }
 
