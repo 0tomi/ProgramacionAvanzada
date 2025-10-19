@@ -129,6 +129,15 @@ body{
   background: color-mix(in srgb, var(--like) 30%, transparent);
 }
 
+.chip.delete{
+  border-color: color-mix(in srgb, var(--like) 70%, transparent);
+  color: color-mix(in srgb, var(--like) 75%, white 15%);
+}
+.chip.delete:hover{
+  background: color-mix(in srgb, var(--like) 20%, transparent);
+  color: #fff;
+}
+
 .post-overlay {
   position: absolute;
   inset: 0;

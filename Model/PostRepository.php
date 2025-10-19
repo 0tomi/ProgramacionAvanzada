@@ -291,6 +291,55 @@ final class PostRepository
     }
 
     /**
+     * Elimina un post principal y toda su conversación asociada.
+     *
+     * @param int $postId
+     * @param int $userId
+     */
+    public function deletePost(int $postId, int $userId): void
+    {
+        $stmt = $this->db->prepare('SELECT idUserOwner, idBelogingPost FROM Post WHERE idPost = ?');
+        $stmt->bind_param('i', $postId);
+        $stmt->execute();
+        $stmt->bind_result($ownerId, $parentId);
+        if (!$stmt->fetch()) {
+            $stmt->close();
+            throw new RuntimeException('La publicación indicada no existe.');
+        }
+        $stmt->close();
+
+        if ((int)$ownerId !== $userId) {
+            throw new RuntimeException('Solo puedes eliminar publicaciones propias.');
+        }
+        if ($parentId !== null) {
+            throw new RuntimeException('Los comentarios se eliminan desde el detalle del post.');
+        }
+
+        $ids = $this->collectDescendantIds($postId);
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+
+        if (empty($ids)) {
+            return;
+        }
+
+        $idList = implode(',', $ids);
+        $imageRoutes = $this->collectImageRoutes($ids);
+
+        $this->db->begin_transaction();
+        try {
+            $this->db->query('DELETE FROM Likes WHERE post IN (' . $idList . ')');
+            $this->db->query('DELETE FROM ImagesPost WHERE idPost IN (' . $idList . ')');
+            $this->db->query('DELETE FROM Post WHERE idPost IN (' . $idList . ')');
+            $this->db->commit();
+        } catch (mysqli_sql_exception $e) {
+            $this->db->rollback();
+            throw new RuntimeException('No se pudo eliminar la publicación.', 0, $e);
+        }
+
+        $this->deleteImageFiles($imageRoutes);
+    }
+
+    /**
      * Verifica que exista una publicación (post o comentario).
      *
      * @throws RuntimeException si no existe
@@ -377,6 +426,7 @@ final class PostRepository
                 'viewer' => [
                     'authenticated' => $viewerId !== null,
                     'liked' => $viewerId !== null && isset($viewerLikesSet[$id]),
+                    'can_delete' => $viewerId !== null && (int)$row['idUserOwner'] === $viewerId,
                 ],
             ];
 
@@ -585,5 +635,95 @@ final class PostRepository
         }
         $memo[$postId] = $this->findRootId($parentMap[$postId], $parentMap, $memo);
         return $memo[$postId];
+    }
+
+    /**
+     * Obtiene todos los IDs de comentarios pertenecientes a un post raíz.
+     *
+     * @return int[]
+     */
+    private function collectDescendantIds(int $rootId): array
+    {
+        $sql = 'SELECT idPost, idBelogingPost FROM Post';
+        $result = $this->db->query($sql);
+
+        $children = [];
+        while ($row = $result->fetch_assoc()) {
+            if ($row['idBelogingPost'] === null) {
+                continue;
+            }
+            $parent = (int)$row['idBelogingPost'];
+            $child = (int)$row['idPost'];
+            $children[$parent][] = $child;
+        }
+        $result->free();
+
+        $ids = [$rootId];
+        $queue = [$rootId];
+
+        while (!empty($queue)) {
+            $current = array_shift($queue);
+            if (empty($children[$current])) {
+                continue;
+            }
+            foreach ($children[$current] as $childId) {
+                $ids[] = $childId;
+                $queue[] = $childId;
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Recupera las rutas de imágenes asociadas a una lista de posts.
+     *
+     * @param int[] $postIds
+     * @return string[]
+     */
+    private function collectImageRoutes(array $postIds): array
+    {
+        if (empty($postIds)) {
+            return [];
+        }
+
+        $idList = implode(',', array_map('intval', $postIds));
+        $sql = 'SELECT route FROM ImagesPost WHERE idPost IN (' . $idList . ')';
+        $result = $this->db->query($sql);
+
+        $routes = [];
+        while ($row = $result->fetch_assoc()) {
+            $routes[] = $row['route'];
+        }
+        $result->free();
+
+        return $routes;
+    }
+
+    /**
+     * Elimina físicamente las imágenes asociadas a una publicación.
+     *
+     * @param string[] $routes
+     */
+    private function deleteImageFiles(array $routes): void
+    {
+        foreach ($routes as $route) {
+            $relative = trim((string)$route);
+            if ($relative === '') {
+                continue;
+            }
+
+            $normalized = $relative;
+            if (str_starts_with($normalized, '../')) {
+                $normalized = substr($normalized, 3);
+            }
+
+            $absolute = __DIR__ . '/../' . ltrim($normalized, '/');
+            if (!is_file($absolute)) {
+                continue;
+            }
+
+            @unlink($absolute);
+        }
     }
 }

@@ -222,6 +222,19 @@ try {
             $post = $repository->createPost((int)$user->getIdUsuario(), $text, $imageRoute);
             jsonResponse(['ok' => true, 'item' => $post]);
 
+        case 'delete':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                jsonResponse(['ok' => false, 'error' => 'Método no permitido'], 405);
+            }
+            $user = requireAuth();
+            $body = readJsonInput();
+            $postId = isset($body['post_id']) ? filter_var($body['post_id'], FILTER_VALIDATE_INT) : false;
+            if (!$postId) {
+                jsonResponse(['ok' => false, 'error' => 'post_id requerido'], 400);
+            }
+            $repository->deletePost((int)$postId, (int)$user->getIdUsuario());
+            jsonResponse(['ok' => true]);
+
         default:
             jsonResponse(['ok' => false, 'error' => 'Acción no soportada'], 400);
     }
@@ -231,4 +244,3 @@ try {
     error_log($e->getMessage());
     jsonResponse(['ok' => false, 'error' => 'Error inesperado en el servidor'], 500);
 }
-
