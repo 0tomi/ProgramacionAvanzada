@@ -1,247 +1,234 @@
 <?php
-// /POSTS/api.php
+/**
+ * /POSTS/api.php
+ *
+ * Punto de entrada de la API de publicaciones.
+ * Expone un router muy simple (parámetro ?action=) y delega la interacción con la
+ * base de datos al PostRepository. Devuelve siempre JSON y controla los errores
+ * más comunes para que el front pueda reaccionar con mensajes claros.
+ */
 declare(strict_types=1);
-require_once __DIR__ . '/../Model/Usuario.php';
 
-// ---- Ajustes de errores y cabeceras ----
-ini_set('display_errors', '0'); // evita HTML en respuestas
+require_once __DIR__ . '/../Model/Usuario.php';
+require_once __DIR__ . '/../Model/PostRepository.php';
+
+ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start(); // para likes por sesión, autor fake, etc.
+session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-// ---- Rutas/Constantes ----
-const POSTS_JSON_PATH = __DIR__ . '/../JSON/POST.json';
-const UPLOADS_DIR     = __DIR__ . '/uploads';       // carpeta donde guardar imágenes
-const MAX_IMG_BYTES   = 5 * 1024 * 1024;            // 5MB
+const POST_IMAGE_DIR = __DIR__ . '/../Resources/PostImages';
+const POST_IMAGE_ROUTE_PREFIX = 'Resources/PostImages';
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
-// ---- Helpers generales ----
-function json_out(array $payload, int $code = 200): void {
-  http_response_code($code);
-  echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-  exit;
-}
-function ensure_posts_file(): void {
-  $dir = dirname(POSTS_JSON_PATH);
-  if (!is_dir($dir)) { @mkdir($dir, 0775, true); }
-  if (!file_exists(POSTS_JSON_PATH)) { file_put_contents(POSTS_JSON_PATH, "[]"); }
-}
-function read_posts(): array {
-  ensure_posts_file();
-  $raw = @file_get_contents(POSTS_JSON_PATH);
-  if ($raw === false) throw new RuntimeException('No se pudo leer POST.json');
-  $data = json_decode($raw, true);
-  if (!is_array($data)) throw new RuntimeException('POST.json inválido');
-  return $data;
-}
-function write_posts(array $arr): void {
-  ensure_posts_file();
-  $fp = fopen(POSTS_JSON_PATH, 'c+');
-  if (!$fp) throw new RuntimeException('No se pudo abrir POST.json');
-  if (!flock($fp, LOCK_EX)) { fclose($fp); throw new RuntimeException('No se pudo bloquear POST.json'); }
-  ftruncate($fp, 0);
-  rewind($fp);
-  fwrite($fp, json_encode($arr, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-  fflush($fp);
-  flock($fp, LOCK_UN);
-  fclose($fp);
-}
-function ensure_uploads_dir(): void {
-  if (!is_dir(UPLOADS_DIR)) { @mkdir(UPLOADS_DIR, 0775, true); }
-}
-function gen_id(): string {
-  // ID simple tipo "timestamp + random"
-  return (string)(time()) . str_pad((string)mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
-}
-function enrich_post(array $p): array {
-  $p['counts']  = $p['counts']  ?? ['likes'=>0, 'replies'=>0];
-  $p['replies'] = $p['replies'] ?? [];
-  $p['author']  = $p['author']  ?? ['id'=>'uX','handle'=>'anon','name'=>'Anónimo'];
-  $likedSet     = array_flip($_SESSION['likes'] ?? []);
-  $p['viewer']  = ['liked' => isset($likedSet[$p['id'] ?? ''])];
-
-  $usuarioNombre = $_SESSION['user']->getNombre();
-  $logged = isset($usuarioNombre) && $usuarioNombre !== '';
-  $likedSet = array_flip($_SESSION['likes'] ?? []);
-  $p['viewer'] = [
-    'liked'         => isset($likedSet[$p['id'] ?? '']),
-    'authenticated' => $logged,
-  ];
-
-  return $p;
+/**
+ * Envía una respuesta JSON y detiene la ejecución.
+ */
+function jsonResponse(array $payload, int $status = 200): void
+{
+    http_response_code($status);
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
 }
 
-// ---- Router de acciones ----
+/**
+ * Devuelve el usuario autenticado (objeto User) o null.
+ */
+function currentUser(): ?User
+{
+    $user = $_SESSION['user'] ?? null;
+    return $user instanceof User ? $user : null;
+}
+
+/**
+ * Obtiene el ID del usuario logueado o null.
+ */
+function currentUserId(): ?int
+{
+    $user = currentUser();
+    return $user ? (int)$user->getIdUsuario() : null;
+}
+
+/**
+ * Garantiza autenticación y devuelve el usuario activo.
+ */
+function requireAuth(): User
+{
+    $user = currentUser();
+    if ($user === null) {
+        jsonResponse(['ok' => false, 'error' => 'Debes iniciar sesión para realizar esta acción'], 401);
+    }
+    return $user;
+}
+
+/**
+ * Crea la carpeta de imágenes si no existe.
+ */
+function ensureImageDirectory(): void
+{
+    if (!is_dir(POST_IMAGE_DIR) && !mkdir(POST_IMAGE_DIR, 0775, true) && !is_dir(POST_IMAGE_DIR)) {
+        throw new RuntimeException('No se pudo crear la carpeta de imágenes de publicaciones.');
+    }
+}
+
+/**
+ * Guarda la imagen subida y devuelve la ruta relativa que se almacenará en la BD.
+ */
+function storeUploadedImage(array $file): string
+{
+    if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('No se recibió una imagen válida.');
+    }
+    if (($file['size'] ?? 0) > MAX_IMAGE_SIZE_BYTES) {
+        throw new RuntimeException('La imagen supera el tamaño máximo de 5MB.');
+    }
+
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mime = $finfo ? finfo_file($finfo, $file['tmp_name']) : '';
+    if ($finfo) {
+        finfo_close($finfo);
+    }
+
+    $allowed = [
+        'image/jpeg' => 'jpg',
+        'image/png'  => 'png',
+        'image/webp' => 'webp',
+        'image/gif'  => 'gif',
+    ];
+    if (!isset($allowed[$mime])) {
+        throw new RuntimeException('Formato de imagen no permitido.');
+    }
+
+    ensureImageDirectory();
+
+    $filename = sprintf('%s.%s', bin2hex(random_bytes(12)), $allowed[$mime]);
+    $destination = POST_IMAGE_DIR . '/' . $filename;
+    if (!move_uploaded_file($file['tmp_name'], $destination)) {
+        throw new RuntimeException('No se pudo guardar la imagen en el servidor.');
+    }
+
+    return POST_IMAGE_ROUTE_PREFIX . '/' . $filename;
+}
+
+/**
+ * Decodifica el cuerpo JSON de la petición.
+ *
+ * @throws RuntimeException si el cuerpo no es JSON válido.
+ */
+function readJsonInput(): array
+{
+    $raw = file_get_contents('php://input');
+    if ($raw === false || trim($raw) === '') {
+        return [];
+    }
+    $decoded = json_decode($raw, true);
+    if (!is_array($decoded)) {
+        throw new RuntimeException('El cuerpo de la petición no es JSON válido.');
+    }
+    return $decoded;
+}
+
 try {
-  $action = $_GET['action'] ?? 'list';
+    $repository = new PostRepository();
+    $action = $_GET['action'] ?? 'list';
+    $viewerId = currentUserId();
 
-  // GET: un post por id
-  if ($action === 'get') {
-    $id = (string)($_GET['id'] ?? '');
-    if ($id === '') json_out(['ok'=>false,'error'=>'id requerido'], 400);
+    switch ($action) {
+        case 'list':
+            $items = $repository->getFeed($viewerId);
+            jsonResponse(['ok' => true, 'items' => $items]);
 
-    $items = read_posts();
-    foreach ($items as $p) {
-      if (($p['id'] ?? '') === $id) {
-        json_out(['ok'=>true, 'item'=> enrich_post($p)]);
-      }
+        case 'get':
+            $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+            if (!$id) {
+                jsonResponse(['ok' => false, 'error' => 'Parámetro id requerido'], 400);
+            }
+            $post = $repository->getPost((int)$id, $viewerId);
+            if ($post === null) {
+                jsonResponse(['ok' => false, 'error' => 'Post no encontrado'], 404);
+            }
+            jsonResponse(['ok' => true, 'item' => $post]);
+
+        case 'liked_ids':
+            if ($viewerId === null) {
+                jsonResponse(['ok' => true, 'ids' => []]);
+            }
+            $ids = $repository->listLikedPostIds($viewerId);
+            jsonResponse(['ok' => true, 'ids' => $ids]);
+
+        case 'like':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                jsonResponse(['ok' => false, 'error' => 'Método no permitido'], 405);
+            }
+            $user = requireAuth();
+            $body = readJsonInput();
+            $postId = isset($body['post_id']) ? filter_var($body['post_id'], FILTER_VALIDATE_INT) : false;
+            if (!$postId) {
+                jsonResponse(['ok' => false, 'error' => 'post_id requerido'], 400);
+            }
+            $toggle = $repository->toggleLike((int)$postId, (int)$user->getIdUsuario());
+            jsonResponse(['ok' => true] + $toggle);
+
+        case 'comment':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                jsonResponse(['ok' => false, 'error' => 'Método no permitido'], 405);
+            }
+            $user = requireAuth();
+            $body = readJsonInput();
+
+            $postId = isset($body['post_id']) ? filter_var($body['post_id'], FILTER_VALIDATE_INT) : false;
+            if (!$postId) {
+                jsonResponse(['ok' => false, 'error' => 'post_id requerido'], 400);
+            }
+
+            $text = trim((string)($body['text'] ?? ''));
+            if ($text === '' || mb_strlen($text, 'UTF-8') > 280) {
+                jsonResponse(['ok' => false, 'error' => 'Comentario inválido (1..280 caracteres)'], 400);
+            }
+
+            $parentCommentId = null;
+            if (isset($body['parent_comment_id']) && $body['parent_comment_id'] !== null) {
+                $parentCommentId = filter_var($body['parent_comment_id'], FILTER_VALIDATE_INT);
+                if (!$parentCommentId) {
+                    jsonResponse(['ok' => false, 'error' => 'parent_comment_id inválido'], 400);
+                }
+            }
+
+            $comment = $repository->createComment(
+                (int)$user->getIdUsuario(),
+                (int)$postId,
+                $text,
+                $parentCommentId !== false ? $parentCommentId : null
+            );
+            jsonResponse(['ok' => true, 'comment' => $comment]);
+
+        case 'create':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                jsonResponse(['ok' => false, 'error' => 'Método no permitido'], 405);
+            }
+            $user = requireAuth();
+
+            $text = trim((string)($_POST['text'] ?? ''));
+            if ($text === '' || mb_strlen($text, 'UTF-8') > 280) {
+                jsonResponse(['ok' => false, 'error' => 'El post debe tener entre 1 y 280 caracteres'], 400);
+            }
+
+            $imageRoute = null;
+            if (isset($_FILES['image']) && is_array($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $imageRoute = storeUploadedImage($_FILES['image']);
+            }
+
+            $post = $repository->createPost((int)$user->getIdUsuario(), $text, $imageRoute);
+            jsonResponse(['ok' => true, 'item' => $post]);
+
+        default:
+            jsonResponse(['ok' => false, 'error' => 'Acción no soportada'], 400);
     }
-    json_out(['ok'=>false,'error'=>'Post no encontrado'], 404);
-  }
-
-  // GET: todos los posts
-  if ($action === 'list') {
-    $items = read_posts();
-    $items = array_map('enrich_post', $items);
-    json_out(['ok'=>true, 'items'=>$items]);
-  }
-
-  // GET: ids likeados en esta sesión (para pintar ♥ en inicio)
-  if ($action === 'liked_ids') {
-    $ids = array_values($_SESSION['likes'] ?? []);
-    json_out(['ok'=>true, 'ids'=>$ids]);
-  }
-
-  // POST: toggle like
-  if ($action === 'like' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $usuarioNombre = $_SESSION['user']->getNombre();
-    $logged = isset($usuarioNombre) && $usuarioNombre !== '';
-    if (!$logged) {
-      json_out(['ok'=>false, 'error'=>'Debes iniciar sesión para likear'], 401);
-    }
-
-    $input  = json_decode(file_get_contents('php://input') ?: '{}', true) ?? [];
-    $postId = (string)($input['post_id'] ?? '');
-    if ($postId === '') json_out(['ok'=>false,'error'=>'post_id requerido'], 400);
-
-
-    $items = read_posts();
-    $found = false;
-    foreach ($items as &$p) {
-      if (($p['id'] ?? '') === $postId) {
-        $found = true;
-        $p['counts'] = $p['counts'] ?? ['likes'=>0,'replies'=>0];
-
-        $liked = in_array($postId, $_SESSION['likes'] ?? [], true);
-        if ($liked) {
-          $p['counts']['likes'] = max(0, (int)$p['counts']['likes'] - 1);
-          $_SESSION['likes'] = array_values(array_filter($_SESSION['likes'], fn($x) => $x !== $postId));
-          $liked = false;
-        } else {
-          $p['counts']['likes'] = (int)$p['counts']['likes'] + 1;
-          $_SESSION['likes'][] = $postId;
-          $liked = true;
-        }
-        write_posts($items);
-        json_out(['ok'=>true, 'liked'=>$liked, 'like_count'=>$p['counts']['likes']]);
-      }
-    }
-    if (!$found) json_out(['ok'=>false,'error'=>'Post no encontrado'], 404);
-  }
-
-  // POST: comentar (raíz o respuesta)
-  if ($action === 'comment' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input   = json_decode(file_get_contents('php://input') ?: '{}', true) ?? [];
-    $postId  = (string)($input['post_id'] ?? '');
-    $parent  = $input['parent_comment_id'] ?? null;
-    $author  = trim((string)($input['author'] ?? ''));
-    $text    = trim((string)($input['text'] ?? ''));
-
-    if ($postId === '')                        json_out(['ok'=>false,'error'=>'post_id requerido'], 400);
-    if ($text === '' || mb_strlen($text) > 280) json_out(['ok'=>false,'error'=>'Comentario inválido (1..280)'], 400);
-
-    $items = read_posts();
-    foreach ($items as &$p) {
-      if (($p['id'] ?? '') === $postId) {
-        $cid = gen_id();
-        $comment = [
-          'id'         => $cid,
-          'parent_id'  => $parent ? (string)$parent : null,
-          'author'     => $author !== '' ? $author : 'Anónimo',
-          'text'       => $text,
-          'created_at' => gmdate('c'),
-        ];
-        if (!isset($p['replies']) || !is_array($p['replies'])) $p['replies'] = [];
-        array_unshift($p['replies'], $comment);
-        $p['counts']['replies'] = (int)($p['counts']['replies'] ?? 0) + 1;
-
-        write_posts($items);
-        json_out(['ok'=>true, 'comment'=>$comment]);
-      }
-    }
-    json_out(['ok'=>false,'error'=>'Post no encontrado'], 404);
-  }
-
-  // POST (multipart/form-data): crear post (texto + imagen opcional)
-  if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Debe estar logueado
-    $usuarioNombre = $_SESSION['user']->getNombre();
-    $logged = isset($usuarioNombre) && $usuarioNombre !== '';
-    if (!$logged) {
-      json_out(['ok'=>false,'error'=>'Debes iniciar sesión para publicar'], 401);
-    }
-
-    // Texto
-    $text = trim((string)($_POST['text'] ?? ''));
-    if ($text === '' || mb_strlen($text, 'UTF-8') > 280) {
-      json_out(['ok'=>false,'error'=>'Texto requerido (1..280)'], 400);
-    }
-
-    // Imagen (opcional)
-    $mediaUrl = '';
-    if (!empty($_FILES['image']) && is_uploaded_file($_FILES['image']['tmp_name'])) {
-      $file = $_FILES['image'];
-      $mime = mime_content_type($file['tmp_name']) ?: '';
-      $allowed = ['image/jpeg'=>'jpg','image/png'=>'png','image/webp'=>'webp','image/gif'=>'gif'];
-
-      if (!isset($allowed[$mime]))            json_out(['ok'=>false,'error'=>'Formato de imagen no permitido'], 400);
-      if ($file['size'] > MAX_IMG_BYTES)      json_out(['ok'=>false,'error'=>'La imagen supera 5MB'], 400);
-
-      ensure_uploads_dir();
-      $ext   = $allowed[$mime];
-      $fname = gen_id().'.'.$ext;
-      $dest  = UPLOADS_DIR.'/'.$fname;
-
-      if (!@move_uploaded_file($file['tmp_name'], $dest)) {
-        json_out(['ok'=>false,'error'=>'No se pudo guardar la imagen'], 500);
-      }
-      // URL relativa servible desde /POSTS/
-      $mediaUrl = 'uploads/'.$fname;
-    }
-
-    // Autor desde sesión (sin @)
-    $username = $_SESSION['user']->getNombre();                       // viene de tu login
-    $display  = $_SESSION['display_name'] ?? $username;      // por si tenés nombre para mostrar
-    $userId   = $_SESSION['user_id'] ?? ('u_' . preg_replace('/\W+/', '', strtolower($username)));
-
-    $author = [
-      'id'     => $userId,
-      'handle' => '',                // dejamos vacío para no usar @
-      'name'   => $display,          // ← esto es lo que se mostrará
-    ];
-
-    // Crear post
-    $post = [
-      'id'         => gen_id(),
-      'author'     => $author,
-      'text'       => $text,
-      'media_url'  => $mediaUrl,
-      'counts'     => ['likes'=>0, 'replies'=>0],
-      'replies'    => [],
-      'created_at' => gmdate('c'),
-    ];
-
-    $items = read_posts();
-    array_unshift($items, $post);
-    write_posts($items);
-
-    json_out(['ok'=>true, 'item'=> enrich_post($post)], 200);
-  }
-
-
-  // Acción no soportada
-  json_out(['ok'=>false,'error'=>'Acción no soportada'], 400);
-
+} catch (RuntimeException $e) {
+    jsonResponse(['ok' => false, 'error' => $e->getMessage()], 400);
 } catch (Throwable $e) {
-  json_out(['ok'=>false,'error'=>$e->getMessage()], 500);
+    error_log($e->getMessage());
+    jsonResponse(['ok' => false, 'error' => 'Error inesperado en el servidor'], 500);
 }
+

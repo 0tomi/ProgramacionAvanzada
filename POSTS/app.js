@@ -1,210 +1,315 @@
-// /POSTS/app.js
-const API = "api.php";
-const feed = document.getElementById("feed");
+/**
+ * /POSTS/app.js
+ *
+ * Cliente de la vista de publicaciones. Solicita el contenido al endpoint PHP,
+ * compone el HTML del post y gestiona acciones de interacción (likes y
+ * comentarios). Mantiene el código centrado en tres responsabilidades:
+ *  - llamadas a la API (`fetchPost`, `apiToggleLike`, `apiPostComment`)
+ *  - renderizado del árbol de comentarios
+ *  - manejadores de eventos del usuario
+ */
+
+const API_URL = 'api.php';
+const feed = document.getElementById('feed');
+const DEFAULT_AVATAR = '../Resources/profilePictures/defaultProfilePicture.png';
 
 init();
 
-function init(){
-  const id = new URLSearchParams(location.search).get("id");
-  if(!id){ feed.innerHTML = `<div class="error">Falta el parámetro ?id=...</div>`; return; }
-  cargarPost(id);
-}
+/**
+ * Carga inicial del post (utiliza el parámetro ?id=... de la URL).
+ */
+async function init() {
+  const id = new URLSearchParams(window.location.search).get('id');
+  if (!id) {
+    feed.innerHTML = '<div class="error">Falta el parámetro ?id=...</div>';
+    return;
+  }
 
-async function cargarPost(id){
-  try{
-    const res = await fetch(`${API}?action=get&id=${encodeURIComponent(id)}`, { credentials:"same-origin" });
-    const data = await res.json();
-    if(!data.ok || !data.item) throw new Error(data.error || "Post no encontrado");
-    
-    // Simplemente renderiza el post. No más inyección de estilos ni creación de botones.
-    feed.innerHTML = renderPost(data.item);
-
-  }catch(err){
-    feed.innerHTML = `<div class="error">${escapeHtml(String(err.message || err))}</div>`;
+  try {
+    const post = await fetchPost(id);
+    feed.innerHTML = renderPost(post);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    feed.innerHTML = `<div class="error">${escapeHtml(message)}</div>`;
   }
 }
 
-/* ===== Render post + acciones ===== */
-function renderPost(post){
-  // avatar (con fallback)
-  const avatar = post.author?.avatar_url || '/imagenes/profilePictures/defaultProfilePicture.png';
-  const name   = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
-  const ts     = formatDate(post.created_at);
+/**
+ * Recupera un post puntual desde la API.
+ * Lanza un error si la respuesta no es satisfactoria.
+ */
+async function fetchPost(id) {
+  const res = await fetch(`${API_URL}?action=get&id=${encodeURIComponent(id)}`, {
+    credentials: 'same-origin',
+  });
+  const data = await res.json();
+  if (!data.ok || !data.item) {
+    throw new Error(data.error || 'Post no encontrado');
+  }
+  return data.item;
+}
 
-  const img = post.media_url
-    ? `<figure class="media"><img class="post-image" src="${escapeHtml(post.media_url)}" alt="Imagen del post"></figure>`
-    : "";
-
-  const canInteract  = !!post.viewer?.authenticated;
+/**
+ * Devuelve el marcado HTML para la vista completa del post.
+ */
+function renderPost(post) {
+  const canInteract = Boolean(post.viewer?.authenticated);
   const likeBtnAttrs = canInteract ? '' : 'disabled title="Inicia sesión para likear"';
-  const likeClasses  = `chip ${post.viewer?.liked ? "liked" : ""}`;
+  const likeClasses = `chip ${post.viewer?.liked ? 'liked' : ''}`;
+  const avatar = post.author?.avatar_url || DEFAULT_AVATAR;
+  const authorName = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
+  const createdAt = formatDate(post.created_at);
+  const media = post.media_url
+    ? `<figure class="media"><img class="post-image" src="${escapeHtml(post.media_url)}" alt="Imagen del post"></figure>`
+    : '';
+  const comments = renderCommentsTree(post.replies || [], canInteract);
+  const commentForm = canInteract
+    ? commentFormTemplate(post.id)
+    : '<div class="muted">Inicia sesión para comentar.</div>';
 
-  // Se eliminó la barra <nav class="post-topbar"> de aquí
   return `
-    <article class="post" data-id="${post.id}">
+    <article class="post" data-id="${post.id}" data-can-reply="${canInteract ? '1' : '0'}">
       <header class="post-header">
-        <img class="avatar" src="${escapeHtml(avatar)}" alt="${name}">
+        <img class="avatar" src="${escapeHtml(avatar)}" alt="${authorName}">
         <div class="meta">
-          <div class="name">${name}</div>
-          <div class="subline">
-            <time>${ts}</time>
-          </div>
+          <div class="name">${authorName}</div>
+          <div class="subline"><time>${createdAt}</time></div>
         </div>
       </header>
-
       <p class="text">${escapeHtml(post.text)}</p>
-      ${img}
-
+      ${media}
       <div class="actions">
         <button class="${likeClasses}" ${likeBtnAttrs} onclick="toggleLike('${post.id}', this)">
-          ♥ <span class="like-count">${post.counts.likes}</span>
+          ♥ <span class="like-count">${post.counts?.likes ?? 0}</span>
         </button>
       </div>
-
       <details open>
-        <summary>Comentarios (${post.counts.replies})</summary>
+        <summary>Comentarios (${post.counts?.replies ?? 0})</summary>
         <div class="comentarios">
-          ${renderCommentsTree(post.replies || [])}
+          ${comments}
         </div>
-        <form class="comment-root" onsubmit="event.preventDefault(); return comentar('${post.id}', null, this, event)">
-          <input name="author" placeholder="Tu nombre">
-          <input name="text" required maxlength="280" placeholder="Escribe un comentario">
-          <button class="btn primary">Comentar</button>
-        </form>
+        ${commentForm}
       </details>
     </article>
   `;
 }
 
-/* ===== Árbol de comentarios (sin cambios) ===== */
-function buildTree(list){
-  const byId = new Map();
-  list.forEach(c => byId.set(c.id || cryptoRand(), { ...c, children: [] }));
-  const roots = [];
-  byId.forEach(node => {
-    if (node.parent_id && byId.has(node.parent_id)) byId.get(node.parent_id).children.push(node);
-    else roots.push(node);
-  });
-  return roots;
+/**
+ * Plantilla para el formulario de comentario raíz.
+ */
+function commentFormTemplate(postId) {
+  return `
+    <form class="comment-root" onsubmit="event.preventDefault(); return comentar('${postId}', null, this, event)">
+      <input name="text" required maxlength="280" placeholder="Escribe un comentario">
+      <button class="btn primary">Comentar</button>
+    </form>
+  `;
 }
-function renderCommentsTree(list){
+
+/**
+ * Construye el árbol UL/LI de comentarios. Si el usuario no puede responder,
+ * se devuelven los nodos sin botones de respuesta.
+ */
+function renderCommentsTree(list, canReply) {
   if (!Array.isArray(list) || list.length === 0) {
     return '<div class="muted">Sé el primero en comentar</div>';
   }
   const roots = buildTree(list);
-  return `<ul class="c-tree">${roots.map(renderCommentNode).join("")}</ul>`;
+  return `<ul class="c-tree">${roots.map((node) => renderCommentNode(node, canReply)).join('')}</ul>`;
 }
-function renderCommentNode(node){
-  return `
-    <li class="c-node" data-cid="${node.id}">
-      <div class="c-bubble">
-        <div class="c-meta"><b>${escapeHtml(node.author || "Anónimo")}</b> · <span>${formatDate(node.created_at)}</span></div>
-        <div class="c-text">${escapeHtml(node.text || "")}</div>
+
+/**
+ * Toma una lista plana de comentarios (cada uno con parent_id) y arma el árbol.
+ */
+function buildTree(list) {
+  const byId = new Map();
+  list.forEach((c) => byId.set(c.id || cryptoRand(), { ...c, children: [] }));
+  const roots = [];
+  byId.forEach((node) => {
+    if (node.parent_id && byId.has(node.parent_id)) {
+      byId.get(node.parent_id).children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+  return roots;
+}
+
+/**
+ * Renderiza un nodo individual del árbol de comentarios.
+ */
+function renderCommentNode(node, canReply) {
+  const children = node.children?.length
+    ? `<ul class="c-tree">${node.children.map((child) => renderCommentNode(child, canReply)).join('')}</ul>`
+    : '';
+
+  const replyControls = canReply
+    ? `
         <div class="c-actions">
           <button type="button" class="btn ghost small" onclick="toggleReplyForm('${node.id}', this)">Responder</button>
         </div>
         <form class="c-reply-form hidden" onsubmit="event.preventDefault(); return comentar(getPostId(this), '${node.id}', this, event)">
-          <input name="author" placeholder="Tu nombre">
           <input name="text" required maxlength="280" placeholder="Responder…">
           <button class="btn">Enviar</button>
         </form>
+      `
+    : '';
+
+  return `
+    <li class="c-node" data-cid="${node.id}">
+      <div class="c-bubble">
+        <div class="c-meta"><b>${escapeHtml(node.author || 'Anónimo')}</b> · <span>${formatDate(node.created_at)}</span></div>
+        <div class="c-text">${escapeHtml(node.text || '')}</div>
+        ${replyControls}
       </div>
-      ${node.children?.length ? `<ul class="c-tree">${node.children.map(renderCommentNode).join("")}</ul>` : ""}
+      ${children}
     </li>
   `;
 }
 
-/* ===== Likes (sin cambios) ===== */
-async function toggleLike(id, btn){
+/**
+ * Alterna el estado de like de la publicación.
+ */
+async function toggleLike(id, btn) {
   if (btn.hasAttribute('disabled')) return;
-  const countEl = btn.querySelector(".like-count");
-  const wasLiked = btn.classList.contains("liked");
-  const prev = parseInt(countEl.textContent, 10);
+
+  const countEl = btn.querySelector('.like-count');
+  const wasLiked = btn.classList.contains('liked');
+  const previousCount = parseInt(countEl.textContent, 10);
 
   // Optimistic UI
-  btn.classList.toggle("liked");
-  countEl.textContent = wasLiked ? prev - 1 : prev + 1;
+  btn.classList.toggle('liked');
+  countEl.textContent = wasLiked ? previousCount - 1 : previousCount + 1;
 
-  try{
-    const res = await fetch(`${API}?action=like`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({ post_id: id })
-    });
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error || "Error al likear");
-    btn.classList.toggle("liked", data.liked);
-    countEl.textContent = data.like_count;
-  }catch(err){
-    // rollback
-    btn.classList.toggle("liked", wasLiked);
-    countEl.textContent = prev;
-    alert(String(err.message || err));
+  try {
+    const result = await apiToggleLike(id);
+    btn.classList.toggle('liked', Boolean(result.liked));
+    countEl.textContent = result.like_count;
+  } catch (err) {
+    btn.classList.toggle('liked', wasLiked);
+    countEl.textContent = previousCount;
+    alert(err instanceof Error ? err.message : String(err));
   }
 }
 
-/* ===== Comentar (sin cambios) ===== */
-async function comentar(postId, parentCommentId, form, ev){
+/**
+ * Envía un comentario (raíz o respuesta) y lo inyecta en el DOM.
+ */
+async function comentar(postId, parentCommentId, form, ev) {
   if (ev) ev.preventDefault();
-  const payload = {
-    post_id: postId,
-    parent_comment_id: parentCommentId,
-    author: form.author.value,
-    text: form.text.value
-  };
-  try{
-    const res = await fetch(`${API}?action=comment`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error || "Error al comentar");
 
-    const comentarios = form.closest("details").querySelector(".comentarios");
+  const textField = form.querySelector('[name="text"]');
+  const text = textField ? textField.value.trim() : '';
+  if (!text) return;
+
+  try {
+    const comment = await apiPostComment(postId, parentCommentId, text);
+    const commentsWrapper = form.closest('details').querySelector('.comentarios');
+    const article = form.closest('article.post');
+    const canReply = article?.dataset?.canReply === '1';
 
     if (parentCommentId) {
-      // respuesta en el nodo
-      const target = comentarios.querySelector(`[data-cid="${parentCommentId}"]`);
+      const target = commentsWrapper.querySelector(`[data-cid="${parentCommentId}"]`);
       if (target) {
-        let sub = target.querySelector(":scope > ul.c-tree");
-        if (!sub) { sub = document.createElement("ul"); sub.className = "c-tree"; target.appendChild(sub); }
-        sub.insertAdjacentHTML("afterbegin", renderCommentNode({ ...data.comment, children: [] }));
+        let subTree = target.querySelector(':scope > ul.c-tree');
+        if (!subTree) {
+          subTree = document.createElement('ul');
+          subTree.className = 'c-tree';
+          target.appendChild(subTree);
+        }
+        subTree.insertAdjacentHTML('afterbegin', renderCommentNode({ ...comment, children: [] }, canReply));
       }
-      form.classList.add("hidden");
+      form.classList.add('hidden');
     } else {
-      // comentario raíz
-      let root = comentarios.querySelector("ul.c-tree");
-      if (!root) { comentarios.innerHTML = ""; root = document.createElement("ul"); root.className = "c-tree"; comentarios.appendChild(root); }
-      root.insertAdjacentHTML("afterbegin", renderCommentNode({ ...data.comment, children: [] }));
+      let root = commentsWrapper.querySelector('ul.c-tree');
+      if (!root) {
+        commentsWrapper.innerHTML = '';
+        root = document.createElement('ul');
+        root.className = 'c-tree';
+        commentsWrapper.appendChild(root);
+      }
+      root.insertAdjacentHTML('afterbegin', renderCommentNode({ ...comment, children: [] }, canReply));
     }
 
-    // actualizar contador del summary
-    const sum = form.closest("details").querySelector("summary");
-    const m = sum.textContent.match(/\d+/);
-    if (m) sum.textContent = `Comentarios (${parseInt(m[0], 10) + 1})`;
+    const summary = form.closest('details').querySelector('summary');
+    const match = summary.textContent.match(/\d+/);
+    if (match) {
+      summary.textContent = `Comentarios (${parseInt(match[0], 10) + 1})`;
+    }
 
     form.reset();
-  }catch(err){
-    alert(String(err.message || err));
+  } catch (err) {
+    alert(err instanceof Error ? err.message : String(err));
   }
-  return false;
 }
 
-/* ===== Utils (sin cambios) ===== */
-function toggleReplyForm(_commentId, btn){
-  const bubble = btn.closest(".c-bubble");
-  const f = bubble.querySelector(".c-reply-form");
-  f.classList.toggle("hidden");
-}
-function getPostId(el){ return el.closest("article.post").dataset.id; }
-function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])); }
-function formatDate(iso){ try{ return new Date(iso).toLocaleString(); }catch{ return ""; } }
-function cryptoRand(){ return String(Date.now()) + Math.floor(Math.random()*10000); }
+/* ==== Llamadas a la API ==== */
 
-// Se eliminaron las funciones:
-// - ensureBackButton()
-// - ensureBackInline()
-// - injectBackStyles()
+async function apiToggleLike(postId) {
+  const res = await fetch(`${API_URL}?action=like`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify({ post_id: Number(postId) }),
+  });
+  const data = await res.json();
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || 'No se pudo actualizar el like');
+  }
+  return data;
+}
+
+async function apiPostComment(postId, parentCommentId, text) {
+  const payload = {
+    post_id: Number(postId),
+    parent_comment_id: parentCommentId ? Number(parentCommentId) : null,
+    text,
+  };
+
+  const res = await fetch(`${API_URL}?action=comment`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || 'No se pudo enviar el comentario');
+  }
+  return data.comment;
+}
+
+/* ==== Utilidades de UI ==== */
+
+function toggleReplyForm(_commentId, btn) {
+  const bubble = btn.closest('.c-bubble');
+  const form = bubble.querySelector('.c-reply-form');
+  form.classList.toggle('hidden');
+}
+
+function getPostId(el) {
+  return el.closest('article.post')?.dataset?.id;
+}
+
+function escapeHtml(str) {
+  return (str || '').replace(/[&<>"']/g, (ch) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  })[ch]);
+}
+
+function formatDate(iso) {
+  try {
+    return new Date(iso).toLocaleString();
+  } catch {
+    return '';
+  }
+}
+
+function cryptoRand() {
+  return String(Date.now()) + Math.floor(Math.random() * 10000);
+}
+
