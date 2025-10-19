@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Oct 19, 2025 at 06:14 AM
+-- Generation Time: Oct 19, 2025 at 07:34 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -98,7 +98,6 @@ INSERT INTO `Password` (`idUser`, `hash`) VALUES
 (10, '$2y$10$XpSJS2.D53nbbdkNII9HOeP0RmdIaoTiCK.Ze84lpEXeLdcHbzGFK'),
 (11, '$2y$10$yvIeT1LM5m0UyuVijFUv7.LAu0I2g2PgFqzYRCtOVfhQdNrXll2Y2'),
 (12, '$2y$10$MUoAvg4NqJgZXE38LlBMuOc7ymN6mPpJ1SOzKPeEnbjeg3nVZ2VE6'),
-(13, '$2y$10$fyZlASqDe381cq1pCiBJl.zQygHKqh2n1SbZW1cqWTagUzwvWHAFu'),
 (14, '$2y$10$vZd0IPi0Wds4Kk/z68LgcutBfib31/ixfOtUH3UVRYYcNrTzdpy..'),
 (15, '$2y$10$pzkaEIEOlnkiZ//FIZnvzu0bTw66VKh1dVUve8QGMK8h1eu1nTIky'),
 (16, '$2y$10$O/D6raHxTxt7Cz4dcSJOIedImQQH3odqdZqORQDLpr4mzZh9XaS9y'),
@@ -158,7 +157,6 @@ INSERT INTO `Profile` (`idUser`, `Descripcion`) VALUES
 (10, ''),
 (11, ''),
 (12, 'Facultad de Ciencias y Tecnología - Universidad Autónoma de Entre Ríos'),
-(13, 'Facultad de Ciencias y Tecnología - Universidad Autónoma de Entre Ríos'),
 (14, ''),
 (15, ''),
 (16, ''),
@@ -196,7 +194,6 @@ INSERT INTO `User` (`idUser`, `userTag`, `username`, `profileImageRoute`, `dateC
 (10, 'u5a', 'chinoo_vg', NULL, '2025-10-19 00:39:19'),
 (11, 'u6a', 'tomitomi', 'imagenes/profilePictures/Ritual.png', '2025-10-19 00:39:19'),
 (12, 'u5b', 'fcytuader', 'imagenes/profilePictures/uader.png', '2025-10-19 00:39:19'),
-(13, 'u6b', 'fcytuader.', 'imagenes/profilePictures/uader.png', '2025-10-19 00:39:19'),
 (14, 'u9', 'prueba', NULL, '2025-10-19 00:39:19'),
 (15, 'u10', 'usuarioejemplo', NULL, '2025-10-19 00:39:19'),
 (16, 'u11', 'PelaAprobanosPorfa', 'imagenes/profilePictures/VinDiesel.webp', '2025-10-19 00:39:19'),
