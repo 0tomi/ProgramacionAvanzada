@@ -1,6 +1,6 @@
 <?php
 include "funciones.php";
-require_once __DIR__ . '/../Model/Usuario.php';
+include "../Models/Usuario.php";
 include "../config.php";
 
 $secret  = '6LdELdMrAAAAACqktniyEYfKBsP9hGg9Wvs5Anua'; // NO PONERLA EN LA ENTREGA FINAL PORFAVOR SE LOS PIDO
@@ -36,7 +36,7 @@ $usuarios = leerUsuarios();
 foreach ($usuarios as $user) {
     if ($user['username'] === $username && password_verify($password, $user['password'])) {
         session_start();
-        $usuario = new User($user['id'], $username, $user['description'], $user['user_profile_picture']);
+        $usuario = new User($user['id']);
 
         $_SESSION['user'] = $usuario;
         header("Location: ../Inicio/inicio.php");

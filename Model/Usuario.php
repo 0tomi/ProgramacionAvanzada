@@ -13,17 +13,17 @@ class User {
             throw new RuntimeException('Error al conectar: ' . $bd->connect_error);
         
         $query = 
-        "SELECT u.username, u.profileImageRoute, p.Descripcion FROM `User` as u
+        "SELECT u.username as Username, u.profileImageRoute as PIR, p.Descripcion as Descr FROM `User` as u
          inner join Profile as p on u.idUser = p.idUser
-         where u.idUser = '$id'";
+         where u.idUser = $id";
 
         $rows = $bd->query($query)->fetch_assoc();
 
         $this->idUsuario = $id;
-        $this->nombre = $row;
-        $this->descripcion = $desc;
-        $this->profilePhoto = $pp;
-        $this->flash = ['type' => 'success', 'msg' => 'Bienvenido a Ritual, '.$name];
+        $this->nombre = $rows['Username'];
+        $this->descripcion = $rows['Descr'];
+        $this->profilePhoto = $rows['PIR'];
+        $this->flash = ['type' => 'success', 'msg' => 'Bienvenido a Ritual, '.$this->nombre];
     }
 
     /**
