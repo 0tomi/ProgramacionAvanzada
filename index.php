@@ -12,7 +12,7 @@ if (!empty($_SESSION['user'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RITUAL</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./CSS/index.css">
+  <link rel="stylesheet" href="./Views/CSS/index.css">
 </head>
 <body>
   <main>
