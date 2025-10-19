@@ -1,8 +1,7 @@
 <?php
 
 use Dba\Connection;
-require_once '../includes/lectorEnv.php';
-echo("holaaa2");
+require_once __DIR__ . '/../includes/lectorEnv.php';
 class User {
     private $idUsuario, $flash;
     private $nombre, $descripcion, $profilePhoto;

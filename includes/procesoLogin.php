@@ -1,6 +1,6 @@
 <?php
 include "funciones.php";
-include "../Models/Usuario.php";
+include "../Model/Usuario.php";
 include "../config.php";
 
 $secret  = '6LdELdMrAAAAACqktniyEYfKBsP9hGg9Wvs5Anua'; // NO PONERLA EN LA ENTREGA FINAL PORFAVOR SE LOS PIDO
@@ -38,8 +38,6 @@ foreach ($usuarios as $user) {
         session_start();
     
         $usuario = new User($user['id']);
-        echo('hasta aca llegamo');
-
         $_SESSION['user'] = $usuario;
         header("Location: ../Inicio/inicio.php");
         exit;   
