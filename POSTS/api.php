@@ -1,7 +1,7 @@
 <?php
 // /POSTS/api.php
 declare(strict_types=1);
-include("../MODELOS/Usuario.php");
+include("../Models/Usuario.php");
 
 // ---- Ajustes de errores y cabeceras ----
 ini_set('display_errors', '0'); // evita HTML en respuestas
