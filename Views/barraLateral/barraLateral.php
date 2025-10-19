@@ -5,17 +5,13 @@ var_dump($_SESSION['user_profile_picture']);
 echo "<pre>";*/
 
 // Referencias de los otros botones
-$boton_perfil = $preruta.'perfil.php';
+$boton_perfil = $preruta.'Views/perfil.php';
 $boton_inicio = $preruta.'index.php';
 
 // CTA (botón inferior)
-if ($isLoggedIn) {
-    $ctaHref = $preruta.'logout.php';
-    $ctaText = 'Cerrar sesión';
-} else {
-    $ctaHref = $preruta.'login.php';
-    $ctaText = 'Iniciar sesión';
-}
+$ctaHref = $preruta.'logout.php';
+$ctaText = 'Cerrar sesión';
+
 
 // Sanitizar salidas ????????????????
 $ctaHrefSafe       = htmlspecialchars($ctaHref ?? '#', ENT_QUOTES, 'UTF-8');

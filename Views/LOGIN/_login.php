@@ -26,7 +26,7 @@ if (isset($_GET['success']) && $_GET['success'] !== '') {
     <div class="rightAuth">
         <div class="Login">
             <h1>Iniciar Sesión</h1>
-            <form id="formLogin" method="POST" action="../Controlers/procesoLogin.php"> 
+            <form id="formLogin" method="POST" action="../../Controlers/procesoLogin.php"> 
                 <?php if ($errorMsg !== ''): ?>
                     <div class="login-banner login-error" data-autohide="5000"><?= $errorMsg; ?></div>
                 <?php endif; ?>
@@ -73,4 +73,4 @@ if (isset($_GET['success']) && $_GET['success'] !== '') {
     });
 </script>
 </body>
-<?php require("../includes/_footer.php"); ?>
+<?php require("../Views/_footer.php"); ?>

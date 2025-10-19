@@ -1,13 +1,13 @@
 <?php // /POSTS/index.php ?>
 <?php $source = 'Post'; $require_boostrap = false; $preruta = '../'; 
-  require_once __DIR__.'/../includes/header.php'; 
+  require_once __DIR__.'/../Views/header.php'; 
 ?>
 
 <body>
   
   <?php $preruta = '../'; 
     require_once __DIR__ . '/../Controlers/autenticacion.php'; 
-    require_once __DIR__ . '/../includes/barraLateral/barraLateral.php';
+    require_once __DIR__ . '/../Views/barraLateral/barraLateral.php';
     ?>
   <main class="container">
     <section id="feed"></section> <!-- aquí se inyecta el post individual -->

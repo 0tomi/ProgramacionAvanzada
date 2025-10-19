@@ -5,7 +5,7 @@ session_start();
 // Estado
 $isLoggedIn = !empty($_SESSION['user']);
 
-$goBackRute = "Location: ".$preruta."LOGIN/_login.php?error= Debes estar autenticado para acceder a esta seccion.";
+$goBackRute = "Location: ".$preruta."Views/LOGIN/_login.php?error= Debes estar autenticado para acceder a esta seccion.";
 
 if (!$isLoggedIn) {
   header($goBackRute);

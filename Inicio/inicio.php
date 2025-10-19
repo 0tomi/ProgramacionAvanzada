@@ -23,11 +23,11 @@ if (is_readable($POSTS_JSON)) {
 }
 ?>
 
-<?php $require_boostrap = false; $source = 'Inicio'; require_once __DIR__ . '/../includes/header.php'; ?>
+<?php $require_boostrap = false; $source = 'Inicio'; require_once __DIR__ . '/../Views/header.php'; ?>
 
 <body>
   <?php include __DIR__ . '/headerInicio.php'; ?>
-  <?php require('../includes/barraLateral/barraLateral.php'); ?>
+  <?php require('../Views/barraLateral/barraLateral.php'); ?>
   <?php if (!empty($flash)): ?>
   <div id="flash"
        data-type="<?= htmlspecialchars($flash['type'], ENT_QUOTES) ?>"
@@ -127,7 +127,7 @@ if (is_readable($POSTS_JSON)) {
   </div>
   <!-- js -->
   <script src="inicio.js?v=3"></script>
-  <?php require_once __DIR__ . '/../includes/_footer.php'; ?>
+  <?php require_once __DIR__ . '/../Views/_footer.php'; ?>
 
 </body>
 </html>

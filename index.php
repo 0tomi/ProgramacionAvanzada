@@ -21,13 +21,13 @@ if (!empty($_SESSION['user'])) {
     <p class="sub">Encontrá tu mundo, viví tu ritual. El momento es tuyo.</p>
 
     <div class="buttons">
-      <a href="LOGIN/_login.php" class="btn btn-primary">Iniciar sesión</a>
-      <a href="LOGIN/_register.php" class="btn btn-light">Registrarse</a>
+      <a href="Views/LOGIN/_login.php" class="btn btn-primary">Iniciar sesión</a>
+      <a href="Views/LOGIN/_register.php" class="btn btn-light">Registrarse</a>
       <!-- <a href="Inicio/inicio.php" class="btn btn-dark">Continuar como invitado</a> --> <!-- Para dsps cuando tengamos el invitado -->
     </div>
   </main>
 
-    <?php require("includes/_footer.php"); ?>
+    <?php require("Views/_footer.php"); ?>
 
 </body>
 </html>
