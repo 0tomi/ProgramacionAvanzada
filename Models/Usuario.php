@@ -1,17 +1,30 @@
 <?php
+
+use Dba\Connection;
+require_once '../includes/lectorEnv.php';
 class User {
     private $idUsuario, $flash;
     private $nombre, $descripcion, $profilePhoto;
+    private $bd;
 
-    public function __construct($id, $name, $desc, $pp){
+    public function __construct($id){
+        $bd = new mysqli($_ENV['DB_HOST'],$_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME'], $_ENV['DB_PORT']);
+        if ($bd->connect_errno) 
+            throw new RuntimeException('Error al conectar: ' . $bd->connect_error);
+        
+        $query = 
+        "SELECT u.username, u.profileImageRoute, p.Descripcion FROM `User` as u
+         inner join Profile as p on u.idUser = p.idUser
+         where u.idUser = '$id'";
+
+        $rows = $bd->query($query)->fetch_assoc();
+
         $this->idUsuario = $id;
-        $this->nombre = $name;
+        $this->nombre = $row;
         $this->descripcion = $desc;
         $this->profilePhoto = $pp;
         $this->flash = ['type' => 'success', 'msg' => 'Bienvenido a Ritual, '.$name];
     }
-
-    
 
     /**
      * Get the value of idUsuario
