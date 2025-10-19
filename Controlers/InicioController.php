@@ -86,43 +86,60 @@ final class InicioController
             return null;
         }
 
-        $method = strtoupper((string)($options['method'] ?? 'GET'));
-        $url = $this->apiEndpoint . '?action=' . urlencode($action);
-
-        $headers = [];
-        $headers[] = 'Accept: application/json';
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            $headers[] = sprintf('%s: %s=%s', 'Cookie', session_name(), session_id());
+        $sessionWasActive = session_status() === PHP_SESSION_ACTIVE;
+        $sessionCookie = null;
+        if ($sessionWasActive) {
+            $name = session_name();
+            $id = session_id();
+            if ($name !== '' && $id !== '') {
+                $sessionCookie = sprintf('%s=%s', $name, $id);
+            }
+            session_write_close();
         }
 
-        if (isset($options['headers']) && is_array($options['headers'])) {
-            foreach ($options['headers'] as $h) {
-                if (is_string($h) && trim($h) !== '') {
-                    $headers[] = $h;
+        try {
+            $method = strtoupper((string)($options['method'] ?? 'GET'));
+            $url = $this->apiEndpoint . '?action=' . urlencode($action);
+
+            $headers = [];
+            $headers[] = 'Accept: application/json';
+
+            if ($sessionCookie !== null) {
+                $headers[] = 'Cookie: ' . $sessionCookie;
+            }
+
+            if (isset($options['headers']) && is_array($options['headers'])) {
+                foreach ($options['headers'] as $h) {
+                    if (is_string($h) && trim($h) !== '') {
+                        $headers[] = $h;
+                    }
                 }
             }
+
+            $contextConfig = [
+                'http' => [
+                    'method' => $method,
+                    'header' => implode("\r\n", $headers) . "\r\n",
+                    'ignore_errors' => true,
+                ],
+            ];
+
+            if (isset($options['body'])) {
+                $contextConfig['http']['content'] = (string)$options['body'];
+            }
+
+            $context = stream_context_create($contextConfig);
+            $raw = @file_get_contents($url, false, $context);
+            if ($raw === false) {
+                return null;
+            }
+
+            $decoded = json_decode($raw, true);
+            return is_array($decoded) ? $decoded : null;
+        } finally {
+            if ($sessionWasActive && !headers_sent()) {
+                session_start();
+            }
         }
-
-        $contextConfig = [
-            'http' => [
-                'method' => $method,
-                'header' => implode("\r\n", $headers) . "\r\n",
-                'ignore_errors' => true,
-            ],
-        ];
-
-        if (isset($options['body'])) {
-            $contextConfig['http']['content'] = (string)$options['body'];
-        }
-
-        $context = stream_context_create($contextConfig);
-        $raw = @file_get_contents($url, false, $context);
-        if ($raw === false) {
-            return null;
-        }
-
-        $decoded = json_decode($raw, true);
-        return is_array($decoded) ? $decoded : null;
     }
 }
