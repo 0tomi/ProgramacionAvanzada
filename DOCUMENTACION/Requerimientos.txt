@@ -1,0 +1,22 @@
+[ ] Implementar BD
+    [ ] Scripts de creacion
+[ ] Mejorar Perfil
+    [] Seccion Carrucel
+    [] Seccion post del usuario
+    [] Seccion descripcion del usuario 
+[ ] Implementar MVC
+    [] Modelos de la base de datos
+        [] post
+        [] usuario
+        [] perfil
+        [] login
+        [] register
+    [] Controladores
+        [] post
+        [] perfil
+        [] inicio 
+        [] login y register
+    [] vistas 
+        [] post, inicio, perfil
+
+

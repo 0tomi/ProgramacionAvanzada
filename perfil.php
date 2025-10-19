@@ -3,7 +3,6 @@ $preruta = '';
 require_once __DIR__ . "/includes/autenticacion.php";
 $source = 'Perfil'; $require_boostrap = true;
 require_once __DIR__ . "/includes/header.php";
-require_once __DIR__ . "/includes/Usuario.php";
 ?>
 
 <header class="flex items-center justify-between px-6 py-4 border-b border-[color:var(--line)] bg-[color:var(--panel)]">

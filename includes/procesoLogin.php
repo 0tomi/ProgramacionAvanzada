@@ -1,6 +1,6 @@
 <?php
 include "funciones.php";
-include "Usuario.php";
+include "../MODELOS/Usuario.php";
 include "../config.php";
 
 $secret  = '6LdELdMrAAAAACqktniyEYfKBsP9hGg9Wvs5Anua'; // NO PONERLA EN LA ENTREGA FINAL PORFAVOR SE LOS PIDO
