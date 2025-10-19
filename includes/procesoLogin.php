@@ -1,7 +1,7 @@
 <?php
 include "funciones.php";
 include "../Model/Usuario.php";
-include "../config.php";
+// include "../config.php"; Tira warnings
 
 $secret  = '6LdELdMrAAAAACqktniyEYfKBsP9hGg9Wvs5Anua'; // NO PONERLA EN LA ENTREGA FINAL PORFAVOR SE LOS PIDO
 $token   = $_POST['g-recaptcha-response'] ?? '';

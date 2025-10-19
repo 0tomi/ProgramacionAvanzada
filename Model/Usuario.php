@@ -1,6 +1,6 @@
 <?php
 use Dba\Connection;
-//require_once '../includes/lectorEnv.php';
+require_once 'lectorEnv.php';
 class User {
     private $idUsuario, $flash;
     private $nombre, $descripcion, $profilePhoto;
@@ -8,14 +8,7 @@ class User {
 
     public function __construct($id){
         
-        //$bd = new mysqli($_ENV['DB_HOST'],$_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME'], $_ENV['DB_PORT']);
-        $bd = new mysqli(
-            '127.0.0.1',
-            'admin',
-            'admin123',
-            'Ritual',
-            '3306'
-        );
+        $bd = new mysqli($_ENV['DB_HOST'],$_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME'], $_ENV['DB_PORT']);
         if ($bd->connect_errno) 
             echo("Error en la bd: $bd->connect_error");
         
