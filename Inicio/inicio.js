@@ -142,7 +142,7 @@ function insertarPostEnFeed(p) {
   const tsHuman = new Date(created).toLocaleString();
 
   const media = p.media_url
-    ? `<figure class="media"><img src="${escapeHtml(String(p.media_url))}" alt="Imagen del post"></figure>`
+    ? `<figure class="media"><img src="${escapeHtml(String("../" + p.media_url))}" alt="Imagen del post"></figure>`
     : "";
 
   const html = `

@@ -7,7 +7,8 @@ $secret  = '6LdELdMrAAAAACqktniyEYfKBsP9hGg9Wvs5Anua'; // NO PONERLA EN LA ENTRE
 $token   = $_POST['g-recaptcha-response'] ?? '';
 $ip      = $_SERVER['REMOTE_ADDR'] ?? '';
 
-if (!$token) { /*return error si falla x alguna razon de key*/ 
+/* 
+if (!$token) { return // error si falla x alguna razon de key
   header('Location: ../LOGIN/_login.php?error=captcha');
   exit;
 }
@@ -21,6 +22,8 @@ if (!($res['success'] ?? false)) {//aca chequea ese JSON
   header('Location: ../LOGIN/_login.php?error=captcha');
   exit;
 }
+*/
+
 /*TODO EL PROCESO ANTERIOR FUE PARA CARGAR EL CAPTCHA Y QUE VALIDE SI EL USUARIO LO COMPLETO, SI ES ASI SIGUE CON EL RESTO DE LA LOGICA DE PROCESO*/
 
 
