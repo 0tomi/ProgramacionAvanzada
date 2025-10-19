@@ -15,14 +15,64 @@
     Intenta crear el objeto usuario con las credenciales pasadas por parametro, 
     si no lo logra, devolvera NULL. Como antes, se puede consultar el error con el 
     atributo publico error.
+
+    registerUser(username, password)
+    Intenta registrar un usuario, si no lo logra, retorna FALSE.
+    Para consultar el error, acceder al atributo publico error.
 */
 
 require_once 'Usuario.php';
 require_once 'lectorEnv.php';
 class UserFactory {
     private $dataBase;
-    public $error = '';
     private $user;
+
+    public $error = '';
+
+    public function registerUser(string $username, $password): bool {
+        $stmt = $this->dataBase->prepare(
+            'SELECT u.idUser FROM `User` u WHERE u.username = ?'
+        );
+        $stmt->bind_param('s', $username);
+        $stmt->execute();
+
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            $this->error = 'Nombre de usuario ya ocupado.';
+            return false;
+        }
+
+        $this->dataBase->begin_transaction();
+        try {
+            $stmtUser = $this->dataBase->prepare(
+                'INSERT INTO `User` (username) VALUES (?)'
+            );
+            $stmtUser->bind_param('s', $username);
+            $stmtUser->execute();
+
+            $newUserId = $this->dataBase->insert_id;
+
+            $stmtPass = $this->dataBase->prepare(
+                'INSERT INTO `Password` (idUser, hash) VALUES (?, ?)'
+            );
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+            $stmtPass->bind_param('is', $newUserId, $passwordHash);
+            $stmtPass->execute();
+            
+            $stmtUser->close(); $stmtPass->close();
+
+            $this->dataBase->commit();
+            return true;
+
+        } catch (mysqli_sql_exception $e) {
+            $this->dataBase->rollback();
+            $this->error = 'No se pudo registrar el usuario.';
+            error_log($e->getMessage());
+            return false;
+        }
+    }
+
+
     public function createUser (string $username, $password): ?User{
         $query = 
         "SELECT u.idUser as UserID, p.hash as Hash from  `User` as u

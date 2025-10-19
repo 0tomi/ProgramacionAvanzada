@@ -1,5 +1,5 @@
 <?php
-include "funciones.php";
+include "../Model/UserFactory.php";
 
 $username = trim($_POST['username']);
 $password = trim($_POST['password']);
