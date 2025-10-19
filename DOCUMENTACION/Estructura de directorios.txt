@@ -1,0 +1,3 @@
+De a poco voy intentando acomodar todo en sus respectivos directorios para reflejar
+el modelo MVC. Lo ideal es 3 carpetas, Views, Controlers, Model.
+Luego esta la carpeta con los scripts de creacion del a BD, y la carpeta Resources, que contiene recursos.
