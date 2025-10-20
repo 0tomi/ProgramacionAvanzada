@@ -316,17 +316,28 @@ final class PostRepository
     /**
      * Crea un comentario (o respuesta) dentro de un hilo de publicaciones.
      *
-     * @param int      $ownerId
-     * @param int      $rootPostId
-     * @param string   $content
-     * @param int|null $parentCommentId
-     * @return array{id:string,parent_id:?string,author:string,text:string,created_at:string}
+     * @param int         $ownerId
+     * @param int         $rootPostId
+     * @param string      $content
+     * @param int|null    $parentCommentId
+     * @param string|null $imageRelativeRoute Ruta relativa (desde la raíz) o null.
+     * @return array{
+     *   id:string,
+     *   parent_id:?string,
+     *   author:string,
+     *   text:string,
+     *   created_at:string,
+     *   media_url:?string,
+     *   counts:array{likes:int},
+     *   viewer:array{liked:bool,can_delete:bool}
+     * }
      */
     public function createComment(
         int $ownerId,
         int $rootPostId,
         string $content,
-        ?int $parentCommentId = null
+        ?int $parentCommentId = null,
+        ?string $imageRelativeRoute = null
     ): array {
         $this->assertRootPostExists($rootPostId);
 
@@ -342,6 +353,17 @@ final class PostRepository
             $stmt->execute();
             $commentId = (int)$this->db->insert_id;
             $stmt->close();
+
+            if ($imageRelativeRoute !== null) {
+                $imageName = basename($imageRelativeRoute);
+                $order = 1;
+                $stmt = $this->db->prepare(
+                    'INSERT INTO ImagesPost (idPost, Name, `order`, route) VALUES (?, ?, ?, ?)'
+                );
+                $stmt->bind_param('isis', $commentId, $imageName, $order, $imageRelativeRoute);
+                $stmt->execute();
+                $stmt->close();
+            }
 
             $stmt = $this->db->prepare(
                 'SELECT p.idBelogingPost, p.date, u.username
@@ -373,6 +395,14 @@ final class PostRepository
             'author' => $username,
             'text' => $content,
             'created_at' => $createdAt,
+            'media_url' => $this->normalizeAssetPath($imageRelativeRoute),
+            'counts' => [
+                'likes' => 0,
+            ],
+            'viewer' => [
+                'liked' => false,
+                'can_delete' => true,
+            ],
         ];
     }
 
@@ -420,6 +450,55 @@ final class PostRepository
         } catch (mysqli_sql_exception $e) {
             $this->db->rollback();
             throw new RuntimeException('No se pudo eliminar la publicación.', 0, $e);
+        }
+
+        $this->deleteImageFiles($imageRoutes);
+    }
+
+    /**
+     * Elimina un comentario y toda su rama de respuestas.
+     *
+     * @param int $commentId
+     * @param int $userId
+     */
+    public function deleteComment(int $commentId, int $userId): void
+    {
+        $stmt = $this->db->prepare('SELECT idUserOwner, idBelogingPost FROM Post WHERE idPost = ?');
+        $stmt->bind_param('i', $commentId);
+        $stmt->execute();
+        $stmt->bind_result($ownerId, $parentId);
+        if (!$stmt->fetch()) {
+            $stmt->close();
+            throw new RuntimeException('El comentario indicado no existe.');
+        }
+        $stmt->close();
+
+        if ($parentId === null) {
+            throw new RuntimeException('La publicación raíz no puede eliminarse con deleteComment.');
+        }
+        if ((int)$ownerId !== $userId) {
+            throw new RuntimeException('Solo puedes eliminar comentarios propios.');
+        }
+
+        $ids = $this->collectDescendantIds($commentId);
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+
+        if (empty($ids)) {
+            return;
+        }
+
+        $idList = implode(',', $ids);
+        $imageRoutes = $this->collectImageRoutes($ids);
+
+        $this->db->begin_transaction();
+        try {
+            $this->db->query('DELETE FROM Likes WHERE post IN (' . $idList . ')');
+            $this->db->query('DELETE FROM ImagesPost WHERE idPost IN (' . $idList . ')');
+            $this->db->query('DELETE FROM Post WHERE idPost IN (' . $idList . ')');
+            $this->db->commit();
+        } catch (mysqli_sql_exception $e) {
+            $this->db->rollback();
+            throw new RuntimeException('No se pudo eliminar el comentario.', 0, $e);
         }
 
         $this->deleteImageFiles($imageRoutes);
@@ -658,6 +737,9 @@ final class PostRepository
             'author' => $postData['author']['name'],
             'text' => $postData['text'],
             'created_at' => $postData['created_at'],
+            'media_url' => $postData['media_url'],
+            'counts' => $postData['counts'],
+            'viewer' => $postData['viewer'],
         ];
     }
 

@@ -17,6 +17,7 @@ const DEFAULT_AVATAR = resolveAssetUrl('Resources/profilePictures/defaultProfile
 init();
 document.addEventListener('click', onGlobalClick);
 document.addEventListener('keydown', onGlobalKeydown);
+document.addEventListener('change', onGlobalChange);
 
 /**
  * Carga inicial del post (utiliza el parámetro ?id=... de la URL).
@@ -114,10 +115,37 @@ function renderPost(post) {
  * Plantilla para el formulario de comentario raíz.
  */
 function commentFormTemplate(postId) {
+  const safeId = escapeHtml(String(postId));
   return `
-    <form class="comment-root" onsubmit="event.preventDefault(); return comentar('${postId}', null, this, event)">
-      <input name="text" required maxlength="280" placeholder="Escribe un comentario">
-      <button class="btn primary">Comentar</button>
+    <form class="comment-form comment-root" onsubmit="event.preventDefault(); return comentar('${safeId}', null, this, event)" enctype="multipart/form-data" novalidate>
+      <input name="text" maxlength="280" placeholder="Escribe un comentario" autocomplete="off">
+      <div class="comment-form__actions">
+        <div class="comment-form__media">
+          <button type="button" class="btn ghost small" data-action="comment-add-image">Agregar imagen</button>
+          <button type="button" class="comment-form__remove-image" data-action="comment-remove-image" hidden>Quitar</button>
+          <input type="file" name="image" accept="image/*" data-comment-image hidden>
+        </div>
+        <button type="submit" class="btn primary">Comentar</button>
+      </div>
+      <div class="comment-form__preview" hidden></div>
+    </form>
+  `;
+}
+
+function replyFormTemplate(commentId) {
+  const safeId = escapeHtml(String(commentId));
+  return `
+    <form class="comment-form c-reply-form hidden" onsubmit="event.preventDefault(); return comentar(getPostId(this), '${safeId}', this, event)" enctype="multipart/form-data" novalidate>
+      <input name="text" maxlength="280" placeholder="Responder…" autocomplete="off">
+      <div class="comment-form__actions">
+        <div class="comment-form__media">
+          <button type="button" class="btn ghost small" data-action="comment-add-image">Agregar imagen</button>
+          <button type="button" class="comment-form__remove-image" data-action="comment-remove-image" hidden>Quitar</button>
+          <input type="file" name="image" accept="image/*" data-comment-image hidden>
+        </div>
+        <button type="submit" class="btn small">Enviar</button>
+      </div>
+      <div class="comment-form__preview" hidden></div>
     </form>
   `;
 }
@@ -155,22 +183,58 @@ function buildTree(list) {
  * Renderiza un nodo individual del árbol de comentarios.
  */
 function renderCommentNode(node) {
+  const id = String(node.id ?? '');
+  const safeId = escapeHtml(id);
+  const author = escapeHtml(node.author || 'Anónimo');
+  const created = escapeHtml(formatDate(node.created_at));
+  const text = escapeHtml(node.text || '');
+  const textHtml = text !== '' ? `<div class="c-text">${text}</div>` : '';
+
+  const mediaUrlRaw = node.media_url ? String(node.media_url) : '';
+  const mediaUrl = resolveAssetUrl(mediaUrlRaw);
+  const safeMedia = escapeHtml(mediaUrl);
+  const mediaHtml = mediaUrl
+    ? `<figure class="c-media" data-action="open-media" data-media="${safeMedia}" tabindex="0" role="button">
+        <img src="${safeMedia}" alt="Imagen del comentario">
+      </figure>`
+    : '';
+
+  const likeCount = Number(node.counts?.likes ?? 0);
+  const liked = Boolean(node.viewer?.liked);
+  const likeBtn = `
+    <button type="button" class="chip like comment-like${liked ? ' liked' : ''}" onclick="toggleLike('${safeId}', this)">
+      ♥ <span class="like-count">${likeCount}</span>
+    </button>
+  `;
+
+  const canDelete = Boolean(node.viewer?.can_delete);
+  const menu = canDelete
+    ? `<div class="comment-menu">
+        <button type="button" class="comment-menu__toggle" aria-haspopup="true" aria-expanded="false">⋮</button>
+        <div class="comment-menu__dropdown" role="menu">
+          <button type="button" class="comment-menu__item comment-menu__item--danger" role="menuitem" data-action="delete-comment" data-id="${safeId}">
+            Eliminar comentario
+          </button>
+        </div>
+      </div>`
+    : '';
+
   const children = node.children?.length
     ? `<ul class="c-tree">${node.children.map((child) => renderCommentNode(child)).join('')}</ul>`
     : '';
 
   return `
-    <li class="c-node" data-cid="${node.id}">
+    <li class="c-node" data-cid="${safeId}">
       <div class="c-bubble">
-        <div class="c-meta"><b>${escapeHtml(node.author || 'Anónimo')}</b> · <span>${formatDate(node.created_at)}</span></div>
-        <div class="c-text">${escapeHtml(node.text || '')}</div>
+        ${menu}
+        <div class="c-meta"><b>${author}</b> · <span>${created}</span></div>
+        ${textHtml}
+        ${mediaHtml}
         <div class="c-actions">
-          <button type="button" class="btn ghost small" onclick="toggleReplyForm('${node.id}', this)">Responder</button>
+          ${likeBtn}
+          <button type="button" class="btn ghost small" onclick="toggleReplyForm('${safeId}', this)">Responder</button>
         </div>
-        <form class="c-reply-form hidden" onsubmit="event.preventDefault(); return comentar(getPostId(this), '${node.id}', this, event)">
-          <input name="text" required maxlength="280" placeholder="Responder…">
-          <button class="btn">Enviar</button>
-        </form>
+        ${replyFormTemplate(id)}
       </div>
       ${children}
     </li>
@@ -210,14 +274,42 @@ async function comentar(postId, parentCommentId, form, ev) {
 
   const textField = form.querySelector('[name="text"]');
   const text = textField ? textField.value.trim() : '';
-  if (!text) return;
+  const hasImage = commentFormHasImage(form);
+
+  if (!text && !hasImage) {
+    alert('Escribí un comentario o adjuntá una imagen.');
+    if (textField) textField.focus();
+    return;
+  }
+
+  if (text.length > 280) {
+    alert('El comentario puede tener hasta 280 caracteres.');
+    if (textField) textField.focus();
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append('post_id', Number(postId));
+  fd.append('text', text);
+  if (parentCommentId) {
+    fd.append('parent_comment_id', Number(parentCommentId));
+  }
+
+  const imageInput = form.querySelector('input[type="file"][data-comment-image]');
+  if (imageInput && imageInput.files && imageInput.files[0]) {
+    fd.append('image', imageInput.files[0]);
+  }
+
+  const submitBtn = form.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.disabled = true;
 
   try {
-    const comment = await apiPostComment(postId, parentCommentId, text);
+    const comment = await apiPostComment(fd);
     const commentsWrapper = form.closest('details').querySelector('.comentarios');
+    const commentHtml = renderCommentNode({ ...comment, children: [] });
 
     if (parentCommentId) {
-      const target = commentsWrapper.querySelector(`[data-cid="${parentCommentId}"]`);
+      const target = commentsWrapper.querySelector(`[data-cid="${cssEscape(parentCommentId)}"]`);
       if (target) {
         let subTree = target.querySelector(':scope > ul.c-tree');
         if (!subTree) {
@@ -225,7 +317,7 @@ async function comentar(postId, parentCommentId, form, ev) {
           subTree.className = 'c-tree';
           target.appendChild(subTree);
         }
-        subTree.insertAdjacentHTML('afterbegin', renderCommentNode({ ...comment, children: [] }));
+        subTree.insertAdjacentHTML('afterbegin', commentHtml);
       }
       form.classList.add('hidden');
     } else {
@@ -236,18 +328,15 @@ async function comentar(postId, parentCommentId, form, ev) {
         root.className = 'c-tree';
         commentsWrapper.appendChild(root);
       }
-      root.insertAdjacentHTML('afterbegin', renderCommentNode({ ...comment, children: [] }));
+      root.insertAdjacentHTML('afterbegin', commentHtml);
     }
 
-    const summary = form.closest('details').querySelector('summary');
-    const match = summary.textContent.match(/\d+/);
-    if (match) {
-      summary.textContent = `Comentarios (${parseInt(match[0], 10) + 1})`;
-    }
-
-    form.reset();
+    updateCommentCounter(form.closest('details'), 1);
+    clearCommentForm(form);
   } catch (err) {
     alert(err instanceof Error ? err.message : String(err));
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
   }
 }
 
@@ -267,24 +356,31 @@ async function apiToggleLike(postId) {
   return data;
 }
 
-async function apiPostComment(postId, parentCommentId, text) {
-  const payload = {
-    post_id: Number(postId),
-    parent_comment_id: parentCommentId ? Number(parentCommentId) : null,
-    text,
-  };
-
+async function apiPostComment(formData) {
   const res = await fetch(`${API_URL}?action=comment`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     credentials: 'same-origin',
-    body: JSON.stringify(payload),
+    body: formData,
   });
   const data = await res.json();
   if (!res.ok || !data.ok) {
     throw new Error(data.error || 'No se pudo enviar el comentario');
   }
   return data.comment;
+}
+
+async function apiDeleteComment(commentId) {
+  const res = await fetch(`${API_URL}?action=delete_comment`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify({ comment_id: Number(commentId) }),
+  });
+  const data = await res.json();
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || 'No se pudo eliminar el comentario');
+  }
+  return data;
 }
 
 async function apiDeletePost(postId) {
@@ -306,7 +402,14 @@ async function apiDeletePost(postId) {
 function toggleReplyForm(_commentId, btn) {
   const bubble = btn.closest('.c-bubble');
   const form = bubble.querySelector('.c-reply-form');
+  if (!form) return;
   form.classList.toggle('hidden');
+  if (!form.classList.contains('hidden')) {
+    const input = form.querySelector('[name="text"]');
+    if (input) input.focus();
+  } else {
+    clearCommentForm(form);
+  }
 }
 
 function getPostId(el) {
@@ -339,20 +442,53 @@ function escapeHtml(str) {
 function onGlobalClick(event) {
   const target = event.target;
 
-  const menuToggle = target.closest('.post-menu__toggle');
-  if (menuToggle) {
+  const addImageBtn = target.closest('[data-action="comment-add-image"]');
+  if (addImageBtn) {
     event.preventDefault();
     event.stopPropagation();
-    togglePostMenu(menuToggle);
+    handleCommentAddImage(addImageBtn);
     return;
   }
 
-  const menuItem = target.closest('.post-menu__item');
-  if (menuItem) {
+  const removeImageBtn = target.closest('[data-action="comment-remove-image"]');
+  if (removeImageBtn) {
     event.preventDefault();
     event.stopPropagation();
-    closeAllPostMenus();
-    handleDeleteFromMenu(menuItem.getAttribute('data-id'));
+    handleCommentRemoveImage(removeImageBtn);
+    return;
+  }
+
+  const postMenuToggle = target.closest('.post-menu__toggle');
+  if (postMenuToggle) {
+    event.preventDefault();
+    event.stopPropagation();
+    togglePostMenu(postMenuToggle);
+    return;
+  }
+
+  const commentMenuToggle = target.closest('.comment-menu__toggle');
+  if (commentMenuToggle) {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleCommentMenu(commentMenuToggle);
+    return;
+  }
+
+  const postMenuItem = target.closest('.post-menu__item');
+  if (postMenuItem) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeAllMenus();
+    handlePostDelete(postMenuItem.getAttribute('data-id'));
+    return;
+  }
+
+  const commentMenuItem = target.closest('.comment-menu__item');
+  if (commentMenuItem) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeAllMenus();
+    handleCommentDelete(commentMenuItem.getAttribute('data-id'));
     return;
   }
 
@@ -364,14 +500,14 @@ function onGlobalClick(event) {
     return;
   }
 
-  if (!target.closest('.post-menu')) {
-    closeAllPostMenus();
+  if (!target.closest('.post-menu, .comment-menu')) {
+    closeAllMenus();
   }
 }
 
 function onGlobalKeydown(event) {
   if (event.key === 'Escape') {
-    closeAllPostMenus();
+    closeAllMenus();
     closeImageLightbox();
     return;
   }
@@ -382,26 +518,49 @@ function onGlobalKeydown(event) {
   }
 }
 
+function onGlobalChange(event) {
+  const target = event.target;
+  if (target && target.matches('input[type="file"][data-comment-image]')) {
+    handleCommentFileChange(target);
+  }
+}
+
 function togglePostMenu(toggle) {
   const menu = toggle.closest('.post-menu');
   if (!menu) return;
   const isOpen = menu.classList.contains('is-open');
-  closeAllPostMenus();
+  closeAllMenus();
   if (!isOpen) {
     menu.classList.add('is-open');
     toggle.setAttribute('aria-expanded', 'true');
   }
 }
 
-function closeAllPostMenus() {
+function toggleCommentMenu(toggle) {
+  const menu = toggle.closest('.comment-menu');
+  if (!menu) return;
+  const isOpen = menu.classList.contains('is-open');
+  closeAllMenus();
+  if (!isOpen) {
+    menu.classList.add('is-open');
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+}
+
+function closeAllMenus() {
   document.querySelectorAll('.post-menu.is-open').forEach((menu) => {
     menu.classList.remove('is-open');
     const toggle = menu.querySelector('.post-menu__toggle');
     if (toggle) toggle.setAttribute('aria-expanded', 'false');
   });
+  document.querySelectorAll('.comment-menu.is-open').forEach((menu) => {
+    menu.classList.remove('is-open');
+    const toggle = menu.querySelector('.comment-menu__toggle');
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+  });
 }
 
-async function handleDeleteFromMenu(postId) {
+async function handlePostDelete(postId) {
   if (!postId) return;
   try {
     await apiDeletePost(postId);
@@ -413,6 +572,157 @@ async function handleDeleteFromMenu(postId) {
     }, 1200);
   } catch (err) {
     alert(err instanceof Error ? err.message : String(err));
+  }
+}
+
+async function handleCommentDelete(commentId) {
+  if (!commentId) return;
+  try {
+    await apiDeleteComment(commentId);
+    const node = document.querySelector(`.c-node[data-cid="${cssEscape(commentId)}"]`);
+    if (!node) return;
+
+    const details = node.closest('details');
+    const removedCount = 1 + node.querySelectorAll('.c-node').length;
+    node.remove();
+
+    cleanupEmptyCommentLists(details);
+    updateCommentCounter(details, -removedCount);
+  } catch (err) {
+    alert(err instanceof Error ? err.message : String(err));
+  }
+}
+
+function handleCommentAddImage(button) {
+  const form = button.closest('form');
+  if (!form || button.disabled || button.classList.contains('is-disabled')) return;
+  const input = form.querySelector('input[type="file"][data-comment-image]');
+  if (input) {
+    input.click();
+  }
+}
+
+function handleCommentRemoveImage(button) {
+  const form = button.closest('form');
+  if (!form) return;
+  clearCommentImage(form);
+}
+
+function handleCommentFileChange(input) {
+  const form = input.closest('form');
+  if (!form) return;
+
+  const files = Array.from(input.files || []).filter(
+    (file) => file && file.type && file.type.startsWith('image/')
+  );
+
+  if (files.length === 0) {
+    if ((input.files || []).length > 0) {
+      alert('El archivo seleccionado no es una imagen compatible.');
+    }
+    clearCommentImage(form);
+    return;
+  }
+
+  const [file] = files;
+  setCommentImagePreview(form, file);
+}
+
+function setCommentImagePreview(form, file) {
+  clearCommentImage(form);
+
+  const preview = form.querySelector('.comment-form__preview');
+  if (!preview) return;
+
+  const url = URL.createObjectURL(file);
+  const img = document.createElement('img');
+  img.src = url;
+  img.alt = file.name ? `Imagen seleccionada: ${file.name}` : 'Imagen seleccionada';
+
+  preview.innerHTML = '';
+  preview.appendChild(img);
+  preview.hidden = false;
+  preview.dataset.previewUrl = url;
+
+  const addBtn = form.querySelector('[data-action="comment-add-image"]');
+  if (addBtn) {
+    addBtn.disabled = true;
+    addBtn.classList.add('is-disabled');
+  }
+
+  const removeBtn = form.querySelector('[data-action="comment-remove-image"]');
+  if (removeBtn) {
+    removeBtn.hidden = false;
+  }
+}
+
+function clearCommentImage(form) {
+  const preview = form.querySelector('.comment-form__preview');
+  if (preview) {
+    const url = preview.dataset.previewUrl;
+    if (url) {
+      URL.revokeObjectURL(url);
+    }
+    preview.innerHTML = '';
+    preview.hidden = true;
+    delete preview.dataset.previewUrl;
+  }
+
+  const addBtn = form.querySelector('[data-action="comment-add-image"]');
+  if (addBtn) {
+    addBtn.disabled = false;
+    addBtn.classList.remove('is-disabled');
+  }
+
+  const removeBtn = form.querySelector('[data-action="comment-remove-image"]');
+  if (removeBtn) {
+    removeBtn.hidden = true;
+  }
+
+  const input = form.querySelector('input[type="file"][data-comment-image]');
+  if (input) {
+    input.value = '';
+  }
+}
+
+function clearCommentForm(form) {
+  if (!form) return;
+  form.reset();
+  clearCommentImage(form);
+}
+
+function commentFormHasImage(form) {
+  if (!form) return false;
+  const input = form.querySelector('input[type="file"][data-comment-image]');
+  if (!input) return false;
+  const files = input.files || [];
+  return files.length > 0;
+}
+
+function updateCommentCounter(details, delta) {
+  if (!details || !delta) return;
+  const summary = details.querySelector('summary');
+  if (!summary) return;
+
+  const match = summary.textContent.match(/(\d+)/);
+  const current = match ? parseInt(match[1], 10) : 0;
+  const next = Math.max(0, current + delta);
+  summary.textContent = `Comentarios (${next})`;
+}
+
+function cleanupEmptyCommentLists(details) {
+  if (!details) return;
+  const wrapper = details.querySelector('.comentarios');
+  if (!wrapper) return;
+
+  wrapper.querySelectorAll('ul.c-tree').forEach((list) => {
+    if (list.children.length === 0) {
+      list.remove();
+    }
+  });
+
+  if (!wrapper.querySelector('.c-tree')) {
+    wrapper.innerHTML = '<div class="muted">Sé el primero en comentar</div>';
   }
 }
 
@@ -465,6 +775,13 @@ function formatDate(iso) {
   } catch {
     return '';
   }
+}
+
+function cssEscape(value) {
+  if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+    return CSS.escape(String(value));
+  }
+  return String(value).replace(/[^a-zA-Z0-9_\-]/g, (ch) => `\\${ch}`);
 }
 
 function cryptoRand() {
