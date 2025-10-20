@@ -1,4 +1,4 @@
-<?php // /Views/POSTS/index.php ?>
+<?php // Para visualizar un post concreto, invocar a esta pagina con ?id = idPost ?>
 <?php
 $source = 'Post';
 $require_boostrap = false;

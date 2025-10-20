@@ -105,6 +105,77 @@ final class PostRepository
         return $post;
     }
 
+    public function getPostsByUser(int $userId, ?int $viewerId = null): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT
+                p.idPost,
+                p.idBelogingPost,
+                p.content,
+                p.date,
+                parentUser.username AS parentAuthor
+            FROM Post AS p
+            LEFT JOIN Post AS parent ON parent.idPost = p.idBelogingPost
+            LEFT JOIN User AS parentUser ON parentUser.idUser = parent.idUserOwner
+            WHERE p.idUserOwner = ?
+            ORDER BY p.date DESC, p.idPost DESC'
+        );
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $stmt->bind_result($id, $parentId, $content, $date, $parentAuthor);
+
+        $posts = [];
+        while ($stmt->fetch()) {
+            $posts[] = [
+                'id' => (int)$id,
+                'parent_id' => $parentId !== null ? (int)$parentId : null,
+                'content' => $content,
+                'date' => $date,
+                'parent_author' => $parentAuthor,
+                'likes' => 0,
+                'liked' => false,
+            ];
+        }
+
+        $stmt->close();
+
+        if (empty($posts)) {
+            return $posts;
+        }
+
+        $postIds = array_map(static fn(array $post): int => $post['id'], $posts);
+        $idList = implode(',', $postIds);
+
+        $likeCounts = [];
+        $result = $this->db->query(
+            'SELECT post, COUNT(*) AS likeCount FROM Likes WHERE post IN (' . $idList . ') GROUP BY post'
+        );
+        while ($row = $result->fetch_assoc()) {
+            $likeCounts[(int)$row['post']] = (int)$row['likeCount'];
+        }
+        $result->free();
+
+        $viewerLikes = [];
+        if ($viewerId !== null) {
+            $result = $this->db->query(
+                'SELECT post FROM Likes WHERE idUser = ' . (int)$viewerId . ' AND post IN (' . $idList . ')'
+            );
+            while ($row = $result->fetch_assoc()) {
+                $viewerLikes[(int)$row['post']] = true;
+            }
+            $result->free();
+        }
+
+        foreach ($posts as &$post) {
+            $postId = $post['id'];
+            $post['likes'] = $likeCounts[$postId] ?? 0;
+            $post['liked'] = isset($viewerLikes[$postId]);
+        }
+        unset($post);
+
+        return $posts;
+    }
+
     /**
      * Lista los IDs de publicaciones likeadas por el usuario autenticado.
      *
