@@ -6,15 +6,15 @@
     [] Seccion descripcion del usuario 
 [ ] Implementar MVC
     [x] Modelos de la base de datos
-        [] post
+        [x] post
         [x] usuario
         [x] perfil > esta dentro d user
         [x] login
         [x] register
     [] Controladores
-        [] post
+        [x] post
         [] perfil
-        [] inicio 
+        [x] inicio 
         [x] login
         [x] register
     [] vistas 
