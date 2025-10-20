@@ -393,9 +393,14 @@ details summary{
 .muted{ color:var(--muted); font-weight:600 }
 
 /* formulario raíz */
-form.comment-root{
-  margin-top:8px; display:flex; flex-direction:column; gap:8px;
+form.comment-root { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+  align-self: stretch; /* por si su padre es flex */
+  width: 100%;
 }
+form.comment-root > * { width: 100%; }
 form input{
   background:#121a26; border:1px solid var(--line);
   border-radius:10px; padding:8px 12px; color:var(--ink); outline:0;
@@ -403,7 +408,10 @@ form input{
 form input::placeholder{ color:var(--muted) }
 
 /* árbol */
-.c-tree{ list-style:none; margin:8px 0 0; padding-left:16px; border-left:1px solid var(--line) }
+.c-tree > form.comment-root {
+  margin-left: 0;
+  padding-left: 0;
+}
 .c-node{ margin:10px 0 }
 .c-bubble{
   background:#121a26; border:1px solid var(--line); border-radius:12px; padding:10px 12px;
