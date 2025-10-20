@@ -12,9 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   wireEventosClick();
 
-  // Hook del formulario de crear post (sin redirigir)
-  const form = document.getElementById('createPostForm');
-  if (form) form.addEventListener('submit', onCreatePostSubmit);
+  if (window.CreatePostComposer && typeof window.CreatePostComposer.init === 'function') {
+    window.CreatePostComposer.init({
+      onSubmit: onCreatePostSubmit,
+      onError: showErrorAlert
+    });
+  } else {
+    console.warn('CreatePostComposer no está disponible; la vista previa de imágenes no se inicializó.');
+    const fallbackForm = document.querySelector('.js-create-post-form');
+    if (fallbackForm) {
+      fallbackForm.addEventListener('submit', onCreatePostSubmit);
+    }
+  }
 });
 
 /** Obtiene los posts principales desde la API y los renderiza */
@@ -201,7 +210,7 @@ async function manejarLike(likeBtn) {
     // rollback si hubo error
     likeBtn.classList.toggle('liked');
     countEl.textContent = prev;
-    alert(String(err.message || err));
+    showErrorAlert(String(err.message || err));
   }
 }
 
@@ -211,13 +220,19 @@ async function onCreatePostSubmit(e) {
   e.stopPropagation();
 
   const form = e.currentTarget;
+  const submitBtn = form.querySelector('[type="submit"]');
+  const textarea = form.querySelector('textarea[name]');
+  const textFieldName = textarea ? textarea.getAttribute('name') : 'text';
   const fd = new FormData(form);
 
-  const text = (fd.get('text') || '').toString().trim();
+  const text = (fd.get(textFieldName) || '').toString().trim();
   if (text.length === 0 || text.length > 280) {
-    alert('El texto es requerido (1..280 caracteres).');
+    showErrorAlert('El texto es requerido (1..280 caracteres).');
+    if (textarea) textarea.focus();
     return;
   }
+
+  if (submitBtn) submitBtn.disabled = true;
 
   try {
     const res = await fetch(`${API_BASE}?action=create`, {
@@ -225,19 +240,31 @@ async function onCreatePostSubmit(e) {
       body: fd,
       credentials: 'same-origin'
     });
-    const data = await res.json();
-    if (!data.ok || !data.item) throw new Error(data.error || 'No se pudo crear el post');
+    let data;
+    try {
+      data = await res.json();
+    } catch (_) {
+      throw new Error('Respuesta inválida del servidor.');
+    }
+
+    if (!res.ok || !data.ok || !data.item) {
+      throw new Error((data && data.error) || 'No se pudo crear el post.');
+    }
 
     try {
       insertarPostEnFeed(data.item);
     } catch (err) {
       console.error('Fallo insertarPostEnFeed:', err);
-      alert('Hubo un error renderizando el nuevo post (ver consola).');
+      showErrorAlert('Hubo un error renderizando el nuevo post (ver consola).');
     }
 
     form.reset();
+    showSuccessAlert('Tu post se publicó.');
   } catch (err) {
-    alert(String(err.message || err));
+    const message = err instanceof Error ? err.message : String(err);
+    showErrorAlert(message);
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
   }
 }
 
@@ -280,7 +307,7 @@ async function eliminarPost(button) {
     if (article) article.remove();
     ensureEmptyState();
   } catch (err) {
-    alert(String(err.message || err));
+    showErrorAlert(String(err.message || err));
     button.disabled = false;
   }
 }
@@ -364,6 +391,26 @@ const FancyAlerts = (() => {
 
   return api;
 })();
+
+function showErrorAlert(message) {
+  FancyAlerts.show({
+    type: "error",
+    icon: "!",
+    msg: String(message || "Ocurrió un error inesperado."),
+    timeout: 4000,
+    closable: true
+  });
+}
+
+function showSuccessAlert(message) {
+  FancyAlerts.show({
+    type: "success",
+    icon: "✓",
+    msg: String(message || "Acción completada."),
+    timeout: 2500,
+    closable: false
+  });
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const flash = document.getElementById("flash");
