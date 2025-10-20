@@ -9,6 +9,21 @@ require_once __DIR__ . '/lectorEnv.php';
  * Esta clase encapsula las consultas sobre las tablas Post, ImagesPost y Likes,
  * devolviendo estructuras listas para exponer por la API sin filtrar lógica de DB
  * hacia las capas superiores.
+ * 
+ * getPostByUser devuelve un array asociativo con todos los datos necesarios para renderizar un post. 
+ * Requiere que se le pase el id de la persona a la cual se le quieren consultar los post y el
+ * id de la persona la cual va a mirar esos post, para determinar si likeo o no dicho post.
+ * 
+ * El array lo devuelve de esta forma:
+ *            $posts[] = [
+ *              'id' => (int)$id,
+ *              'parent_id' => $parentId !== null ? (int)$parentId : null,
+ *              'content' => $content,
+ *              'date' => $date,
+ *              'parent_author' => $parentAuthor,
+ *              'likes' => 0,
+ *              'liked' => false,
+ *             ];
  */
 final class PostRepository
 {
