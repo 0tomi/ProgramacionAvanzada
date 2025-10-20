@@ -14,13 +14,20 @@
     form.dataset[DATA_KEY] = '1';
 
     const preview = form.querySelector('.compose__previews');
-    const fileInput = form.querySelector('input[type="file"]');
+    const { input: fileInput, trigger: fileTrigger } = getFileControl(form);
 
     if (fileInput && preview) {
       fileInput.addEventListener('change', () => handleFileChange(form, preview, fileInput, options));
     }
 
-    form.addEventListener('reset', () => clearPreview(form));
+    if (fileTrigger) {
+      fileTrigger.addEventListener('click', (event) => guardFileTrigger(form, event));
+      fileTrigger.addEventListener('keydown', (event) => guardFileTrigger(form, event));
+    }
+
+    form.addEventListener('reset', () => {
+      clearPreview(form);
+    });
 
     if (typeof options.onSubmit === 'function') {
       form.addEventListener('submit', options.onSubmit);
@@ -34,17 +41,28 @@
       (file) => file && file.type && file.type.startsWith('image/')
     );
 
-    if (files.length === 0) {
+    const allowMultiple = input && input.hasAttribute('multiple');
+    let images = files;
+
+    if (!allowMultiple) {
+      images = files.slice(0, 1);
+      if (files.length > images.length) {
+        reportError('Solo podés agregar una imagen por post.', options);
+      }
+    }
+
+    if (images.length === 0) {
       if ((input.files || []).length > 0) {
         reportError('El archivo seleccionado no es una imagen compatible.', options);
         input.value = '';
       }
       preview.hidden = true;
+      unlockFileInput(form);
       return;
     }
 
     const fragment = document.createDocumentFragment();
-    files.forEach((file) => {
+    images.forEach((file) => {
       const url = URL.createObjectURL(file);
       const item = document.createElement('div');
       item.className = 'compose__preview-item';
@@ -67,6 +85,10 @@
 
     preview.appendChild(fragment);
     preview.hidden = false;
+
+    if (!allowMultiple) {
+      lockFileInput(form);
+    }
   }
 
   function clearPreview(form) {
@@ -82,6 +104,7 @@
 
     preview.innerHTML = '';
     preview.hidden = true;
+    unlockFileInput(form);
   }
 
   function clearSelection(form) {
@@ -113,6 +136,49 @@
     clearSelection(form);
   });
 
+  function getFileControl(form) {
+    if (!form) return { input: null, trigger: null };
+    const input = form.querySelector('input[type="file"]');
+    const trigger = form.querySelector('.composer__pick');
+    return { input, trigger };
+  }
+
+  function lockFileInput(form) {
+    if (!form) return;
+    form.dataset.composerImageLocked = '1';
+    const { trigger } = getFileControl(form);
+    if (trigger) {
+      trigger.classList.add('composer__pick--locked');
+      trigger.setAttribute('aria-disabled', 'true');
+    }
+  }
+
+  function unlockFileInput(form) {
+    if (!form) return;
+    delete form.dataset.composerImageLocked;
+    const { trigger } = getFileControl(form);
+    if (trigger) {
+      trigger.classList.remove('composer__pick--locked');
+      trigger.removeAttribute('aria-disabled');
+    }
+  }
+
+  function isFileInputLocked(form) {
+    return form ? form.dataset.composerImageLocked === '1' : false;
+  }
+
+  function guardFileTrigger(form, event) {
+    if (!isFileInputLocked(form)) return;
+    if (event.type === 'keydown') {
+      const key = event.key || '';
+      if (key !== 'Enter' && key !== ' ' && key !== 'Spacebar') {
+        return;
+      }
+    }
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   global.CreatePostComposer = {
     init,
     setupForm,
@@ -120,4 +186,3 @@
     clearSelection
   };
 })(window);
-

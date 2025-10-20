@@ -101,11 +101,12 @@ main.container{
 /* texto + media */
 .text{ white-space:pre-wrap; overflow-wrap:anywhere; margin-top:10px }
 .media{
-  margin:10px 0 0;
+  margin:10px auto 0;
   border-radius:12px;
   border:1px solid var(--line);
   background:#0b0f15;
-  max-width:50%;
+  width:min(460px, calc(100% - 32px));
+  max-width:100%;
   max-height:150px;
   cursor:zoom-in;
   transition:transform .2s ease;
@@ -148,6 +149,11 @@ main.container{
 }
 .btn.ghost{ background:transparent }
 .btn.small{ padding:4px 8px; font-size:12px; border-radius:10px }
+.composer__pick--locked{
+  pointer-events:none;
+  opacity:.55;
+  cursor:not-allowed;
+}
 
 /* ================== COMPOSER ================== */
 .composer{

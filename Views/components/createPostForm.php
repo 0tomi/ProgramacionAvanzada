@@ -76,7 +76,10 @@ unset(
         <?= $allowMultiple ? 'multiple' : '' ?>
         hidden
       >
-      <label for="<?= htmlspecialchars($fileInputId, ENT_QUOTES, 'UTF-8') ?>" class="btn ghost">Agrega una imagen</label>
+      <label
+        for="<?= htmlspecialchars($fileInputId, ENT_QUOTES, 'UTF-8') ?>"
+        class="btn ghost composer__pick"
+      >Agrega una imagen</label>
       <button class="btn primary" type="submit">Publicar</button>
     </div>
   </form>
