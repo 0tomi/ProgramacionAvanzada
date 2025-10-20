@@ -6,6 +6,7 @@ require_once __DIR__ . '/../Controlers/InicioController.php';
 $u = $_SESSION['user'];
 $viewerId = (int)$u->getIdUsuario();
 $flash = $u->getFlash();
+$_SESSION['user']->setFlash('');
 
 $inicioController = new InicioController();
 $posts = $inicioController->getFeed($viewerId);

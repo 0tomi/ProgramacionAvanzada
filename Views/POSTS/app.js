@@ -10,8 +10,9 @@
  */
 
 const API_URL = '../../Controlers/PostsApi.php';
+const ASSET_BASE = '../../';
 const feed = document.getElementById('feed');
-const DEFAULT_AVATAR = '../../Resources/profilePictures/defaultProfilePicture.png';
+const DEFAULT_AVATAR = resolveAssetUrl('Resources/profilePictures/defaultProfilePicture.png');
 
 init();
 
@@ -54,11 +55,12 @@ async function fetchPost(id) {
  */
 function renderPost(post) {
   const likeClasses = `chip ${post.viewer?.liked ? 'liked' : ''}`;
-  const avatar = post.author?.avatar_url || DEFAULT_AVATAR;
+  const avatarUrl = escapeHtml(resolveAssetUrl(post.author?.avatar_url, DEFAULT_AVATAR));
   const authorName = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
   const createdAt = formatDate(post.created_at);
-  const media = post.media_url
-    ? `<figure class="media"><img class="post-image" src="${escapeHtml(post.media_url)}" alt="Imagen del post"></figure>`
+  const mediaUrl = resolveAssetUrl(post.media_url);
+  const media = mediaUrl
+    ? `<figure class="media"><img class="post-image" src="${escapeHtml(mediaUrl)}" alt="Imagen del post"></figure>`
     : '';
   const comments = renderCommentsTree(post.replies || []);
   const commentForm = commentFormTemplate(post.id);
@@ -66,7 +68,7 @@ function renderPost(post) {
   return `
     <article class="post" data-id="${post.id}">
       <header class="post-header">
-        <img class="avatar" src="${escapeHtml(avatar)}" alt="${authorName}">
+        <img class="avatar" src="${avatarUrl}" alt="${authorName}">
         <div class="meta">
           <div class="name">${authorName}</div>
           <div class="subline"><time>${createdAt}</time></div>
@@ -277,6 +279,19 @@ function toggleReplyForm(_commentId, btn) {
 
 function getPostId(el) {
   return el.closest('article.post')?.dataset?.id;
+}
+
+function resolveAssetUrl(input, fallback = '') {
+  const raw = typeof input === 'string' ? input.trim() : '';
+  if (raw === '') {
+    return fallback;
+  }
+  if (/^(?:https?:)?\/\//i.test(raw) || raw.startsWith('/') || raw.startsWith('data:')) {
+    return raw;
+  }
+
+  const sanitized = raw.replace(/^(\.\/)+/, '').replace(/^(\.\.\/)+/, '');
+  return `${ASSET_BASE}${sanitized}`;
 }
 
 function escapeHtml(str) {
