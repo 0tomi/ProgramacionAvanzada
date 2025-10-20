@@ -175,31 +175,59 @@ try {
                 jsonResponse(['ok' => false, 'error' => 'Método no permitido'], 405);
             }
             $user = requireAuth();
-            $body = readJsonInput();
 
-            $postId = isset($body['post_id']) ? filter_var($body['post_id'], FILTER_VALIDATE_INT) : false;
+            $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+            $isMultipart = stripos($contentType, 'multipart/form-data') !== false;
+
+            $postId = false;
+            $text = '';
+            $parentCommentId = null;
+            $imageRoute = null;
+
+            if ($isMultipart) {
+                $postId = isset($_POST['post_id']) ? filter_var($_POST['post_id'], FILTER_VALIDATE_INT) : false;
+                $text = trim((string)($_POST['text'] ?? ''));
+                if (isset($_POST['parent_comment_id']) && $_POST['parent_comment_id'] !== '') {
+                    $parentCommentId = filter_var($_POST['parent_comment_id'], FILTER_VALIDATE_INT);
+                    if ($parentCommentId === false) {
+                        jsonResponse(['ok' => false, 'error' => 'parent_comment_id inválido'], 400);
+                    }
+                }
+
+                $hasUpload = isset($_FILES['image']) && is_array($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
+                if ($hasUpload) {
+                    $imageRoute = storeUploadedImage($_FILES['image']);
+                }
+            } else {
+                $body = readJsonInput();
+
+                $postId = isset($body['post_id']) ? filter_var($body['post_id'], FILTER_VALIDATE_INT) : false;
+                $text = trim((string)($body['text'] ?? ''));
+                if (isset($body['parent_comment_id']) && $body['parent_comment_id'] !== null) {
+                    $parentCommentId = filter_var($body['parent_comment_id'], FILTER_VALIDATE_INT);
+                    if ($parentCommentId === false) {
+                        jsonResponse(['ok' => false, 'error' => 'parent_comment_id inválido'], 400);
+                    }
+                }
+            }
+
             if (!$postId) {
                 jsonResponse(['ok' => false, 'error' => 'post_id requerido'], 400);
             }
 
-            $text = trim((string)($body['text'] ?? ''));
-            if ($text === '' || mb_strlen($text, 'UTF-8') > 280) {
-                jsonResponse(['ok' => false, 'error' => 'Comentario inválido (1..280 caracteres)'], 400);
+            if ($text === '' && $imageRoute === null) {
+                jsonResponse(['ok' => false, 'error' => 'Debes escribir algo o adjuntar una imagen.'], 400);
             }
-
-            $parentCommentId = null;
-            if (isset($body['parent_comment_id']) && $body['parent_comment_id'] !== null) {
-                $parentCommentId = filter_var($body['parent_comment_id'], FILTER_VALIDATE_INT);
-                if (!$parentCommentId) {
-                    jsonResponse(['ok' => false, 'error' => 'parent_comment_id inválido'], 400);
-                }
+            if ($text !== '' && mb_strlen($text, 'UTF-8') > 280) {
+                jsonResponse(['ok' => false, 'error' => 'El comentario puede tener hasta 280 caracteres.'], 400);
             }
 
             $comment = $repository->createComment(
                 (int)$user->getIdUsuario(),
                 (int)$postId,
                 $text,
-                $parentCommentId !== false ? $parentCommentId : null
+                $parentCommentId ?: null,
+                $imageRoute
             );
             jsonResponse(['ok' => true, 'comment' => $comment]);
 
@@ -210,12 +238,17 @@ try {
             $user = requireAuth();
 
             $text = trim((string)($_POST['text'] ?? ''));
-            if ($text === '' || mb_strlen($text, 'UTF-8') > 280) {
-                jsonResponse(['ok' => false, 'error' => 'El post debe tener entre 1 y 280 caracteres'], 400);
+            $hasUpload = isset($_FILES['image']) && is_array($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
+
+            if ($text === '' && !$hasUpload) {
+                jsonResponse(['ok' => false, 'error' => 'Debes escribir algo o adjuntar una imagen.'], 400);
+            }
+            if ($text !== '' && mb_strlen($text, 'UTF-8') > 280) {
+                jsonResponse(['ok' => false, 'error' => 'El post puede tener hasta 280 caracteres.'], 400);
             }
 
             $imageRoute = null;
-            if (isset($_FILES['image']) && is_array($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+            if ($hasUpload) {
                 $imageRoute = storeUploadedImage($_FILES['image']);
             }
 
@@ -233,6 +266,19 @@ try {
                 jsonResponse(['ok' => false, 'error' => 'post_id requerido'], 400);
             }
             $repository->deletePost((int)$postId, (int)$user->getIdUsuario());
+            jsonResponse(['ok' => true]);
+
+        case 'delete_comment':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                jsonResponse(['ok' => false, 'error' => 'Método no permitido'], 405);
+            }
+            $user = requireAuth();
+            $body = readJsonInput();
+            $commentId = isset($body['comment_id']) ? filter_var($body['comment_id'], FILTER_VALIDATE_INT) : false;
+            if (!$commentId) {
+                jsonResponse(['ok' => false, 'error' => 'comment_id requerido'], 400);
+            }
+            $repository->deleteComment((int)$commentId, (int)$user->getIdUsuario());
             jsonResponse(['ok' => true]);
 
         default:

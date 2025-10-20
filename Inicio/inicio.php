@@ -41,18 +41,12 @@ if (!is_array($posts)) {
       </header>
 
       <!-- Composer -->
-      <div class="composer" aria-label="Publicar">
-        <img class="avatar" src="<?= htmlspecialchars('../'.$_SESSION['user']->getProfilePhoto()) ?>" alt="Tu avatar">
-        <!-- IMPORTANTE: id, name="text", name="image" -->
-        <form id="createPostForm" class="compose" action="javascript:void(0)" method="post" enctype="multipart/form-data" novalidate>
-          <textarea name="text" placeholder="¿Qué está pasando?" maxlength="280" required></textarea>
-          <div class="row">
-            <input type="file" id="imgUp" name="image" accept="image/*" style="display:none">
-            <label for="imgUp" class="btn ghost">Imagen</label>
-            <button class="btn primary" type="submit">Publicar</button>
-          </div>
-        </form>
-      </div>
+      <?php
+        $composerAvatarSrc = '../' . (string)$_SESSION['user']->getProfilePhoto();
+        $composerFormId = 'createPostForm';
+        $composerDataContext = 'inicio';
+        require __DIR__ . '/../Views/components/createPostForm.php';
+      ?>
 
       <!-- FEED desde la API -->
       <div id="feed">
@@ -153,7 +147,8 @@ if (!is_array($posts)) {
     </section>
   </div>
   <!-- js -->
-  <script src="inicio.js?v=3"></script>
+  <script src="../Resources/js/createPostComposer.js?v=1"></script>
+  <script src="inicio.js?v=4"></script>
   <?php require_once __DIR__ . '/../Views/_footer.php'; ?>
 
 </body>

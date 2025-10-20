@@ -12,9 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   wireEventosClick();
 
-  // Hook del formulario de crear post (sin redirigir)
-  const form = document.getElementById('createPostForm');
-  if (form) form.addEventListener('submit', onCreatePostSubmit);
+  if (window.CreatePostComposer && typeof window.CreatePostComposer.init === 'function') {
+    window.CreatePostComposer.init({
+      onSubmit: onCreatePostSubmit,
+      onError: showErrorAlert
+    });
+  } else {
+    console.warn('CreatePostComposer no está disponible; la vista previa de imágenes no se inicializó.');
+    const fallbackForm = document.querySelector('.js-create-post-form');
+    if (fallbackForm) {
+      fallbackForm.addEventListener('submit', onCreatePostSubmit);
+    }
+  }
 });
 
 /** Obtiene los posts principales desde la API y los renderiza */
@@ -71,9 +80,17 @@ function buildPostHtml(p) {
 
   const mediaUrlRaw = p.media_url ? String(p.media_url) : '';
   const mediaUrl = mediaUrlRaw.trim();
+  const safeMediaUrl = escapeHtml(mediaUrl);
   const mediaHtml = mediaUrl !== ''
-    ? `<figure class="media"><img src="${escapeHtml(mediaUrl)}" alt="Imagen del post"></figure>`
+    ? `<figure class="media" data-action="open-media" data-media="${safeMediaUrl}" tabindex="0" role="button">
+        <img src="${safeMediaUrl}" alt="Imagen del post">
+      </figure>`
     : '';
+
+  const rawText = String(p.text ?? '');
+  const displayText = truncatePostText(rawText, 150);
+  const safeDisplayText = escapeHtml(displayText);
+  const textHtml = safeDisplayText !== '' ? `<p class="text">${safeDisplayText}</p>` : '';
 
   const likeClasses = `chip like${liked ? ' liked' : ''}`;
 
@@ -86,29 +103,38 @@ function buildPostHtml(p) {
     ? `<img class="avatar" src="${escapeHtml(avatarUrl)}" alt="Avatar de ${safeName}">`
     : `<div class="avatar">${escapeHtml(avatarInitial)}</div>`;
 
-  const deleteBtn = canDelete
-    ? `<button type="button" class="chip delete" data-action="delete-post" data-id="${safeId}">Eliminar</button>`
+  const menuHtml = canDelete
+    ? `<div class="post-menu">
+        <button type="button" class="post-menu__toggle" aria-haspopup="true" aria-expanded="false">
+          ⋮
+        </button>
+        <div class="post-menu__dropdown" role="menu">
+          <button type="button" class="post-menu__item post-menu__item--danger" role="menuitem" data-action="delete-post" data-id="${safeId}">
+            Eliminar post
+          </button>
+        </div>
+      </div>`
     : '';
 
   return `
     <article class="post" data-id="${safeId}">
       <a class="post-overlay" href="../Views/POSTS/index.php?id=${encodeURIComponent(id)}" aria-label="Ver post"></a>
+      ${menuHtml}
       <header class="post-header">
-        ${avatarHtml}
-        <div class="meta">
-          <div class="name">${safeName}</div>
-          <div class="subline">
-            <time datetime="${safeCreatedIso}">${safeCreatedHuman}</time>
-          </div>
+      ${avatarHtml}
+      <div class="meta">
+        <div class="name">${safeName}</div>
+        <div class="subline">
+          <time datetime="${safeCreatedIso}">${safeCreatedHuman}</time>
         </div>
-      </header>
-      <p class="text">${escapeHtml(String(p.text ?? ''))}</p>
+      </div>
+    </header>
+      ${textHtml}
       ${mediaHtml}
       <div class="actions">
         <button type="button" class="${likeClasses}" data-id="${safeId}">
           ♥ <span class="count">${likeCount}</span>
         </button>
-        ${deleteBtn}
       </div>
     </article>
   `;
@@ -138,20 +164,38 @@ async function marcarLikesAlCargar() {
   }
 }
 
-/** Delegación global de clicks para like, eliminar y overlay */
+/** Delegación global de clicks para like, menú contextual y overlay */
 function wireEventosClick() {
   document.addEventListener('click', async (e) => {
-    if (e.target.closest('.composer')) return;
+    const target = e.target;
+    if (target.closest('.composer')) return;
 
-    const deleteBtn = e.target.closest('[data-action="delete-post"]');
-    if (deleteBtn) {
+    const menuToggle = target.closest('.post-menu__toggle');
+    if (menuToggle) {
       e.preventDefault();
       e.stopPropagation();
-      await eliminarPost(deleteBtn);
+      togglePostMenu(menuToggle);
       return;
     }
 
-    const likeBtn = e.target.closest('.chip.like');
+    const menuItem = target.closest('.post-menu__item');
+    if (menuItem) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeAllPostMenus();
+      await eliminarPost(menuItem);
+      return;
+    }
+
+    const mediaTrigger = target.closest('[data-action="open-media"]');
+    if (mediaTrigger) {
+      e.preventDefault();
+      e.stopPropagation();
+      openImageLightbox(mediaTrigger.getAttribute('data-media'));
+      return;
+    }
+
+    const likeBtn = target.closest('.chip.like');
     if (likeBtn) {
       if (likeBtn.hasAttribute('disabled')) return;
       e.preventDefault();
@@ -160,16 +204,98 @@ function wireEventosClick() {
       return;
     }
 
-    const card = e.target.closest('.post');
+    closeAllPostMenus();
+
+    const card = target.closest('.post');
     if (!card) return;
     const overlay = card.querySelector('.post-overlay');
     if (!overlay || !overlay.getAttribute('href')) return;
 
-    if (!e.target.closest('.post-overlay')) {
+    if (!target.closest('.post-overlay')) {
       window.location.href = overlay.href;
     }
-  }, { passive: true });
+  });
 }
+
+function togglePostMenu(toggleBtn) {
+  const menu = toggleBtn.closest('.post-menu');
+  if (!menu) return;
+  const isOpen = menu.classList.contains('is-open');
+  closeAllPostMenus();
+  if (!isOpen) {
+    menu.classList.add('is-open');
+    toggleBtn.setAttribute('aria-expanded', 'true');
+  }
+}
+
+function closeAllPostMenus() {
+  document.querySelectorAll('.post-menu.is-open').forEach((menu) => {
+    menu.classList.remove('is-open');
+    const toggle = menu.querySelector('.post-menu__toggle');
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
+function ensureImageLightbox() {
+  let lightbox = document.getElementById('imageLightbox');
+  if (lightbox) return lightbox;
+
+  lightbox = document.createElement('div');
+  lightbox.id = 'imageLightbox';
+  lightbox.className = 'lightbox';
+  lightbox.setAttribute('aria-hidden', 'true');
+  lightbox.innerHTML = `
+    <div class="lightbox__content">
+      <button type="button" class="lightbox__close" aria-label="Cerrar imagen ampliada">×</button>
+      <img src="" alt="Imagen del post ampliada">
+    </div>
+  `;
+  lightbox.addEventListener('click', (event) => {
+    if (event.target === lightbox || event.target.closest('.lightbox__close')) {
+      closeImageLightbox();
+    }
+  });
+  document.body.appendChild(lightbox);
+  return lightbox;
+}
+
+function openImageLightbox(url) {
+  if (!url) return;
+  const lightbox = ensureImageLightbox();
+  const img = lightbox.querySelector('img');
+  if (img) {
+    img.src = url;
+  }
+  lightbox.classList.add('is-open');
+  lightbox.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeImageLightbox() {
+  const lightbox = document.getElementById('imageLightbox');
+  if (!lightbox) return;
+  lightbox.classList.remove('is-open');
+  lightbox.setAttribute('aria-hidden', 'true');
+  const img = lightbox.querySelector('img');
+  if (img) {
+    img.src = '';
+  }
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    closeAllPostMenus();
+    closeImageLightbox();
+    return;
+  }
+  if ((event.key === 'Enter' || event.key === ' ') && event.target && event.target.matches('[data-action="open-media"]')) {
+    event.preventDefault();
+    openImageLightbox(event.target.getAttribute('data-media'));
+  }
+});
 
 /** Envía like/unlike a la API con UI optimista */
 async function manejarLike(likeBtn) {
@@ -201,7 +327,7 @@ async function manejarLike(likeBtn) {
     // rollback si hubo error
     likeBtn.classList.toggle('liked');
     countEl.textContent = prev;
-    alert(String(err.message || err));
+    showErrorAlert(String(err.message || err));
   }
 }
 
@@ -211,13 +337,25 @@ async function onCreatePostSubmit(e) {
   e.stopPropagation();
 
   const form = e.currentTarget;
+  const submitBtn = form.querySelector('[type="submit"]');
+  const textarea = form.querySelector('textarea[name]');
+  const textFieldName = textarea ? textarea.getAttribute('name') : 'text';
   const fd = new FormData(form);
 
-  const text = (fd.get('text') || '').toString().trim();
-  if (text.length === 0 || text.length > 280) {
-    alert('El texto es requerido (1..280 caracteres).');
+  const text = (fd.get(textFieldName) || '').toString().trim();
+  const hasImage = hasSelectedImages(form);
+  if (text.length === 0 && !hasImage) {
+    showErrorAlert('Escribí algo o adjuntá al menos una imagen.');
+    if (textarea) textarea.focus();
     return;
   }
+  if (text.length > 280) {
+    showErrorAlert('El texto puede tener hasta 280 caracteres.');
+    if (textarea) textarea.focus();
+    return;
+  }
+
+  if (submitBtn) submitBtn.disabled = true;
 
   try {
     const res = await fetch(`${API_BASE}?action=create`, {
@@ -225,19 +363,31 @@ async function onCreatePostSubmit(e) {
       body: fd,
       credentials: 'same-origin'
     });
-    const data = await res.json();
-    if (!data.ok || !data.item) throw new Error(data.error || 'No se pudo crear el post');
+    let data;
+    try {
+      data = await res.json();
+    } catch (_) {
+      throw new Error('Respuesta inválida del servidor.');
+    }
+
+    if (!res.ok || !data.ok || !data.item) {
+      throw new Error((data && data.error) || 'No se pudo crear el post.');
+    }
 
     try {
       insertarPostEnFeed(data.item);
     } catch (err) {
       console.error('Fallo insertarPostEnFeed:', err);
-      alert('Hubo un error renderizando el nuevo post (ver consola).');
+      showErrorAlert('Hubo un error renderizando el nuevo post (ver consola).');
     }
 
     form.reset();
+    showSuccessAlert('Tu post se publicó.');
   } catch (err) {
-    alert(String(err.message || err));
+    const message = err instanceof Error ? err.message : String(err);
+    showErrorAlert(message);
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
   }
 }
 
@@ -262,9 +412,6 @@ async function eliminarPost(button) {
   const postId = button.getAttribute('data-id');
   if (!postId) return;
 
-  const confirmed = window.confirm('¿Seguro que querés eliminar este post?');
-  if (!confirmed) return;
-
   button.disabled = true;
   try {
     const res = await fetch(`${API_BASE}?action=delete`, {
@@ -279,8 +426,9 @@ async function eliminarPost(button) {
     const article = button.closest('.post');
     if (article) article.remove();
     ensureEmptyState();
+    showSuccessAlert('Post eliminado.');
   } catch (err) {
-    alert(String(err.message || err));
+    showErrorAlert(String(err.message || err));
     button.disabled = false;
   }
 }
@@ -304,6 +452,20 @@ function escapeHtml(s) {
   return (s ?? '').toString().replace(/[&<>"']/g, ch => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[ch]));
+}
+
+function truncatePostText(text, maxLength = 150) {
+  const raw = (text ?? '').toString();
+  if (raw.length <= maxLength) return raw;
+  return `${raw.slice(0, maxLength).trimEnd()}.. Expandir el post para ver mas`;
+}
+
+function hasSelectedImages(form) {
+  if (!form) return false;
+  const input = form.querySelector('input[type="file"]');
+  if (!input) return false;
+  const files = input.files || [];
+  return files.length > 0;
 }
 
 //mensaje login correcto
@@ -364,6 +526,26 @@ const FancyAlerts = (() => {
 
   return api;
 })();
+
+function showErrorAlert(message) {
+  FancyAlerts.show({
+    type: "error",
+    icon: "!",
+    msg: String(message || "Ocurrió un error inesperado."),
+    timeout: 4000,
+    closable: true
+  });
+}
+
+function showSuccessAlert(message) {
+  FancyAlerts.show({
+    type: "success",
+    icon: "✓",
+    msg: String(message || "Acción completada."),
+    timeout: 2500,
+    closable: false
+  });
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const flash = document.getElementById("flash");
