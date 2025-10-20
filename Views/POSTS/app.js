@@ -15,6 +15,8 @@ const feed = document.getElementById('feed');
 const DEFAULT_AVATAR = resolveAssetUrl('Resources/profilePictures/defaultProfilePicture.png');
 
 init();
+document.addEventListener('click', onGlobalClick);
+document.addEventListener('keydown', onGlobalKeydown);
 
 /**
  * Carga inicial del post (utiliza el parámetro ?id=... de la URL).
@@ -54,19 +56,35 @@ async function fetchPost(id) {
  * Devuelve el marcado HTML para la vista completa del post.
  */
 function renderPost(post) {
+  const postId = String(post.id ?? '');
   const likeClasses = `chip ${post.viewer?.liked ? 'liked' : ''}`;
   const avatarUrl = escapeHtml(resolveAssetUrl(post.author?.avatar_url, DEFAULT_AVATAR));
   const authorName = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
   const createdAt = formatDate(post.created_at);
   const mediaUrl = resolveAssetUrl(post.media_url);
+  const safeMedia = escapeHtml(mediaUrl);
   const media = mediaUrl
-    ? `<figure class="media"><img class="post-image" src="${escapeHtml(mediaUrl)}" alt="Imagen del post"></figure>`
+    ? `<figure class="media" data-action="open-media" data-media="${safeMedia}" tabindex="0" role="button">
+        <img class="post-image" src="${safeMedia}" alt="Imagen del post">
+      </figure>`
     : '';
   const comments = renderCommentsTree(post.replies || []);
   const commentForm = commentFormTemplate(post.id);
+  const canDelete = Boolean(post.viewer?.can_delete);
+  const menu = canDelete
+    ? `<div class="post-menu">
+        <button type="button" class="post-menu__toggle" aria-haspopup="true" aria-expanded="false">⋮</button>
+        <div class="post-menu__dropdown" role="menu">
+          <button type="button" class="post-menu__item post-menu__item--danger" role="menuitem" data-action="delete-post" data-id="${escapeHtml(postId)}">
+            Eliminar post
+          </button>
+        </div>
+      </div>`
+    : '';
 
   return `
-    <article class="post" data-id="${post.id}">
+    <article class="post" data-id="${escapeHtml(postId)}">
+      ${menu}
       <header class="post-header">
         <img class="avatar" src="${avatarUrl}" alt="${authorName}">
         <div class="meta">
@@ -77,7 +95,7 @@ function renderPost(post) {
       <p class="text">${escapeHtml(post.text)}</p>
       ${media}
       <div class="actions">
-        <button class="${likeClasses}" onclick="toggleLike('${post.id}', this)">
+        <button class="${likeClasses}" onclick="toggleLike('${postId}', this)">
           ♥ <span class="like-count">${post.counts?.likes ?? 0}</span>
         </button>
       </div>
@@ -269,6 +287,20 @@ async function apiPostComment(postId, parentCommentId, text) {
   return data.comment;
 }
 
+async function apiDeletePost(postId) {
+  const res = await fetch(`${API_URL}?action=delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify({ post_id: Number(postId) }),
+  });
+  const data = await res.json();
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || 'No se pudo eliminar el post');
+  }
+  return data;
+}
+
 /* ==== Utilidades de UI ==== */
 
 function toggleReplyForm(_commentId, btn) {
@@ -302,6 +334,129 @@ function escapeHtml(str) {
     '"': '&quot;',
     "'": '&#39;',
   })[ch]);
+}
+
+function onGlobalClick(event) {
+  const target = event.target;
+
+  const menuToggle = target.closest('.post-menu__toggle');
+  if (menuToggle) {
+    event.preventDefault();
+    event.stopPropagation();
+    togglePostMenu(menuToggle);
+    return;
+  }
+
+  const menuItem = target.closest('.post-menu__item');
+  if (menuItem) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeAllPostMenus();
+    handleDeleteFromMenu(menuItem.getAttribute('data-id'));
+    return;
+  }
+
+  const mediaTrigger = target.closest('[data-action="open-media"]');
+  if (mediaTrigger) {
+    event.preventDefault();
+    event.stopPropagation();
+    openImageLightbox(mediaTrigger.getAttribute('data-media'));
+    return;
+  }
+
+  if (!target.closest('.post-menu')) {
+    closeAllPostMenus();
+  }
+}
+
+function onGlobalKeydown(event) {
+  if (event.key === 'Escape') {
+    closeAllPostMenus();
+    closeImageLightbox();
+    return;
+  }
+
+  if ((event.key === 'Enter' || event.key === ' ') && event.target && event.target.matches('[data-action="open-media"]')) {
+    event.preventDefault();
+    openImageLightbox(event.target.getAttribute('data-media'));
+  }
+}
+
+function togglePostMenu(toggle) {
+  const menu = toggle.closest('.post-menu');
+  if (!menu) return;
+  const isOpen = menu.classList.contains('is-open');
+  closeAllPostMenus();
+  if (!isOpen) {
+    menu.classList.add('is-open');
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+}
+
+function closeAllPostMenus() {
+  document.querySelectorAll('.post-menu.is-open').forEach((menu) => {
+    menu.classList.remove('is-open');
+    const toggle = menu.querySelector('.post-menu__toggle');
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+  });
+}
+
+async function handleDeleteFromMenu(postId) {
+  if (!postId) return;
+  try {
+    await apiDeletePost(postId);
+    if (feed) {
+      feed.innerHTML = '<div class="error">El post fue eliminado. Redirigiendo…</div>';
+    }
+    setTimeout(() => {
+      window.location.href = '../../Inicio/inicio.php';
+    }, 1200);
+  } catch (err) {
+    alert(err instanceof Error ? err.message : String(err));
+  }
+}
+
+function ensureImageLightbox() {
+  let lightbox = document.getElementById('imageLightbox');
+  if (lightbox) return lightbox;
+
+  lightbox = document.createElement('div');
+  lightbox.id = 'imageLightbox';
+  lightbox.className = 'lightbox';
+  lightbox.setAttribute('aria-hidden', 'true');
+  lightbox.innerHTML = `
+    <div class="lightbox__content">
+      <button type="button" class="lightbox__close" aria-label="Cerrar imagen">×</button>
+      <img src="" alt="Imagen ampliada">
+    </div>
+  `;
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox || e.target.closest('.lightbox__close')) {
+      closeImageLightbox();
+    }
+  });
+  document.body.appendChild(lightbox);
+  return lightbox;
+}
+
+function openImageLightbox(url) {
+  if (!url) return;
+  const lightbox = ensureImageLightbox();
+  const img = lightbox.querySelector('img');
+  if (img) img.src = url;
+  lightbox.classList.add('is-open');
+  lightbox.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeImageLightbox() {
+  const lightbox = document.getElementById('imageLightbox');
+  if (!lightbox) return;
+  lightbox.classList.remove('is-open');
+  lightbox.setAttribute('aria-hidden', 'true');
+  const img = lightbox.querySelector('img');
+  if (img) img.src = '';
+  document.body.style.overflow = '';
 }
 
 function formatDate(iso) {

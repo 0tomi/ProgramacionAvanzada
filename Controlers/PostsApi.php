@@ -210,12 +210,17 @@ try {
             $user = requireAuth();
 
             $text = trim((string)($_POST['text'] ?? ''));
-            if ($text === '' || mb_strlen($text, 'UTF-8') > 280) {
-                jsonResponse(['ok' => false, 'error' => 'El post debe tener entre 1 y 280 caracteres'], 400);
+            $hasUpload = isset($_FILES['image']) && is_array($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
+
+            if ($text === '' && !$hasUpload) {
+                jsonResponse(['ok' => false, 'error' => 'Debes escribir algo o adjuntar una imagen.'], 400);
+            }
+            if ($text !== '' && mb_strlen($text, 'UTF-8') > 280) {
+                jsonResponse(['ok' => false, 'error' => 'El post puede tener hasta 280 caracteres.'], 400);
             }
 
             $imageRoute = null;
-            if (isset($_FILES['image']) && is_array($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+            if ($hasUpload) {
                 $imageRoute = storeUploadedImage($_FILES['image']);
             }
 
