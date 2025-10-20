@@ -19,13 +19,9 @@
   <title><?= $source ?></title>
 
   <?php if ($source === 'Inicio'): ?>
-
-    <link rel="stylesheet" href="../Inicio/inicio.css">
-
+    <link rel="stylesheet" href="<?= $preruta ?>Inicio/inicio.css">
   <?php elseif ($source === 'Post'): ?>
-
-    <link rel="stylesheet" href="../POSTS/styles.css">
-
+    <link rel="stylesheet" href="<?= $preruta ?>Views/POSTS/styles.css">
   <?php endif; ?>
 
 </head>

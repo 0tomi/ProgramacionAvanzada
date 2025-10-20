@@ -1,16 +1,126 @@
 // Inicio/inicio.js
 
 // Ruta base hacia la API del módulo POSTS (desde /Inicio)
-const API_BASE = '../POSTS/api.php';
+const API_BASE = '../Controlers/PostsApi.php';
 
 document.addEventListener('DOMContentLoaded', () => {
-  marcarLikesAlCargar();
+  loadFeed()
+    .catch(err => {
+      console.error('[feed] Error cargando inicio:', err);
+    })
+    .then(() => marcarLikesAlCargar());
+
   wireEventosClick();
 
   // Hook del formulario de crear post (sin redirigir)
   const form = document.getElementById('createPostForm');
   if (form) form.addEventListener('submit', onCreatePostSubmit);
 });
+
+/** Obtiene los posts principales desde la API y los renderiza */
+async function loadFeed() {
+  const feed = document.getElementById('feed');
+  if (!feed) return;
+
+  const res = await fetch(`${API_BASE}?action=list`, { credentials: 'same-origin' });
+  const data = await res.json();
+  if (!data.ok || !Array.isArray(data.items)) {
+    throw new Error(data.error || 'No se pudo cargar el feed.');
+  }
+
+  renderFeed(data.items);
+}
+
+/** Dibuja el feed en pantalla */
+function renderFeed(items) {
+  const feed = document.getElementById('feed');
+  if (!feed) return;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    feed.innerHTML = '<p class="muted">No hay posts todavía.</p>';
+    return;
+  }
+
+  const html = items.map(buildPostHtml).join('');
+  feed.innerHTML = html;
+}
+
+/** Mapea la respuesta de la API al HTML del post */
+function buildPostHtml(p) {
+  if (!p || typeof p !== 'object') return '';
+
+  const id = String(p.id ?? '');
+  if (!id) return '';
+
+  const author = p.author ?? {};
+  const name = author.name ? String(author.name) : 'Anónimo';
+  const handle = author.handle ? String(author.handle) : '';
+  const avatarUrl = author.avatar_url ? String(author.avatar_url) : '';
+  const initialSource = (handle || name || 'U').trim();
+  const avatarInitial = initialSource !== '' ? initialSource.charAt(0).toUpperCase() : 'U';
+
+  const createdIso = p.created_at ? String(p.created_at) : '';
+  const createdHuman = formatDateForUi(createdIso);
+
+  const counts = p.counts ?? {};
+  const likeCount = Number(counts.likes ?? 0);
+
+  const viewer = p.viewer ?? {};
+  const liked = !!viewer.liked;
+  const canDelete = !!viewer.can_delete;
+
+  const mediaUrlRaw = p.media_url ? String(p.media_url) : '';
+  const mediaUrl = mediaUrlRaw.trim();
+  const mediaHtml = mediaUrl !== ''
+    ? `<figure class="media"><img src="${escapeHtml(mediaUrl)}" alt="Imagen del post"></figure>`
+    : '';
+
+  const likeClasses = `chip like${liked ? ' liked' : ''}`;
+
+  const safeId = escapeHtml(id);
+  const safeName = escapeHtml(name);
+  const safeCreatedIso = escapeHtml(createdIso);
+  const safeCreatedHuman = escapeHtml(createdHuman);
+
+  const avatarHtml = avatarUrl !== ''
+    ? `<img class="avatar" src="${escapeHtml(avatarUrl)}" alt="Avatar de ${safeName}">`
+    : `<div class="avatar">${escapeHtml(avatarInitial)}</div>`;
+
+  const deleteBtn = canDelete
+    ? `<button type="button" class="chip delete" data-action="delete-post" data-id="${safeId}">Eliminar</button>`
+    : '';
+
+  return `
+    <article class="post" data-id="${safeId}">
+      <a class="post-overlay" href="../Views/POSTS/index.php?id=${encodeURIComponent(id)}" aria-label="Ver post"></a>
+      <header class="post-header">
+        ${avatarHtml}
+        <div class="meta">
+          <div class="name">${safeName}</div>
+          <div class="subline">
+            <time datetime="${safeCreatedIso}">${safeCreatedHuman}</time>
+          </div>
+        </div>
+      </header>
+      <p class="text">${escapeHtml(String(p.text ?? ''))}</p>
+      ${mediaHtml}
+      <div class="actions">
+        <button type="button" class="${likeClasses}" data-id="${safeId}">
+          ♥ <span class="count">${likeCount}</span>
+        </button>
+        ${deleteBtn}
+      </div>
+    </article>
+  `;
+}
+
+/** Formatea fecha ISO a un string legible para el usuario */
+function formatDateForUi(isoString) {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleString();
+}
 
 /** Marca en rojo los posts likeados en esta sesión */
 async function marcarLikesAlCargar() {
@@ -28,23 +138,28 @@ async function marcarLikesAlCargar() {
   }
 }
 
-/** Delegación global de clicks para like + overlay */
+/** Delegación global de clicks para like, eliminar y overlay */
 function wireEventosClick() {
   document.addEventListener('click', async (e) => {
-    // Evitar que el composer dispare overlay/likes
     if (e.target.closest('.composer')) return;
 
-    // 1) Like en el feed (♥)
+    const deleteBtn = e.target.closest('[data-action="delete-post"]');
+    if (deleteBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      await eliminarPost(deleteBtn);
+      return;
+    }
+
     const likeBtn = e.target.closest('.chip.like');
     if (likeBtn) {
-      if (likeBtn.hasAttribute('disabled')) return; // 🚫 invitado
+      if (likeBtn.hasAttribute('disabled')) return;
       e.preventDefault();
       e.stopPropagation();
       await manejarLike(likeBtn);
       return;
     }
 
-    // 2) Navegación por overlay (toda la tarjeta)
     const card = e.target.closest('.post');
     if (!card) return;
     const overlay = card.querySelector('.post-overlay');
@@ -113,9 +228,6 @@ async function onCreatePostSubmit(e) {
     const data = await res.json();
     if (!data.ok || !data.item) throw new Error(data.error || 'No se pudo crear el post');
 
-    console.log('[create] item:', data.item); // 👈 verificá en consola qué llega
-
-    // Insertar en el feed SIN redirigir (con catch local para ver exactamente dónde truena)
     try {
       insertarPostEnFeed(data.item);
     } catch (err) {
@@ -135,41 +247,55 @@ function insertarPostEnFeed(p) {
   // defensivo por si algo viene raro
   if (!p || typeof p !== 'object') throw new Error('insertarPostEnFeed: objeto post inválido');
 
-  const id      = String(p.id ?? '');
-  const name    = (p.author && p.author.name) ? String(p.author.name) : 'Anónimo';
-  const avatar  = (p.author && p.author.avatar_url) ? String(p.author.avatar_url) : '/imagenes/profilePictures/defaultProfilePicture.png';
-  const created = String(p.created_at ?? new Date().toISOString());
-  const tsHuman = new Date(created).toLocaleString();
-
-  const media = p.media_url
-    ? `<figure class="media"><img src="${escapeHtml(String("../" + p.media_url))}" alt="Imagen del post"></figure>`
-    : "";
-
-  const html = `
-    <article class="post" data-id="${escapeHtml(id)}">
-      <a class="post-overlay" href="../POSTS/?id=${encodeURIComponent(id)}" aria-label="Ver post"></a>
-      <header class="post-header">
-        <img class="avatar" src="${escapeHtml(avatar)}" alt="${escapeHtml(name)}">
-        <div class="meta">
-          <div class="name">${escapeHtml(name)}</div>
-          <div class="subline">
-            <time datetime="${escapeHtml(created)}">${escapeHtml(tsHuman)}</time>
-          </div>
-        </div>
-      </header>
-      <p class="text">${escapeHtml(String(p.text ?? ''))}</p>
-      ${media}
-      <div class="actions">
-        <button type="button" class="chip like" data-id="${escapeHtml(id)}">
-          ♥ <span class="count">${Number(p.counts?.likes ?? 0)}</span>
-        </button>
-      </div>
-    </article>
-  `;
+  const html = buildPostHtml(p);
+  if (!html) throw new Error('insertarPostEnFeed: no se pudo renderizar el post');
 
   const feed = document.getElementById('feed');
   if (!feed) throw new Error('No existe #feed en el DOM');
+
+  removeEmptyState(feed);
   feed.insertAdjacentHTML('afterbegin', html);
+}
+
+/** Elimina un post del feed pidiendo confirmación al usuario */
+async function eliminarPost(button) {
+  const postId = button.getAttribute('data-id');
+  if (!postId) return;
+
+  const confirmed = window.confirm('¿Seguro que querés eliminar este post?');
+  if (!confirmed) return;
+
+  button.disabled = true;
+  try {
+    const res = await fetch(`${API_BASE}?action=delete`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ post_id: postId })
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'No se pudo eliminar el post');
+
+    const article = button.closest('.post');
+    if (article) article.remove();
+    ensureEmptyState();
+  } catch (err) {
+    alert(String(err.message || err));
+    button.disabled = false;
+  }
+}
+
+/** Quita el estado vacío del feed cuando se agrega contenido */
+function removeEmptyState(feed) {
+  feed.querySelectorAll(':scope > .muted').forEach(msg => msg.remove());
+}
+
+/** Muestra el estado vacío si no quedan publicaciones */
+function ensureEmptyState() {
+  const feed = document.getElementById('feed');
+  if (!feed) return;
+  if (feed.querySelector('article.post')) return;
+  feed.innerHTML = '<p class="muted">No hay posts todavía.</p>';
 }
 
 

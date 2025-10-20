@@ -3,6 +3,7 @@
   --bg:#0c0f14; --panel:#0f131a; --panel-2:#0b0f15;
   --ink:#e8edf5; --muted:#8ea0b5; --line:#1b2431;
   --accent:#4aa3ff; --like:#ff4d7a; --shadow:0 12px 36px rgb(0 0 0 / .28);
+  --feed-max-width:760px;
 }
 @media (prefers-color-scheme: light){
   :root{
@@ -35,30 +36,33 @@ main.container{
   align-items: center; /* Centra horizontalmente el contenido */
   flex-grow: 1; /* Permite que el main ocupe el espacio disponible */
   width: 100%;
+  padding: 0 16px 32px;
 }
 #feed{
   width:100%;
-  max-width:760px;
-  margin-top: 24px;   /* Mantenemos márgenes verticales */
-  margin-bottom: 24px;
-  padding:0 16px;
+  max-width:var(--feed-max-width);
+  margin:24px auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:24px;
 }
 
 /* ================== BOTÓN VOLVER FIJO ================== */
 /* Única fuente de verdad para el botón. Estilos movidos desde JS y HTML */
 .back-button-fixed {
   position: fixed;
-  top: 12px;
-  /* Ancla al borde izquierdo de la columna centrada de 760px */
-  left: max(12px, calc(50% - 380px)); 
+  top: 20px;
+  left: 24px;
   z-index: 2147483647;
 
-  padding: 8px 12px;
+  padding: 12px 24px;
   border: 1px solid var(--line, #1b2431);
   border-radius: 999px;
   background: var(--panel, #0f131a);
   color: var(--ink, #e8edf5);
   font-weight: 700;
+  font-size: 0.95rem;
   text-decoration: none;
   box-shadow: 0 8px 24px rgba(0,0,0,.25);
   transition: transform .06s ease, background .2s ease, border-color .2s ease;
@@ -68,7 +72,8 @@ main.container{
 }
 @media (max-width: 820px) { /* Ajuste para que no se superponga */
     .back-button-fixed {
-        left: 68px; /* Espacio para la barra lateral en móvil */
+        left: 24px; /* Espacio para la barra lateral en móvil */
+        top: 16px;
     }
 }
 
@@ -80,6 +85,9 @@ main.container{
   box-shadow:var(--shadow);
   padding:14px;
   transition:transform .06s ease, border-color .2s ease, box-shadow .2s ease;
+  width:100%;
+  max-width:var(--feed-max-width);
+  margin:0 auto;
 }
 .post:hover{
   transform:translateY(-1px);
