@@ -70,6 +70,7 @@ function buildPostHtml(p) {
 
   const createdIso = p.created_at ? String(p.created_at) : '';
   const createdHuman = formatDateForUi(createdIso);
+  const handleLabel = handle !== '' ? formatHandleForUi(handle) : '';
 
   const counts = p.counts ?? {};
   const likeCount = Number(counts.likes ?? 0);
@@ -78,13 +79,11 @@ function buildPostHtml(p) {
   const liked = !!viewer.liked;
   const canDelete = !!viewer.can_delete;
 
-  const mediaUrlRaw = p.media_url ? String(p.media_url) : '';
-  const mediaUrl = mediaUrlRaw.trim();
-  const safeMediaUrl = escapeHtml(mediaUrl);
-  const mediaHtml = mediaUrl !== ''
-    ? `<figure class="media" data-action="open-media" data-media="${safeMediaUrl}" tabindex="0" role="button">
-        <img src="${safeMediaUrl}" alt="Imagen del post">
-      </figure>`
+  const images = normalizeImages(p.images);
+  const mediaHtml = images.length > 0
+    ? `<div class="media-gallery">
+        ${images.map(buildMediaFigureHtml).join('')}
+      </div>`
     : '';
 
   const rawText = String(p.text ?? '');
@@ -98,6 +97,7 @@ function buildPostHtml(p) {
   const safeName = escapeHtml(name);
   const safeCreatedIso = escapeHtml(createdIso);
   const safeCreatedHuman = escapeHtml(createdHuman);
+  const safeHandleLabel = escapeHtml(handleLabel);
 
   const avatarHtml = avatarUrl !== ''
     ? `<img class="avatar" src="${escapeHtml(avatarUrl)}" alt="Avatar de ${safeName}">`
@@ -125,6 +125,7 @@ function buildPostHtml(p) {
       <div class="meta">
         <div class="name">${safeName}</div>
         <div class="subline">
+          ${safeHandleLabel !== '' ? `<span class="handle">${safeHandleLabel}</span> · ` : ''}
           <time datetime="${safeCreatedIso}">${safeCreatedHuman}</time>
         </div>
       </div>
@@ -138,6 +139,36 @@ function buildPostHtml(p) {
       </div>
     </article>
   `;
+}
+
+function formatHandleForUi(rawHandle) {
+  const trimmed = (rawHandle ?? '').toString().trim();
+  if (trimmed === '') return '';
+  return trimmed.startsWith('@') ? trimmed : `@${trimmed}`;
+}
+
+function normalizeImages(rawImages) {
+  if (!rawImages) return [];
+  if (Array.isArray(rawImages)) {
+    return rawImages.map(v => (v ?? '').toString().trim()).filter(Boolean);
+  }
+  if (typeof rawImages === 'object') {
+    return Object.values(rawImages)
+      .map(v => (v ?? '').toString().trim())
+      .filter(Boolean);
+  }
+  if (typeof rawImages === 'string') {
+    const trimmed = rawImages.trim();
+    return trimmed !== '' ? [trimmed] : [];
+  }
+  return [];
+}
+
+function buildMediaFigureHtml(url) {
+  const safeUrl = escapeHtml(url);
+  return `<figure class="media" data-action="open-media" data-media="${safeUrl}" tabindex="0" role="button">
+    <img src="${safeUrl}" alt="Imagen del post">
+  </figure>`;
 }
 
 /** Formatea fecha ISO a un string legible para el usuario */

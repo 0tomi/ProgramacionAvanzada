@@ -65,6 +65,7 @@ if (!is_array($posts)) {
             $handle = (string)($author['handle'] ?? '');
             $avatarLetter = strtoupper(substr($handle !== '' ? $handle : ($author['name'] ?? 'U'), 0, 1));
             $avatarUrl = isset($author['avatar_url']) ? trim((string)$author['avatar_url']) : '';
+            $handleLabel = $handle !== '' ? ((strpos($handle, '@') === 0) ? $handle : '@' . $handle) : '';
 
             $createdAt = (string)($p['created_at'] ?? '');
             $createdAtIso = htmlspecialchars($createdAt, ENT_QUOTES, 'UTF-8');
@@ -78,6 +79,7 @@ if (!is_array($posts)) {
               }
             }
             $createdAtHumanEsc = htmlspecialchars($createdAtHuman, ENT_QUOTES, 'UTF-8');
+            $handleLabelEsc = htmlspecialchars($handleLabel, ENT_QUOTES, 'UTF-8');
 
             $text = htmlspecialchars((string)($p['text'] ?? ''), ENT_QUOTES, 'UTF-8');
 
@@ -85,11 +87,19 @@ if (!is_array($posts)) {
             $likeClasses = 'chip like';
             $likedByViewer = !empty($p['viewer']['liked']);
             if ($likedByViewer) {
-              $likeClasses .= ' liked';
+                $likeClasses .= ' liked';
             }
 
-            $media = isset($p['media_url']) ? trim((string)$p['media_url']) : '';
-            $mediaEsc = htmlspecialchars($media, ENT_QUOTES, 'UTF-8');
+            $images = [];
+            $rawImages = $p['images'] ?? [];
+            if (is_array($rawImages)) {
+              foreach ($rawImages as $imgValue) {
+                $imagePath = trim((string)$imgValue);
+                if ($imagePath !== '') {
+                  $images[] = $imagePath;
+                }
+              }
+            }
 
             $canDelete = !empty($p['viewer']['can_delete']);
           ?>
@@ -107,17 +117,27 @@ if (!is_array($posts)) {
                 <div class="meta">
                   <div class="name"><?= $name ?></div>
                   <div class="subline">
-                    <time datetime="<?= $createdAtIso ?>"><?= $createdAtHumanEsc ?></time>
+                    <?php if ($handleLabelEsc !== ''): ?>
+                      <span class="handle"><?= $handleLabelEsc ?></span><?= $createdAtHumanEsc !== '' ? ' · ' : '' ?>
+                    <?php endif; ?>
+                    <?php if ($createdAtHumanEsc !== ''): ?>
+                      <time datetime="<?= $createdAtIso ?>"><?= $createdAtHumanEsc ?></time>
+                    <?php endif; ?>
                   </div>
                 </div>
               </header>
 
               <p class="text"><?= $text ?></p>
 
-              <?php if ($mediaEsc !== ''): ?>
-                <figure class="media">
-                  <img src="<?= $mediaEsc ?>" alt="Imagen del post">
-                </figure>
+              <?php if (!empty($images)): ?>
+                <div class="media-gallery">
+                  <?php foreach ($images as $imgSrc): ?>
+                    <?php $imgEsc = htmlspecialchars($imgSrc, ENT_QUOTES, 'UTF-8'); ?>
+                    <figure class="media" data-action="open-media" data-media="<?= $imgEsc ?>" tabindex="0" role="button">
+                      <img src="<?= $imgEsc ?>" alt="Imagen del post">
+                    </figure>
+                  <?php endforeach; ?>
+                </div>
               <?php endif; ?>
 
               <div class="actions">

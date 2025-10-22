@@ -127,7 +127,7 @@ public function getFeed(?int $viewerId = null): array {
 
             $stmt->execute();
             $result = $stmt->get_result();
-
+            
             $posts = [];
             while ($row = $result->fetch_assoc()) {
                 $posts[] = [
@@ -154,7 +154,7 @@ public function getFeed(?int $viewerId = null): array {
                     ],
                 ];
             }
-
+            var_dump($posts);
             $stmt->close();
             return $posts;
         }
