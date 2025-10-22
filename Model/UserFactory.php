@@ -86,47 +86,63 @@ class UserFactory {
 
 
     public function createUser (string $username, $password): ?User{
-        $query = 
-        "SELECT u.idUser as UserID, p.hash as Hash from  `User` as u
-         inner join `Password` as p on u.idUser = p.idUser
-         where u.username = '$username'";
-        
-        $result = $this->dataBase->query($query);
-        if (!$result) {
-            error_log('Query error: ' . $this->dataBase->error);
-            return null;
+        if (!$this->dataBase) {
+        $this->error = 'No hay conexión a la base de datos';
+        return null;
         }
 
-        $rows = $result->fetch_assoc();
-        if (!$rows) {
-            error_log('Usuario no encontrado.');
-            $this->error = 'Usuario no encontrado.'; // lo redacto en ingles xq en linux no tengo teclado espaniol
+        try {
+            $stmt = $this->dataBase->prepare(
+                "SELECT u.idUser as UserID, p.hash as Hash 
+                FROM `User` as u
+                INNER JOIN `Password` as p ON u.idUser = p.idUser
+                WHERE u.username = ?"
+            );
+            $stmt->bind_param('s', $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            if ($result->num_rows === 0) {
+                $this->error = 'Usuario no encontrado';
+                return null;
+            }
+
+            $rows = $result->fetch_assoc();
+            if (!password_verify($password, $rows['Hash'])) {
+                $this->error = 'Contraseña incorrecta';
+                return null;
+            }
+
+            $id = $rows['UserID'];
+            $stmt->close();
+
+            $stmt = $this->dataBase->prepare(
+                "SELECT u.idUser as UserID, u.username as Username, 
+                        u.profileImageRoute as PIR, p.Descripcion as Descr 
+                FROM `User` as u
+                INNER JOIN Profile as p ON u.idUser = p.idUser
+                WHERE u.idUser = ?"
+            );
+            $stmt->bind_param('i', $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $rows = $result->fetch_assoc();
+            $stmt->close();
+
+            $this->user = new User(
+                $rows['UserID'],
+                $rows['Username'],
+                $rows['Descr'],
+                $rows['PIR']  
+            );
+
+            return $this->user;
+
+        } catch (mysqli_sql_exception $e) {
+            $this->error = 'Error en la consulta: ' . $e->getMessage();
+            error_log($e->getMessage());
             return null;
         }
-        
-        if (!password_verify($password, $rows['Hash'])){
-            error_log('Contrasenia incorrecta');
-            $this->error = 'Incorrect password'; // lo redacto en ingles xq en linux no tengo teclado espaniol
-            return null;
-        }
-
-        $id = $rows['UserID'];
-
-        $queryLogeado = 
-        "SELECT u.idUser as UserID, u.username as Username, u.profileImageRoute as PIR, p.Descripcion as Descr FROM `User` as u
-         inner join Profile as p on u.idUser = p.idUser
-         where u.idUser = $id";
-
-        $rows = $this->dataBase->query($queryLogeado)->fetch_assoc();
-
-        $this->user = new User(
-            $rows['UserID'],
-            $rows['Username'],
-            $rows['Descr'],
-            $rows['PIR']  
-        );
-
-        return $this->user;
     }
 
     public function getUser(): ?User {
@@ -136,6 +152,8 @@ class UserFactory {
     }
 
     public function __construct(?string $username = null, $password = null) {
+        try {
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
         $this->dataBase = new mysqli(
             $_ENV['DB_HOST'],
             $_ENV['DB_USER'], 
@@ -143,10 +161,12 @@ class UserFactory {
             $_ENV['DB_NAME'], 
             $_ENV['DB_PORT']
         );
-        $this->user = null;
-
-        if ($this->dataBase->connect_errno) 
-            echo("Error en la bd: $dataBase->connect_error");
+        $this->dataBase->set_charset('utf8mb4');
+        } catch (mysqli_sql_exception $e) {
+            $this->error = 'Error de conexión: ' . $e->getMessage();
+            error_log($e->getMessage());
+            return;
+        }
 
         if ($username === null)
             return;
