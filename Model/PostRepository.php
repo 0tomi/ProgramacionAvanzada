@@ -113,7 +113,7 @@ public function getFeed(?int $viewerId = null): array {
         ) AS lcur ON lcur.post = p.idPost
         ' . $tail;
 
-                $stmt = $this->$db->prepare($sql);
+                $stmt = $this->db->prepare($sql);
                 $stmt->bind_param('ii', $viewerId, $viewerId);
             } else {
                 $sql = $baseSelect . ',
@@ -122,7 +122,7 @@ public function getFeed(?int $viewerId = null): array {
         ' . $baseFrom . '
         ' . $tail;
 
-                $stmt = $this->$db->prepare($sql);
+                $stmt = $this->db->prepare($sql);
             }
 
             $stmt->execute();
@@ -154,7 +154,6 @@ public function getFeed(?int $viewerId = null): array {
                     ],
                 ];
             }
-            var_dump($posts);
             $stmt->close();
             return $posts;
         }
