@@ -33,12 +33,11 @@ $userFactory = new UserFactory($username, $password);
 $usuario = $userFactory->getUser();
 
 if ($usuario === null){
-  header("Location: ../LOGIN/_login.php?error=$userFactory->error");
+  header("Location: ..Views/LOGIN/_login.php?error=$userFactory->error");
   exit;
 }
 
 session_start();
 $_SESSION['user'] = $usuario;
 header("Location: ../Inicio/inicio.php");
-
 exit;

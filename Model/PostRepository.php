@@ -53,6 +53,113 @@ final class PostRepository
         }
     }
 
+public function getFeed(?int $viewerId = null): array {
+        $baseSelect = <<<SQL
+        SELECT
+            p.idPost                                   AS post_id,
+            p.content                                  AS post_text,
+            p.date                                     AS created_at,
+            u.idUser                                   AS author_id,
+            u.userTag                                  AS author_tag,
+            u.username                                 AS author_username,
+            u.profileImageRoute                        AS author_avatar,
+            MAX(CASE WHEN ip.`order` = 1 THEN ip.route END) AS image_1,
+            MAX(CASE WHEN ip.`order` = 2 THEN ip.route END) AS image_2,
+            COALESCE(lc.total_likes, 0)                AS like_count,
+            COALESCE(rc.total_replies, 0)              AS reply_count
+        SQL;
+
+        $baseFrom = <<<SQL
+        FROM Post AS p
+        INNER JOIN User AS u ON u.idUser = p.idUserOwner
+        LEFT JOIN ImagesPost AS ip ON ip.idPost = p.idPost
+        LEFT JOIN (
+            SELECT post, COUNT(*) AS total_likes
+            FROM Likes
+            GROUP BY post
+        ) AS lc ON lc.post = p.idPost
+        LEFT JOIN (
+            SELECT idBelogingPost, COUNT(*) AS total_replies
+            FROM Post
+            WHERE idBelogingPost IS NOT NULL
+            GROUP BY idBelogingPost
+        ) AS rc ON rc.idBelogingPost = p.idPost
+        SQL;
+
+        $tail = <<<SQL
+        WHERE p.idBelogingPost IS NULL
+        GROUP BY
+            p.idPost,
+            p.content,
+            p.date,
+            u.idUser,
+            u.userTag,
+            u.username,
+            u.profileImageRoute,
+            viewer_has_like,
+            viewer_can_delete
+        ORDER BY p.date DESC
+        SQL;
+
+        if ($viewerId !== null) {
+                $sql = $baseSelect . ',
+            CASE WHEN lcur.post IS NOT NULL THEN TRUE ELSE FALSE END AS viewer_has_like,
+            CASE WHEN p.idUserOwner = ? THEN TRUE ELSE FALSE END AS viewer_can_delete
+        ' . $baseFrom . '
+        LEFT JOIN (
+            SELECT post
+            FROM Likes
+            WHERE idUser = ?
+        ) AS lcur ON lcur.post = p.idPost
+        ' . $tail;
+
+                $stmt = $this->$db->prepare($sql);
+                $stmt->bind_param('ii', $viewerId, $viewerId);
+            } else {
+                $sql = $baseSelect . ',
+            FALSE AS viewer_has_like,
+            FALSE AS viewer_can_delete
+        ' . $baseFrom . '
+        ' . $tail;
+
+                $stmt = $this->$db->prepare($sql);
+            }
+
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            $posts = [];
+            while ($row = $result->fetch_assoc()) {
+                $posts[] = [
+                    'id'    => (int)$row['post_id'],
+                    'text'  => $row['post_text'],
+                    'created_at' => $row['created_at'],
+                    'author'     => [
+                        'id'       => (int)$row['author_id'],
+                        'name'      => $row['author_tag'],
+                        'handle' => $row['author_username'],
+                        'avatar_url'   => $row['author_avatar'],
+                    ],
+                    'images'     => [
+                        'image_1' => ($row['image_1'] !== null && $row['image_1'] !== '') ? $row['image_1'] : null,
+                        'image_2' => ($row['image_2'] !== null && $row['image_2'] !== '') ? $row['image_2'] : null,
+                    ],
+                    'counts'      => [
+                        'likes'   => (int)$row['like_count'],
+                        'replies' => (int)$row['reply_count'],
+                    ],
+                    'viewer'     => [
+                        'liked'   => $viewerId !== null ? (bool)$row['viewer_has_like'] : false,
+                        'can_delete' => $viewerId !== null ? (bool)$row['viewer_can_delete'] : false,
+                    ],
+                ];
+            }
+
+            $stmt->close();
+            return $posts;
+        }
+
+
     /**
      * Devuelve todas las publicaciones principales con sus métricas y comentarios listos
      * para serializar en la API.
@@ -60,7 +167,7 @@ final class PostRepository
      * @param int|null $viewerId ID del usuario autenticado (si existe) para marcar likes propios.
      * @return array<int, array<string,mixed>>
      */
-    public function getFeed(?int $viewerId): array
+    /*public function getFeed(?int $viewerId): array
     {
         $graph = $this->loadGraph($viewerId);
         $posts = $graph['posts'];
@@ -84,7 +191,7 @@ final class PostRepository
         );
 
         return $feed;
-    }
+    } */
 
     /**
      * Obtiene un post principal por ID. Si se solicita un comentario, retorna su raíz.
@@ -544,7 +651,7 @@ final class PostRepository
             throw new RuntimeException('El identificador corresponde a un comentario, no a un post principal.');
         }
     }
-
+    
     /**
      * Construye la estructura de posts y comentarios para la API.
      *

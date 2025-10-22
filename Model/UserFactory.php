@@ -144,7 +144,6 @@ class UserFactory {
             $_ENV['DB_PORT']
         );
         $this->user = null;
-
         if ($this->dataBase->connect_errno) 
             echo("Error en la bd: $dataBase->connect_error");
 
