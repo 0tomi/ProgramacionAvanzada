@@ -14,7 +14,7 @@
 html,body{ min-height:100% }
 body{
   margin:0;
-  background: linear-gradient(360deg, var(--grad1) -40%, var(--bg) 400px);
+  background: linear-gradient(360deg,#1b4aaf -40%,#0c0f14 420px) fixed,var(--bg) !important;
   color:var(--ink);
   font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif;
   -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
