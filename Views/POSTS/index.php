@@ -9,6 +9,7 @@ require_once __DIR__ . '/../../Controlers/autenticacion.php';
 require_once __DIR__ . '/../header.php';
 ?>
 
+
 <link rel="stylesheet" href="<?= $preruta ?>Inicio/inicio.css">
 
 <main class="shell">
