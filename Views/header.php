@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 
-<?php if ($require_boostrap): ?>
-    <html lang="es" class="h-full bg-gray-100">
-<?php else: ?>
-    <html lang="es" class="h-full bg-[#15202b]">
-<?php endif; ?>
+<?php
+  $htmlClasses = ['h-full'];
+  if ($require_boostrap) {
+    $htmlClasses[] = 'bg-gray-100';
+  } elseif (($source ?? '') !== 'Inicio') {
+    $htmlClasses[] = 'bg-[#15202b]';
+  }
+?>
+
+<html lang="es" class="<?= implode(' ', $htmlClasses) ?>">
 
 <head>
   <meta charset="UTF-8">
