@@ -19,11 +19,9 @@ function resolveMediaPath(path) {
 const DEFAULT_AVATAR = resolveMediaPath('Resources/profilePictures/defaultProfilePicture.png');
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadFeed()
-    .catch(err => {
-      console.error('[feed] Error cargando inicio:', err);
-    })
-    .then(() => marcarLikesAlCargar());
+  marcarLikesAlCargar().catch(err => {
+    console.error('[feed] Error marcando likes al cargar:', err);
+  });
 
   wireEventosClick();
 
@@ -40,34 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
-
-/** Obtiene los posts principales desde la API y los renderiza */
-async function loadFeed() {
-  const feed = document.getElementById('feed');
-  if (!feed) return;
-
-  const res = await fetch(`${API_BASE}?action=list`, { credentials: 'same-origin' });
-  const data = await res.json();
-  if (!data.ok || !Array.isArray(data.items)) {
-    throw new Error(data.error || 'No se pudo cargar el feed.');
-  }
-
-  renderFeed(data.items);
-}
-
-/** Dibuja el feed en pantalla */
-function renderFeed(items) {
-  const feed = document.getElementById('feed');
-  if (!feed) return;
-
-  if (!Array.isArray(items) || items.length === 0) {
-    feed.innerHTML = '<p class="muted">No hay posts todavía.</p>';
-    return;
-  }
-
-  const html = items.map(buildPostHtml).join('');
-  feed.innerHTML = html;
-}
 
 /** Mapea la respuesta de la API al HTML del post */
 function buildPostHtml(p) {
@@ -100,9 +70,8 @@ function buildPostHtml(p) {
     : '';
 
   const rawText = String(p.text ?? '');
-  const displayText = truncatePostText(rawText, 150);
-  const safeDisplayText = escapeHtml(displayText);
-  const textHtml = safeDisplayText !== '' ? `<p class="text">${safeDisplayText}</p>` : '';
+  const safeText = escapeHtml(rawText);
+  const textHtml = safeText !== '' ? `<p class="text">${safeText}</p>` : '';
 
   const likeClasses = `chip like${liked ? ' liked' : ''}`;
 
@@ -111,6 +80,16 @@ function buildPostHtml(p) {
   const safeCreatedIso = escapeHtml(createdIso);
   const safeCreatedHuman = escapeHtml(createdHuman);
   const safeHandleLabel = escapeHtml(handleLabel);
+  let sublineHtml = '';
+  if (safeHandleLabel !== '') {
+    sublineHtml += `<span class="handle">${safeHandleLabel}</span>${safeHandleLabel}`;
+    if (safeCreatedHuman !== '') {
+      sublineHtml += ' ';
+    }
+  }
+  if (safeCreatedHuman !== '') {
+    sublineHtml += `<time datetime="${safeCreatedIso}">${safeCreatedHuman}</time>`;
+  }
 
   const avatarHtml = `<img class="avatar" src="${escapeHtml(avatarUrl)}" alt="Avatar de ${safeName}">`;
 
@@ -135,10 +114,7 @@ function buildPostHtml(p) {
       ${avatarHtml}
       <div class="meta">
         <div class="name">${safeName}</div>
-        <div class="subline">
-          ${safeHandleLabel !== '' ? `<span class="handle">${safeHandleLabel}</span> · ` : ''}
-          <time datetime="${safeCreatedIso}">${safeCreatedHuman}</time>
-        </div>
+        <div class="subline">${sublineHtml}</div>
       </div>
     </header>
       ${textHtml}
@@ -206,13 +182,6 @@ async function marcarLikesAlCargar() {
   } catch (_) {
     // silencioso
   }
-}
-
-function resolveMediaPath(path) {
-  const trimmed = (path ?? '').toString().trim();
-  if (!trimmed) return '';
-  if (/^(?:https?:)?\/\//i.test(trimmed) || trimmed.startsWith('../')) return trimmed;
-  return `../${trimmed.replace(/^\/+/, '')}`;
 }
 
 /** Delegación global de clicks para like, menú contextual y overlay */
@@ -503,12 +472,6 @@ function escapeHtml(s) {
   return (s ?? '').toString().replace(/[&<>"']/g, ch => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[ch]));
-}
-
-function truncatePostText(text, maxLength = 150) {
-  const raw = (text ?? '').toString();
-  if (raw.length <= maxLength) return raw;
-  return `${raw.slice(0, maxLength).trimEnd()}.. Expandir el post para ver mas`;
 }
 
 function hasSelectedImages(form) {

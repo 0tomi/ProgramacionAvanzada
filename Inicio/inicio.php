@@ -100,7 +100,7 @@ if (!function_exists('inicio_resolve_media_path')) {
                 }
               }
             }
-            $handleLabel = $handle !== '' ? ((strpos($handle, '@') === 0) ? $handle : '@' . $handle) : '';
+            $handleLabel = '@'.$handle;
 
             $createdAt = (string)($p['created_at'] ?? '');
             $createdAtIso = htmlspecialchars($createdAt, ENT_QUOTES, 'UTF-8');
@@ -147,6 +147,26 @@ if (!function_exists('inicio_resolve_media_path')) {
               <a class="post-overlay"
                  href="../Views/POSTS/index.php?id=<?= urlencode($id) ?>"
                  aria-label="Ver post"></a>
+              <?php if ($canDelete): ?>
+                <div class="post-menu">
+                  <button type="button"
+                          class="post-menu__toggle"
+                          aria-haspopup="true"
+                          aria-expanded="false">
+                    ⋮
+                  </button>
+                  <div class="post-menu__dropdown"
+                       role="menu">
+                    <button type="button"
+                            class="post-menu__item post-menu__item--danger"
+                            role="menuitem"
+                            data-action="delete-post"
+                            data-id="<?= $idEsc ?>">
+                      Eliminar post
+                    </button>
+                  </div>
+                </div>
+              <?php endif; ?>
 
               <header class="post-header">
                 <?php if ($avatarUrl !== ''): ?>
@@ -157,12 +177,8 @@ if (!function_exists('inicio_resolve_media_path')) {
                 <div class="meta">
                   <div class="name"><?= $name ?></div>
                   <div class="subline">
-                    <?php if ($handleLabelEsc !== ''): ?>
-                      <span class="handle"><?= $handleLabelEsc ?></span><?= $createdAtHumanEsc !== '' ? ' · ' : '' ?>
-                    <?php endif; ?>
-                    <?php if ($createdAtHumanEsc !== ''): ?>
-                      <time datetime="<?= $createdAtIso ?>"><?= $createdAtHumanEsc ?></time>
-                    <?php endif; ?>
+                    <span class="handle"><?= $handleLabelEsc ?></span><?= $handleLabelEsc ?>
+                    <time datetime="<?= $createdAtIso ?>"><?= $createdAtHumanEsc ?></time>
                   </div>
                 </div>
               </header>
@@ -186,14 +202,6 @@ if (!function_exists('inicio_resolve_media_path')) {
                   data-id="<?= $idEsc ?>">
                   ♥ <span class="count"><?= $likes ?></span>
                 </button>
-                <?php if ($canDelete): ?>
-                  <button type="button"
-                    class="chip delete"
-                    data-action="delete-post"
-                    data-id="<?= $idEsc ?>">
-                    Eliminar
-                  </button>
-                <?php endif; ?>
               </div>
             </article>
           <?php endforeach; ?>

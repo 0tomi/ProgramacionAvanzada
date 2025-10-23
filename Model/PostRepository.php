@@ -158,40 +158,6 @@ public function getFeed(?int $viewerId = null): array {
             return $posts;
         }
 
-
-    /**
-     * Devuelve todas las publicaciones principales con sus métricas y comentarios listos
-     * para serializar en la API.
-     *
-     * @param int|null $viewerId ID del usuario autenticado (si existe) para marcar likes propios.
-     * @return array<int, array<string,mixed>>
-     */
-    /*public function getFeed(?int $viewerId): array
-    {
-        $graph = $this->loadGraph($viewerId);
-        $posts = $graph['posts'];
-        $commentsByRoot = $graph['commentsByRoot'];
-
-        $feed = [];
-        foreach ($posts as $id => $data) {
-            if ($data['parent_id'] !== null) {
-                continue;
-            }
-            $post = $data;
-            unset($post['parent_id']);
-            $post['replies'] = array_values($commentsByRoot[$id] ?? []);
-            $post['counts']['replies'] = count($post['replies']);
-            $feed[] = $post;
-        }
-
-        usort(
-            $feed,
-            static fn(array $a, array $b): int => $b['created_at'] <=> $a['created_at']
-        );
-
-        return $feed;
-    } */
-
     /**
      * Obtiene un post principal por ID. Si se solicita un comentario, retorna su raíz.
      *
