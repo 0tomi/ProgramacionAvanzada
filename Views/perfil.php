@@ -2,47 +2,99 @@
 declare(strict_types=1);
 
 $preruta = '../';
-$source = 'Perfil'; 
+$source = 'Perfil';
 $require_boostrap = false;
-require_once "../Controlers/autenticacion.php";
-require_once __DIR__ . "/header.php"; 
 
+require_once __DIR__ . '/../Controlers/autenticacion.php';
+require_once __DIR__ . '/../Controlers/ProfileController.php';
+require_once __DIR__ . '/../Controlers/InicioController.php';
 
-require_once __DIR__ . "/../Controlers/ProfileController.php";
+require_once __DIR__ . "/header.php";
 
+// ===== Perfil (datos editables) =====
 $controller = new ProfileController();
 $controller->processProfileUpdate();
 $data = $controller->getProfileData();
 
+// ===== Usuario actual =====
 $u = $_SESSION['user'] ?? null;
-$nombre = $u ? ($u->getNombre() ?? 'Usuario') : 'Usuario';
+if (!$u) {
+  header("Location: ../LOGIN/_login.php");
+  exit;
+}
+$nombre = $u->getNombre() ?? 'Usuario';
 
-
-$userTag = $data['userTag'] ?? '';
-$description = $data['description'] ?? '';
+// Datos de perfil desde el controller
+$userTag      = $data['userTag']      ?? (method_exists($u,'getUserTag') ? (string)$u->getUserTag() : strtolower(preg_replace('/\s+/', '', (string)$nombre)));
+$description  = $data['description']  ?? '';
 $profilePhoto = $data['profilePhoto'] ?? 'Resources/profilePictures/defaultProfilePicture.png';
+$arroba       = '@' . strtolower($userTag);
 
+// Armar rutas web y FS para el avatar
+$isHttp     = (strpos($profilePhoto, 'http') === 0);
+$avatarWeb  = $isHttp ? $profilePhoto : ('../' . ltrim($profilePhoto, '/'));
+$avatarFs   = $isHttp ? null : (__DIR__ . '/../' . ltrim($profilePhoto, '/'));
+$hasLocal   = $avatarFs ? is_file($avatarFs) : false;
 
-$avatarRel = (strpos($profilePhoto, 'http') === 0) ? $profilePhoto : ('../' . ltrim($profilePhoto, '/'));
-$arroba = $userTag ? '@' . strtolower($userTag) : '@' . strtolower(preg_replace('/\s+/', '', (string)$nombre));
+// ===== Helpers =====
+if (!function_exists('e')) {
+  function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
+}
+if (!function_exists('perfil_resolve_media_path')) {
+  function perfil_resolve_media_path(string $path): string {
+    $path = trim($path);
+    if ($path === '') return '';
+    // URL absoluta
+    if (preg_match('#^(?:https?:)?//#i', $path)) return $path;
+    // Ya viene con ../
+    if (strpos($path, '../') === 0) return $path;
+    // Normalizar relativo a /Views
+    return '../' . ltrim($path, '/');
+  }
+}
 
+// ===== Cargar posts y fotos desde InicioController =====
+$profileOwnerId = (int)$u->getIdUsuario(); // el perfil que se está viendo
+$viewerId       = $profileOwnerId;         // el que mira (vos mismo)
 
-if (!isset($fotos) || !is_array($fotos)) $fotos = [];
-if (!isset($posts) || !is_array($posts)) $posts = [];
+$posts = [];
+$fotos = [];
 
-function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
+try {
+  $inicio = new InicioController();
+  $userPosts = $inicio->getPostsByUserId($profileOwnerId, $viewerId);
+  $posts = is_array($userPosts) ? $userPosts : [];
 
+  // armar carrusel de fotos a partir de media_url
+  foreach ($posts as $p) {
+    $media = trim((string)($p['media_url'] ?? ''));
+    if ($media !== '') {
+      $fotos[] = [
+        'route' => perfil_resolve_media_path($media),
+        'name'  => (string)($p['text'] ?? 'Foto del post')
+      ];
+    }
+  }
+} catch (Throwable $e) {
+  error_log('Perfil:getPostsByUserId -> ' . $e->getMessage());
+  $posts = [];
+  $fotos = [];
+}
+
+// Flash del controller de perfil
 $flash = $_SESSION['flash'] ?? null;
 if ($flash) unset($_SESSION['flash']);
 ?>
+
 <header class="flex items-center justify-between px-6 py-4 border-b border-[color:var(--line)] bg-[color:var(--panel)]">
-    <!-- mostrar logout papaa -->
-    <a href="../logout.php"
-       class="ml-auto px-4 py-2 rounded-full font-bold border border-[color:var(--line)] bg-red-600 text-white hover:opacity-90 transition">
-      Cerrar sesión
-    </a>
+  <a href="../logout.php"
+     class="ml-auto px-4 py-2 rounded-full font-bold border border-[color:var(--line)] bg-red-600 text-white hover:opacity-90 transition">
+    Cerrar sesión
+  </a>
 </header>
+
 <?php require_once __DIR__ . "/barraLateral/barraLateral.php"; ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -58,13 +110,7 @@ if ($flash) unset($_SESSION['flash']);
 :root{--bg:#0c0f14;--panel:#0f131a;--panel-2:#0b0f15;--ink:#e8edf5;--muted:#8ea0b5;--line:#1b2431;--shadow:0 12px 36px rgb(0 0 0 /.28)}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
-body {
-  font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-  color:var(--ink);
-  background: linear-gradient(360deg,#1b4aaf -40%,#0c0f14 420px) fixed,var(--bg) !important;
-  overflow-x:hidden;
-}
-
+body{font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:linear-gradient(360deg,#1b4aaf -40%,#0c0f14 420px) fixed,var(--bg) !important;overflow-x:hidden}
 .contenedor{max-width:950px;margin:0 auto;padding:24px 16px 40px}
 .tarjeta{background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 120%);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
 .centro{max-width:680px;margin:0 auto}
@@ -94,8 +140,7 @@ body {
 .flecha{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:999px;display:grid;place-items:center;background:rgba(15,19,26,.95);border:1px solid #2a3545;box-shadow:0 8px 22px rgba(0,0,0,.55);z-index:5;cursor:pointer}
 .flecha svg{width:22px;height:22px;fill:#e8edf5}
 .flecha:hover{background:#2563eb;border-color:#3b82f6}
-.flecha.izq{left:10px}
-.flecha.der{right:10px}
+.flecha.izq{left:10px}.flecha.der{right:10px}
 .slick-dots{bottom:-22px}
 .slick-dots li button:before{color:#8fb4ff;font-size:10px}
 .slick-dots li.slick-active button:before{color:#fff}
@@ -132,12 +177,8 @@ input[type="file"]{color:#cbd5e1}
       <div class="encabezado">
         <div class="centro">
           <div class="foto">
-            <?php
-              $isHttp = (strpos($avatarRel, 'http') === 0);
-              $isFile = (!$isHttp && is_file($avatarRel));
-            ?>
-            <?php if ($isHttp || $isFile): ?>
-              <img src="<?= e($avatarRel) ?>" alt="perfil">
+            <?php if ($isHttp || $hasLocal): ?>
+              <img src="<?= e($avatarWeb) ?>" alt="perfil">
             <?php else: ?>
               <div class="inicial"><?= strtoupper(substr(e($nombre),0,1)) ?></div>
             <?php endif; ?>
@@ -158,44 +199,42 @@ input[type="file"]{color:#cbd5e1}
       </div>
 
       <div class="centro marco">
-       
+        <!-- FOTOS -->
         <div id="tab-fotos" class="seccion">
-          <div class="carrusel-contenedor">
-            <button type="button" class="flecha izq" aria-label="Anterior">
-              <svg viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-            </button>
-            <button type="button" class="flecha der" aria-label="Siguiente">
-              <svg viewBox="0 0 24 24"><path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
-            </button>
-
-            <div class="carrusel" id="carrusel-fotos">
-              <?php if (count($fotos)): ?>
+          <?php if (count($fotos)): ?>
+            <div class="carrusel-contenedor">
+              <button type="button" class="flecha izq" aria-label="Anterior">
+                <svg viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+              </button>
+              <button type="button" class="flecha der" aria-label="Siguiente">
+                <svg viewBox="0 0 24 24"><path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+              </button>
+              <div class="carrusel" id="carrusel-fotos">
                 <?php foreach ($fotos as $f): ?>
                   <div class="diapo"><img src="<?= e($f['route']) ?>" alt="<?= e($f['name'] ?? '') ?>"></div>
                 <?php endforeach; ?>
-              <?php else: ?>
-                <div class="diapo"><img src="https://picsum.photos/id/1011/1200/800" alt=""></div>
-                <div class="diapo"><img src="https://picsum.photos/id/1039/1200/800" alt=""></div>
-                <div class="diapo"><img src="https://picsum.photos/id/1027/1200/800" alt=""></div>
-              <?php endif; ?>
+              </div>
             </div>
-          </div>
+          <?php else: ?>
+            <p style="color:var(--muted); text-align:center; padding-top:20px;">Aún no tienes publicaciones con fotos.</p>
+          <?php endif; ?>
         </div>
 
+        <!-- POSTS -->
         <div id="tab-post" class="seccion oculta">
           <div class="lista-post" id="lista-posts">
             <?php if (count($posts)): ?>
               <?php foreach ($posts as $p): ?>
                 <article class="post">
-                  <h3><?= e($p['titulo'] ?? $p['title'] ?? '') ?></h3>
-                  <p><?= e($p['texto'] ?? $p['text'] ?? '') ?></p>
-                  <?php if (!empty($p['media_url'] ?? $p['imagen'])): ?>
+                  <h3><?= e($p['author']['name'] ?? 'Post') ?></h3>
+                  <p><?= e($p['text'] ?? '') ?></p>
+                  <?php if (!empty($p['media_url'])): ?>
                     <figure class="diapo" style="aspect-ratio:16/9;margin:8px 0">
-                      <img src="<?= e($p['media_url'] ?? $p['imagen']) ?>" alt="">
+                      <img src="<?= e(perfil_resolve_media_path((string)$p['media_url'])) ?>" alt="">
                     </figure>
                   <?php endif; ?>
-                  <?php if (!empty($p['created_at'] ?? $p['fecha'])): ?>
-                    <small style="color:#9fb0c3"><?= e(date('d/m/Y H:i', strtotime($p['created_at'] ?? $p['fecha']))) ?></small>
+                  <?php if (!empty($p['created_at'])): ?>
+                    <small style="color:#9fb0c3"><?= e(date('d/m/Y H:i', strtotime($p['created_at']))) ?></small>
                   <?php endif; ?>
                 </article>
               <?php endforeach; ?>
@@ -205,7 +244,9 @@ input[type="file"]{color:#cbd5e1}
           </div>
         </div>
 
+        <!-- INFO (usa ProfileController con actions) -->
         <div id="tab-info" class="seccion oculta">
+          <!-- userTag -->
           <form class="forma" method="POST" action="">
             <input type="hidden" name="action" value="updateUserTag">
             <div>
@@ -214,6 +255,8 @@ input[type="file"]{color:#cbd5e1}
             </div>
             <button class="boton sec" type="submit">Actualizar usuario</button>
           </form>
+
+          <!-- descripción -->
           <form class="forma" method="POST" action="">
             <input type="hidden" name="action" value="updateDescripcion">
             <div>
@@ -222,10 +265,13 @@ input[type="file"]{color:#cbd5e1}
             </div>
             <button class="boton sec" type="submit">Actualizar descripción</button>
           </form>
+
+          <!-- foto -->
           <form class="forma" method="POST" action="" enctype="multipart/form-data">
             <input type="hidden" name="action" value="updatePhoto">
             <div>
               <label for="avatar">Cambiar imagen</label>
+              <!-- IMPORTANTE: name="imagen" porque el controlador lee $_FILES['imagen'] -->
               <input id="avatar" name="imagen" type="file" accept="image/*" />
             </div>
             <button class="boton" type="submit">Subir nueva foto</button>
@@ -238,23 +284,19 @@ input[type="file"]{color:#cbd5e1}
   <?php require_once __DIR__ . "/_footer.php"; ?>
 
 <script>
-const $car = $('#carrusel-fotos').slick({
-  centerMode:true,
-  centerPadding:'60px',
-  slidesToShow:1,
-  adaptiveHeight:false,
-  infinite:true,
-  arrows:false,
-  dots:true,
-  autoplay:true,
-  autoplaySpeed:2800,
-  pauseOnHover:true,
-  cssEase:'ease',
-  responsive:[{breakpoint:860,settings:{centerPadding:'30px'}}]
-});
-document.querySelector('.flecha.izq').onclick=()=> $car.slick('slickPrev');
-document.querySelector('.flecha.der').onclick=()=> $car.slick('slickNext');
+// Carrusel si hay fotos
+if ($('#carrusel-fotos').length > 0) {
+  const $car = $('#carrusel-fotos').slick({
+    centerMode:true, centerPadding:'60px', slidesToShow:1,
+    adaptiveHeight:false, infinite:true, arrows:false, dots:true,
+    autoplay:true, autoplaySpeed:2800, pauseOnHover:true, cssEase:'ease',
+    responsive:[{breakpoint:860,settings:{centerPadding:'30px'}}]
+  });
+  document.querySelector('.flecha.izq').onclick=()=> $car.slick('slickPrev');
+  document.querySelector('.flecha.der').onclick=()=> $car.slick('slickNext');
+}
 
+// Tabs
 const pestanias=document.querySelectorAll('.pestania');
 const secciones={fotos:document.getElementById('tab-fotos'),post:document.getElementById('tab-post'),info:document.getElementById('tab-info')};
 pestanias.forEach(p=>{
