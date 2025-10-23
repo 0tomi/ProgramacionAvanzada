@@ -40,5 +40,4 @@ if ($usuario === null){
 session_start();
 $_SESSION['user'] = $usuario;
 header("Location: ../Inicio/inicio.php");
-
 exit;

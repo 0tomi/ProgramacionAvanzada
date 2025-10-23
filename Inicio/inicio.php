@@ -13,6 +13,32 @@ $posts = $inicioController->getFeed($viewerId);
 if (!is_array($posts)) {
     $posts = [];
 }
+
+if (!function_exists('inicio_resolve_media_path')) {
+  /**
+   * Normaliza rutas relativas de archivos multimedia para que sean accesibles
+   * desde la vista de inicio.
+   */
+  function inicio_resolve_media_path(string $path): string
+  {
+      $path = trim($path);
+      if ($path === '') {
+          return '';
+      }
+
+      if (preg_match('#^(?:https?:)?//#i', $path)) {
+          return $path;
+      }
+
+      if (strpos($path, '../') === 0) {
+          return $path;
+      }
+
+      $normalized = ltrim($path, '/');
+
+      return '../' . $normalized;
+  }
+}
 ?>
 
 <?php $require_boostrap = false; $source = 'Inicio'; require_once __DIR__ . '/../Views/header.php'; ?>
@@ -64,7 +90,17 @@ if (!is_array($posts)) {
             $name = htmlspecialchars((string)($author['name'] ?? 'Anónimo'), ENT_QUOTES, 'UTF-8');
             $handle = (string)($author['handle'] ?? '');
             $avatarLetter = strtoupper(substr($handle !== '' ? $handle : ($author['name'] ?? 'U'), 0, 1));
-            $avatarUrl = isset($author['avatar_url']) ? trim((string)$author['avatar_url']) : '';
+            $avatarUrl = '';
+            if (isset($author['avatar_url'])) {
+              $rawAvatar = trim((string)$author['avatar_url']);
+              if ($rawAvatar !== '') {
+                $resolvedAvatar = inicio_resolve_media_path($rawAvatar);
+                if ($resolvedAvatar !== '') {
+                  $avatarUrl = $resolvedAvatar;
+                }
+              }
+            }
+            $handleLabel = '@'.$handle;
 
             $createdAt = (string)($p['created_at'] ?? '');
             $createdAtIso = htmlspecialchars($createdAt, ENT_QUOTES, 'UTF-8');
@@ -78,6 +114,7 @@ if (!is_array($posts)) {
               }
             }
             $createdAtHumanEsc = htmlspecialchars($createdAtHuman, ENT_QUOTES, 'UTF-8');
+            $handleLabelEsc = htmlspecialchars($handleLabel, ENT_QUOTES, 'UTF-8');
 
             $text = htmlspecialchars((string)($p['text'] ?? ''), ENT_QUOTES, 'UTF-8');
 
@@ -85,11 +122,24 @@ if (!is_array($posts)) {
             $likeClasses = 'chip like';
             $likedByViewer = !empty($p['viewer']['liked']);
             if ($likedByViewer) {
-              $likeClasses .= ' liked';
+                $likeClasses .= ' liked';
             }
 
-            $media = isset($p['media_url']) ? trim((string)$p['media_url']) : '';
-            $mediaEsc = htmlspecialchars($media, ENT_QUOTES, 'UTF-8');
+            $images = [];
+            $rawImages = $p['images'] ?? [];
+            if (is_array($rawImages)) {
+              foreach ($rawImages as $imgValue) {
+                $imagePath = trim((string)$imgValue);
+                if ($imagePath === '') {
+                  continue;
+                }
+
+                $resolvedImage = inicio_resolve_media_path($imagePath);
+                if ($resolvedImage !== '') {
+                  $images[] = $resolvedImage;
+                }
+              }
+            }
 
             $canDelete = !empty($p['viewer']['can_delete']);
           ?>
@@ -97,6 +147,26 @@ if (!is_array($posts)) {
               <a class="post-overlay"
                  href="../Views/POSTS/index.php?id=<?= urlencode($id) ?>"
                  aria-label="Ver post"></a>
+              <?php if ($canDelete): ?>
+                <div class="post-menu">
+                  <button type="button"
+                          class="post-menu__toggle"
+                          aria-haspopup="true"
+                          aria-expanded="false">
+                    ⋮
+                  </button>
+                  <div class="post-menu__dropdown"
+                       role="menu">
+                    <button type="button"
+                            class="post-menu__item post-menu__item--danger"
+                            role="menuitem"
+                            data-action="delete-post"
+                            data-id="<?= $idEsc ?>">
+                      Eliminar post
+                    </button>
+                  </div>
+                </div>
+              <?php endif; ?>
 
               <header class="post-header">
                 <?php if ($avatarUrl !== ''): ?>
@@ -107,6 +177,7 @@ if (!is_array($posts)) {
                 <div class="meta">
                   <div class="name"><?= $name ?></div>
                   <div class="subline">
+                    <span class="handle"><?= $handleLabelEsc ?></span><?= $handleLabelEsc ?>
                     <time datetime="<?= $createdAtIso ?>"><?= $createdAtHumanEsc ?></time>
                   </div>
                 </div>
@@ -114,10 +185,15 @@ if (!is_array($posts)) {
 
               <p class="text"><?= $text ?></p>
 
-              <?php if ($mediaEsc !== ''): ?>
-                <figure class="media">
-                  <img src="<?= $mediaEsc ?>" alt="Imagen del post">
-                </figure>
+              <?php if (!empty($images)): ?>
+                <div class="media-gallery">
+                  <?php foreach ($images as $imgSrc): ?>
+                    <?php $imgEsc = htmlspecialchars($imgSrc, ENT_QUOTES, 'UTF-8'); ?>
+                    <figure class="media" data-action="open-media" data-media="<?= $imgEsc ?>" tabindex="0" role="button">
+                      <img src="<?= $imgEsc ?>" alt="Imagen del post">
+                    </figure>
+                  <?php endforeach; ?>
+                </div>
               <?php endif; ?>
 
               <div class="actions">
@@ -126,14 +202,6 @@ if (!is_array($posts)) {
                   data-id="<?= $idEsc ?>">
                   ♥ <span class="count"><?= $likes ?></span>
                 </button>
-                <?php if ($canDelete): ?>
-                  <button type="button"
-                    class="chip delete"
-                    data-action="delete-post"
-                    data-id="<?= $idEsc ?>">
-                    Eliminar
-                  </button>
-                <?php endif; ?>
               </div>
             </article>
           <?php endforeach; ?>
