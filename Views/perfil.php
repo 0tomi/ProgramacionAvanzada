@@ -11,12 +11,12 @@ require_once __DIR__ . '/../Controlers/InicioController.php';
 
 require_once __DIR__ . "/header.php";
 
-// ===== Perfil (datos editables) =====
+
 $controller = new ProfileController();
 $controller->processProfileUpdate();
 $data = $controller->getProfileData();
 
-// ===== Usuario actual =====
+
 $u = $_SESSION['user'] ?? null;
 if (!$u) {
   header("Location: ../LOGIN/_login.php");
@@ -24,19 +24,19 @@ if (!$u) {
 }
 $nombre = $u->getNombre() ?? 'Usuario';
 
-// Datos de perfil desde el controller
+
 $userTag      = $data['userTag']      ?? (method_exists($u,'getUserTag') ? (string)$u->getUserTag() : strtolower(preg_replace('/\s+/', '', (string)$nombre)));
 $description  = $data['description']  ?? '';
 $profilePhoto = $data['profilePhoto'] ?? 'Resources/profilePictures/defaultProfilePicture.png';
 $arroba       = '@' . strtolower($userTag);
 
-// Armar rutas web y FS para el avatar
+
 $isHttp     = (strpos($profilePhoto, 'http') === 0);
 $avatarWeb  = $isHttp ? $profilePhoto : ('../' . ltrim($profilePhoto, '/'));
 $avatarFs   = $isHttp ? null : (__DIR__ . '/../' . ltrim($profilePhoto, '/'));
 $hasLocal   = $avatarFs ? is_file($avatarFs) : false;
 
-// ===== Helpers =====
+
 if (!function_exists('e')) {
   function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 }
@@ -44,18 +44,14 @@ if (!function_exists('perfil_resolve_media_path')) {
   function perfil_resolve_media_path(string $path): string {
     $path = trim($path);
     if ($path === '') return '';
-    // URL absoluta
     if (preg_match('#^(?:https?:)?//#i', $path)) return $path;
-    // Ya viene con ../
     if (strpos($path, '../') === 0) return $path;
-    // Normalizar relativo a /Views
     return '../' . ltrim($path, '/');
   }
 }
 
-// ===== Cargar posts y fotos desde InicioController =====
-$profileOwnerId = (int)$u->getIdUsuario(); // el perfil que se está viendo
-$viewerId       = $profileOwnerId;         // el que mira (vos mismo)
+$profileOwnerId = (int)$u->getIdUsuario();
+$viewerId       = $profileOwnerId;
 
 $posts = [];
 $fotos = [];
@@ -64,8 +60,6 @@ try {
   $inicio = new InicioController();
   $userPosts = $inicio->getPostsByUserId($profileOwnerId, $viewerId);
   $posts = is_array($userPosts) ? $userPosts : [];
-
-  // armar carrusel de fotos a partir de media_url
   foreach ($posts as $p) {
     $media = trim((string)($p['media_url'] ?? ''));
     if ($media !== '') {
@@ -81,7 +75,6 @@ try {
   $fotos = [];
 }
 
-// Flash del controller de perfil
 $flash = $_SESSION['flash'] ?? null;
 if ($flash) unset($_SESSION['flash']);
 ?>
@@ -127,11 +120,9 @@ body{font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-
 .marco{height:460px;padding:18px 0}
 .seccion{height:100%;overflow-y:auto;overflow-x:hidden}
 .oculta{display:none}
-
 .alert{margin:14px auto 0;max-width:680px;padding:12px 14px;border-radius:12px;border:1px solid}
 .alert.ok{background:#072812;border-color:#1b6b3a;color:#c8f3db}
 .alert.err{background:#2b0c10;border-color:#7a2531;color:#ffd7dc}
-
 .carrusel-contenedor{max-width:620px;margin:0 auto;position:relative}
 .slick-list{overflow:hidden !important}
 .slick-track{will-change:transform}
@@ -144,12 +135,10 @@ body{font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-
 .slick-dots{bottom:-22px}
 .slick-dots li button:before{color:#8fb4ff;font-size:10px}
 .slick-dots li.slick-active button:before{color:#fff}
-
 .lista-post{display:grid;gap:12px;max-width:620px;margin:0 auto}
 .post{background:#0e141c;border:1px solid var(--line);border-radius:14px;padding:14px}
 .post h3{margin:0 0 6px}
 .post p{margin:0;color:var(--muted)}
-
 .forma{display:grid;gap:14px;max-width:620px;margin:0 auto}
 label{font-weight:700}
 input[type="text"],textarea{width:100%;border-radius:12px;border:1px solid #22303c;background:#0f1419;color:#fff;padding:12px 14px;font:inherit}
@@ -158,6 +147,22 @@ input[type="file"]{color:#cbd5e1}
 .boton{width:100%;padding:12px 16px;border-radius:14px;border:1px solid #124225;background:#17a34a;color:#fff;font-weight:800;cursor:pointer}
 .boton:hover{filter:brightness(1.05)}
 .boton.sec{background:#1a2a41;border-color:#27406b}
+
+/* INFO */
+.info-wrap{max-width:720px;margin:0 auto}
+.info-grid{display:grid;gap:16px}
+@media(min-width:900px){.info-grid{grid-template-columns:1fr 1fr}}
+.info-card{background:linear-gradient(180deg,#111827 0%,#0b1220 120%);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 10px 26px rgba(0,0,0,.38)}
+.info-card .title{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-weight:800;font-size:18px}
+.info-card .sub{margin:-6px 0 14px;color:var(--muted);font-size:12px}
+.info-card .field{display:grid;gap:10px;margin-bottom:10px}
+.info-card label{font-weight:800;color:#cfe3ff}
+.info-card input[type="text"],.info-card textarea,.info-card input[type="file"]{width:100%;border-radius:12px;border:1px solid #1e2a32;background:#0b1118;color:#fff;padding:12px 14px;font:inherit}
+.info-card textarea{min-height:140px}
+.info-card .boton{width:100%}
+.info-card.wide{grid-column:1/-1}
+.info-card input[type="file"]::-webkit-file-upload-button{border:1px solid #27406b;background:#1a2a41;color:#e8edf5;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer}
+.info-card input[type="file"]::file-selector-button{border:1px solid #27406b;background:#1a2a41;color:#e8edf5;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer}
 </style>
 </head>
 <body>
@@ -199,7 +204,6 @@ input[type="file"]{color:#cbd5e1}
       </div>
 
       <div class="centro marco">
-        <!-- FOTOS -->
         <div id="tab-fotos" class="seccion">
           <?php if (count($fotos)): ?>
             <div class="carrusel-contenedor">
@@ -220,7 +224,6 @@ input[type="file"]{color:#cbd5e1}
           <?php endif; ?>
         </div>
 
-        <!-- POSTS -->
         <div id="tab-post" class="seccion oculta">
           <div class="lista-post" id="lista-posts">
             <?php if (count($posts)): ?>
@@ -244,38 +247,43 @@ input[type="file"]{color:#cbd5e1}
           </div>
         </div>
 
-        <!-- INFO (usa ProfileController con actions) -->
         <div id="tab-info" class="seccion oculta">
-          <!-- userTag -->
-          <form class="forma" method="POST" action="">
-            <input type="hidden" name="action" value="updateUserTag">
-            <div>
-              <label for="userTag">Usuario (@user)</label>
-              <input id="userTag" name="userTag" type="text" value="<?= e($userTag) ?>" placeholder="tu_usuario" />
-            </div>
-            <button class="boton sec" type="submit">Actualizar usuario</button>
-          </form>
+          <div class="info-wrap">
+            <div class="info-grid">
+              <form class="info-card" method="POST" action="">
+                <input type="hidden" name="action" value="updateUserTag">
+                <h3 class="title">Usuario</h3>
+                <p class="sub">Definí tu @usuario para que puedan encontrarte.</p>
+                <div class="field">
+                  <label for="userTag">Usuario (@user)</label>
+                  <input id="userTag" name="userTag" type="text" value="<?= e($userTag) ?>" placeholder="tu_usuario">
+                </div>
+                <button class="boton sec" type="submit">Actualizar usuario</button>
+              </form>
 
-          <!-- descripción -->
-          <form class="forma" method="POST" action="">
-            <input type="hidden" name="action" value="updateDescripcion">
-            <div>
-              <label for="descripcion">Descripción</label>
-              <textarea id="descripcion" name="description" placeholder="Contá algo de vos..."><?= e($description) ?></textarea>
-            </div>
-            <button class="boton sec" type="submit">Actualizar descripción</button>
-          </form>
+              <form class="info-card" method="POST" action="">
+                <input type="hidden" name="action" value="updateDescripcion">
+                <h3 class="title">Descripción</h3>
+                <p class="sub">Contá algo breve sobre vos.</p>
+                <div class="field">
+                  <label for="descripcion">Descripción</label>
+                  <textarea id="descripcion" name="description" placeholder="Contá algo de vos..."><?= e($description) ?></textarea>
+                </div>
+                <button class="boton sec" type="submit">Actualizar descripción</button>
+              </form>
 
-          <!-- foto -->
-          <form class="forma" method="POST" action="" enctype="multipart/form-data">
-            <input type="hidden" name="action" value="updatePhoto">
-            <div>
-              <label for="avatar">Cambiar imagen</label>
-              <!-- IMPORTANTE: name="imagen" porque el controlador lee $_FILES['imagen'] -->
-              <input id="avatar" name="imagen" type="file" accept="image/*" />
+              <form class="info-card wide" method="POST" action="" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="updatePhoto">
+                <h3 class="title">Imagen de perfil</h3>
+                <p class="sub">Subí una foto cuadrada para que se vea mejor.</p>
+                <div class="field">
+                  <label for="avatar">Cambiar imagen</label>
+                  <input id="avatar" name="imagen" type="file" accept="image/*">
+                </div>
+                <button class="boton sec" type="submit">Subir nueva foto</button>
+              </form>
             </div>
-            <button class="boton" type="submit">Subir nueva foto</button>
-          </form>
+          </div>
         </div>
       </div>
     </section>
@@ -284,7 +292,6 @@ input[type="file"]{color:#cbd5e1}
   <?php require_once __DIR__ . "/_footer.php"; ?>
 
 <script>
-// Carrusel si hay fotos
 if ($('#carrusel-fotos').length > 0) {
   const $car = $('#carrusel-fotos').slick({
     centerMode:true, centerPadding:'60px', slidesToShow:1,
@@ -295,8 +302,6 @@ if ($('#carrusel-fotos').length > 0) {
   document.querySelector('.flecha.izq').onclick=()=> $car.slick('slickPrev');
   document.querySelector('.flecha.der').onclick=()=> $car.slick('slickNext');
 }
-
-// Tabs
 const pestanias=document.querySelectorAll('.pestania');
 const secciones={fotos:document.getElementById('tab-fotos'),post:document.getElementById('tab-post'),info:document.getElementById('tab-info')};
 pestanias.forEach(p=>{
