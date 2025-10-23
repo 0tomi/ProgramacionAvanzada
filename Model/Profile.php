@@ -5,6 +5,7 @@ class Profile {
     private $Descripcion;
     private $userTag;
     private $database;
+    private $PhotoPath;
 
     public function __construct($userID_) {
 
@@ -40,7 +41,7 @@ class Profile {
              WHERE Profile.idUser = ?"
         );
 
-        $stmt->bind_param('si', $this->userID);
+        $stmt->bind_param('i', $this->userID);
 
         $stmt->execute();
 
@@ -54,6 +55,8 @@ class Profile {
 
         $stmt->close();
     }
+
+    // Getters
 
     public function getDescripcion() {
         $stmt = $this->database->prepare(
@@ -82,10 +85,15 @@ class Profile {
             throw new RuntimeException("Usuario no inicializado");
         }
 
+        if (!$this->userTag) {
+            $this->userTag = 'defaultTag';
+        }
+
         $stmt = $this->database->prepare(
             "SELECT userTag 
-             FROM User 
-             WHERE idUser = ?"
+             FROM User
+             JOIN Profile ON User.idUser = Profile.idUser
+             WHERE Profile.idUser = ?"
         );
 
         $stmt->bind_param('i', $this->userID);
@@ -99,7 +107,39 @@ class Profile {
         } else {
             $userTag = '';
         }
+
+        return $userTag;
     }
+
+    public function getProfileImage() {
+        if (!$this->userID) {
+            throw new RuntimeException("Usuario no inicializado");
+        }
+
+        $stmt = $this->database->prepare(
+            "SELECT profileImageRoute 
+             FROM User 
+             WHERE idUser = ?"
+        );
+
+        $stmt->bind_param('i', $this->userID);
+
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        if ($row = $result->fetch_assoc()) {
+            $PhotoPath = $row['profileImageRoute'];
+        }
+
+        if(!$PhotoPath) {
+            $PhotoPath = '../Resources/profilePictures/defaultProfilePicture.png';
+        }
+
+        return $PhotoPath;
+    }
+
+    // updates (Modificacion)
 
     public function updateDescripcion($newDescripcion) {
         $stmt = $this->database->prepare(
@@ -120,7 +160,7 @@ class Profile {
     public function updateUserTag($newUserTag) {
         $stmt = $this->database->prepare(
             "UPDATE User 
-             SET userTag = ? 
+             SET userTag = ?
              WHERE idUser = ?"
         );
 
@@ -129,6 +169,33 @@ class Profile {
         $stmt->execute();
 
         $stmt->close();
+
+        $this->userTag = $newUserTag;
+    }
+
+    public function updatePhoto($newPhotoPath) {
+
+        $photoPathFull = 'Resources/profilePictures/' . $newPhotoPath;
+
+        $targetPath = __DIR__ . '/../' . $photoPathFull;
+
+        if (!move_uploaded_file($_FILES['imagen']['tmp_name'], $targetPath)) {
+            throw new RuntimeException("Error al mover el archivo subido.");
+        }
+
+        $stmt = $this->database->prepare(
+            "UPDATE User 
+             SET profileImageRoute = ?
+             WHERE idUser = ?"
+        );
+
+        $stmt->bind_param('si', $photoPathFull, $this->userID);
+
+        $stmt->execute();
+
+        $stmt->close();
+
+        $this->PhotoPath = $photoPathFull;
     }
 }
 
