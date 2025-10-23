@@ -768,24 +768,6 @@ public function getFeed(?int $viewerId = null): array {
         return $dt->format(DATE_ATOM);
     }
 
-    /**
-     * Determina la raíz de un comentario usando memoización para evitar recomputar.
-     *
-     * @param array<int,int> $parentMap
-     * @param array<int,int> $memo
-     */
-    private function findRootId(int $postId, array $parentMap, array &$memo): int
-    {
-        if (isset($memo[$postId])) {
-            return $memo[$postId];
-        }
-        if (!isset($parentMap[$postId])) {
-            $memo[$postId] = $postId;
-            return $postId;
-        }
-        $memo[$postId] = $this->findRootId($parentMap[$postId], $parentMap, $memo);
-        return $memo[$postId];
-    }
 
     /**
      * Obtiene todos los IDs de comentarios pertenecientes a un post raíz.
