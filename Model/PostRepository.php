@@ -167,29 +167,153 @@ public function getFeed(?int $viewerId = null): array {
      */
     public function getPost(int $postId, ?int $viewerId): ?array
     {
-        $graph = $this->loadGraph($viewerId);
-        $posts = $graph['posts'];
-        $commentsByRoot = $graph['commentsByRoot'];
-        $rootAssignments = $graph['rootAssignments'];
+        $viewer = (int)$viewerId;
 
-        if (!isset($posts[$postId])) {
+        $sql = <<<SQL
+            WITH RECURSIVE ancestors AS (
+                SELECT idPost, idBelogingPost
+                FROM Post
+                WHERE idPost = ?
+                UNION ALL
+                SELECT parent.idPost, parent.idBelogingPost
+                FROM Post AS parent
+                INNER JOIN ancestors AS child ON child.idBelogingPost = parent.idPost
+            ),
+            root AS (
+                SELECT idPost AS root_id
+                FROM ancestors
+                WHERE idBelogingPost IS NULL
+                LIMIT 1
+            ),
+            thread AS (
+                SELECT p.idPost, p.idBelogingPost
+                FROM Post AS p
+                INNER JOIN root AS r ON p.idPost = r.root_id
+                UNION ALL
+                SELECT child.idPost, child.idBelogingPost
+                FROM Post AS child
+                INNER JOIN thread AS t ON child.idBelogingPost = t.idPost
+            ),
+            first_image AS (
+                SELECT ip.idPost, ip.route
+                FROM ImagesPost AS ip
+                INNER JOIN (
+                    SELECT idPost, MIN(`order`) AS min_order
+                    FROM ImagesPost
+                    GROUP BY idPost
+                ) AS ordered ON ordered.idPost = ip.idPost AND ordered.min_order = ip.`order`
+            )
+            SELECT
+                r.root_id,
+                p.idPost AS post_id,
+                p.idBelogingPost AS parent_id,
+                p.idUserOwner AS owner_id,
+                p.content,
+                p.date AS created_at,
+                u.idUser AS author_id,
+                u.userTag AS author_handle,
+                u.username AS author_name,
+                u.profileImageRoute AS author_avatar,
+                fi.route AS image_route,
+                COUNT(l.post) AS like_count,
+                MAX(CASE WHEN l.idUser = ? THEN 1 ELSE 0 END) AS viewer_liked
+            FROM thread AS t
+            INNER JOIN Post AS p ON p.idPost = t.idPost
+            INNER JOIN root AS r ON TRUE
+            INNER JOIN User AS u ON u.idUser = p.idUserOwner
+            LEFT JOIN first_image AS fi ON fi.idPost = p.idPost
+            LEFT JOIN Likes AS l ON l.post = p.idPost
+            GROUP BY
+                r.root_id,
+                p.idPost,
+                p.idBelogingPost,
+                p.idUserOwner,
+                p.content,
+                p.date,
+                u.idUser,
+                u.userTag,
+                u.username,
+                u.profileImageRoute,
+                fi.route
+            ORDER BY
+                CASE WHEN p.idPost = r.root_id THEN 0 ELSE 1 END,
+                p.date ASC,
+                p.idPost ASC
+        SQL;
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('ii', $postId, $viewer);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $rows = [];
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = $row;
+        }
+        $result->free();
+        $stmt->close();
+
+        if ($rows === []) {
             return null;
         }
 
-        $rootId = $posts[$postId]['parent_id'] === null
-            ? $postId
-            : ($rootAssignments[$postId] ?? null);
+        $rootId = (int)$rows[0]['root_id'];
+        $rootRow = null;
+        $replies = [];
 
-        if ($rootId === null || !isset($posts[$rootId])) {
+        foreach ($rows as $row) {
+            $isRoot = (int)$row['post_id'] === $rootId;
+            $normalizedImage = $this->normalizeAssetPath($row['image_route']);
+            $formattedDate = $this->formatDateTime($row['created_at']);
+            $viewerData = [
+                'liked' => (bool)$row['viewer_liked'],
+                'can_delete' => $viewer === (int)$row['owner_id'],
+            ];
+            $counts = [
+                'likes' => (int)$row['like_count'],
+                'replies' => 0,
+            ];
+
+            if ($isRoot) {
+                $rootRow = [
+                    'id' => (string)$row['post_id'],
+                    'text' => $row['content'],
+                    'created_at' => $formattedDate,
+                    'author' => [
+                        'id' => (string)$row['author_id'],
+                        'handle' => $row['author_handle'],
+                        'name' => $row['author_name'],
+                        'avatar_url' => $this->resolveAvatar($row['author_avatar']),
+                    ],
+                    'media_url' => $normalizedImage,
+                    'counts' => $counts,
+                    'viewer' => $viewerData,
+                    'replies' => [],
+                ];
+                continue;
+            }
+
+            $parentId = $row['parent_id'] !== null ? (int)$row['parent_id'] : null;
+            $replies[] = [
+                'id' => (string)$row['post_id'],
+                'parent_id' => ($parentId !== null && $parentId === $rootId) ? null : ($parentId !== null ? (string)$parentId : null),
+                'author' => $row['author_name'],
+                'text' => $row['content'],
+                'created_at' => $formattedDate,
+                'media_url' => $normalizedImage,
+                'counts' => $counts,
+                'viewer' => $viewerData,
+            ];
+        }
+
+        if ($rootRow === null) {
             return null;
         }
 
-        $post = $posts[$rootId];
-        unset($post['parent_id']);
-        $post['replies'] = array_values($commentsByRoot[$rootId] ?? []);
-        $post['counts']['replies'] = count($post['replies']);
+        $rootRow['replies'] = $replies;
+        $rootRow['counts']['replies'] = count($replies);
 
-        return $post;
+        return $rootRow;
     }
 
     public function getPostsByUser(int $userId, ?int $viewerId = null): array
