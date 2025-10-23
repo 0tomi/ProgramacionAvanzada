@@ -700,8 +700,9 @@ public function getFeed(?int $viewerId = null): array {
      */
     private function fetchAllPosts(): array
     {
+        // Optimizamos para obtener posts, likes, y rutas de imágenes en una sola consulta
         $sql = <<<'SQL'
-            SELECT
+            SELECT 
                 p.idPost,
                 p.idBelogingPost,
                 p.idUserOwner,
@@ -709,9 +710,24 @@ public function getFeed(?int $viewerId = null): array {
                 p.date,
                 u.username,
                 u.userTag,
-                u.profileImageRoute
-            FROM Post AS p
-            INNER JOIN User AS u ON u.idUser = p.idUserOwner
+                u.profileImageRoute,
+                COALESCE(l.like_count, 0) as like_count,
+                i.route as image_route
+            FROM Post p
+            INNER JOIN User u ON u.idUser = p.idUserOwner
+            LEFT JOIN (
+                SELECT post, COUNT(*) as like_count
+                FROM Likes
+                GROUP BY post
+            ) l ON l.post = p.idPost
+            LEFT JOIN (
+                SELECT idPost, MIN(route) as route
+                FROM ImagesPost
+                GROUP BY idPost
+            ) i ON i.idPost = p.idPost
+            WHERE p.idBelogingPost IS NULL
+            ORDER BY p.date DESC, p.idPost DESC
+            LIMIT 50
         SQL;
 
         $result = $this->db->query($sql);
