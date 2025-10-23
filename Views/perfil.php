@@ -4,7 +4,8 @@ declare(strict_types=1);
 $preruta = '../';
 require_once "../Controlers/autenticacion.php";
 require_once __DIR__ . "/header.php"; 
-
+$source = 'Perfil'; 
+$require_boostrap = true;
 
 require_once __DIR__ . "/../Controlers/ProfileController.php";
 
