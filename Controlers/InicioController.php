@@ -142,4 +142,21 @@ final class InicioController
             }
         }
     }
+    // Dentro de la clase InicioController
+    public function getPostsByUserId(int $profileOwnerId, int $viewerId): array
+    {
+        // ... (Comentarios opcionales sobre la API) ...
+
+// --- Fallback al Repositorio ---
+try {
+$repository = new PostRepository();
+
+// ¡Línea Corregida! Ahora llama al método correcto.
+return $repository->getPostsByUser($profileOwnerId, $viewerId); // <-- BIEN 👍
+
+} catch (\Throwable $e) {
+error_log('[InicioController] Error en fallback de getPostsByUserId: ' . $e->getMessage());
+ return [];
+}
+}
 }

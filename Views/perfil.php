@@ -1,17 +1,73 @@
 <?php
 $preruta = '../';
 require_once "../Controlers/autenticacion.php";
+
+// 1. INCLUYE EL CONTROLADOR
+require_once "../Controlers/InicioController.php"; 
+
 $source = 'Perfil'; $require_boostrap = false;
 require_once __DIR__ . "/header.php";
 
+// 2. OBTÉN EL USUARIO Y SUS IDs
 $u = $_SESSION['user'] ?? null;
-$nombre = $u ? ($u->getNombre() ?? 'Usuario') : 'Usuario';
-$avatar = $u ? ('../' . ($u->getProfilePhoto() ?? 'Resources/profilePictures/defaultProfilePicture.png')) : 'Resources/profilePictures/defaultProfilePicture.png';
-$arroba = '@' . strtolower(preg_replace('/\s+/', '', $nombre));
+if (!$u) {
+    // Si no hay usuario, no podemos mostrar perfil
+    header("Location: ../LOGIN/_login.php");
+    exit;
+}
 
-if (!isset($fotos) || !is_array($fotos)) $fotos = [];
-if (!isset($posts) || !is_array($posts)) $posts = [];
+// Obtenemos los datos del usuario en sesión
+$profileOwnerId = (int)$u->getIdUsuario();   // El ID del dueño de este perfil
+$viewerId = $profileOwnerId;               // El que está viendo es el mismo dueño
+$nombre = $u->getNombre() ?? 'Usuario';
 
+// Asumimos que tu objeto User tiene un método getUserTag()
+$userTag = method_exists($u, 'getUserTag') ? $u->getUserTag() : strtolower(preg_replace('/\s+/', '', $nombre));
+$arroba = '@' . $userTag;
+
+// Ajustamos la ruta del avatar (basado en tu código de inicio.php)
+$avatar = '../' . ($u->getProfilePhoto() ?? 'Resources/profilePictures/defaultProfilePicture.png');
+
+// 3. INICIALIZA LOS ARRAYS
+$posts = []; // Para la pestaña "Post"
+$fotos = []; // Para el carrusel "Fotos"
+
+// 4. BUSCA LOS POSTS USANDO EL CONTROLADOR
+try {
+    $controller = new InicioController();
+    
+    // ¡Aquí usamos el método del controlador!
+    $userPosts = $controller->getPostsByUserId($profileOwnerId, $viewerId); 
+
+} catch (Exception $e) {
+    // Manejar error si el controlador falla (ej. conexión a BD)
+    error_log("Error al cargar perfil: " . $e->getMessage());
+    $userPosts = []; // Dejar los posts vacíos
+}
+
+// 5. PROCESA Y SEPARA LOS RESULTADOS
+if (is_array($userPosts)) {
+    
+    // El array $userPosts ya viene formateado por el controlador.
+    // Lo asignamos directamente a la variable $posts para la pestaña "Post"
+    $posts = $userPosts; 
+
+    // Ahora, filtramos ese array para obtener solo los que tienen foto
+    // para el carrusel "Fotos"
+    foreach ($userPosts as $p) {
+        $media_url = $p['media_url'] ?? null;
+        
+        if (!empty($media_url)) {
+            // La ruta ya debe venir lista (con ../) desde el controlador
+            $fotos[] = [
+                'route' => $media_url,
+                'name'  => $p['text'] ?? 'Foto del perfil' // Usamos el texto del post como 'alt'
+            ];
+        }
+    }
+}
+
+// Función de ayuda para escapar HTML
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
 ?>
 <!DOCTYPE html>
@@ -71,7 +127,7 @@ label{font-weight:700}
 input[type="text"],textarea{width:100%;border-radius:12px;border:1px solid #22303c;background:#0f1419;color:#fff;padding:12px 14px;font:inherit}
 textarea{min-height:120px}
 input[type="file"]{color:#cbd5e1}
-.boton{width:100%;padding:12px 16px;border-radius:14px;border:1px solid #124225;background:#17a34a;color:#fff;font-weight:800;cursor:pointer}
+.boton{width:100%;padding:12px 16px;border-radius:14px;border:1px solid #124225;background:#17a3a;color:#fff;font-weight:800;cursor:pointer}
 .boton:hover{filter:brightness(1.05)}
 </style>
 </head>
@@ -81,7 +137,7 @@ input[type="file"]{color:#cbd5e1}
       <div class="encabezado">
         <div class="centro">
           <div class="foto">
-            <?php if ($avatar && is_file($avatar)): ?>
+            <?php if ($avatar && is_file(str_replace('../', '', $avatar))): /* Corregido para chequear la ruta real */ ?>
               <img src="<?= e($avatar) ?>" alt="perfil">
             <?php else: ?>
               <div class="inicial"><?= strtoupper(substr(e($nombre),0,1)) ?></div>
@@ -104,26 +160,28 @@ input[type="file"]{color:#cbd5e1}
 
       <div class="centro marco">
         <div id="tab-fotos" class="seccion">
-          <div class="carrusel-contenedor">
-            <button type="button" class="flecha izq" aria-label="Anterior">
-              <svg viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-            </button>
-            <button type="button" class="flecha der" aria-label="Siguiente">
-              <svg viewBox="0 0 24 24"><path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
-            </button>
+  
+          <?php if (count($fotos)): ?>
+            <div class="carrusel-contenedor">
+              <button type="button" class="flecha izq" aria-label="Anterior">
+                <svg viewBox="0 0 24 24"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+              </button>
+              <button type="button" class="flecha der" aria-label="Siguiente">
+                <svg viewBox="0 0 24 24"><path d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+              </button>
 
-            <div class="carrusel" id="carrusel-fotos">
-              <?php if (count($fotos)): ?>
+              <div class="carrusel" id="carrusel-fotos">
                 <?php foreach ($fotos as $f): ?>
                   <div class="diapo"><img src="<?= e($f['route']) ?>" alt="<?= e($f['name'] ?? '') ?>"></div>
                 <?php endforeach; ?>
-              <?php else: ?>
-                <div class="diapo"><img src="https://picsum.photos/id/1011/1200/800" alt=""></div>
-                <div class="diapo"><img src="https://picsum.photos/id/1039/1200/800" alt=""></div>
-                <div class="diapo"><img src="https://picsum.photos/id/1027/1200/800" alt=""></div>
-              <?php endif; ?>
+              </div>
             </div>
-          </div>
+            
+          <?php else: ?>
+            <p style="color:var(--muted); text-align:center; padding-top:20px;">
+              Aún no tienes publicaciones con fotos.
+            </p>
+          <?php endif; ?>
         </div>
 
         <div id="tab-post" class="seccion oculta">
@@ -131,15 +189,20 @@ input[type="file"]{color:#cbd5e1}
             <?php if (count($posts)): ?>
               <?php foreach ($posts as $p): ?>
                 <article class="post">
-                  <h3><?= e($p['titulo'] ?? $p['title'] ?? '') ?></h3>
-                  <p><?= e($p['texto'] ?? $p['text'] ?? '') ?></p>
-                  <?php if (!empty($p['media_url'] ?? $p['imagen'])): ?>
+                  <h3><?= e($p['author']['name'] ?? 'Post') ?></h3>
+                  
+                  <p><?= e($p['text'] ?? '') ?></p>
+
+                  <?php if (!empty($p['media_url'])): ?>
                     <figure class="diapo" style="aspect-ratio:16/9;margin:8px 0">
-                      <img src="<?= e($p['media_url'] ?? $p['imagen']) ?>" alt="">
+                      <img src="<?= e($p['media_url']) ?>" alt="">
                     </figure>
                   <?php endif; ?>
-                  <?php if (!empty($p['created_at'] ?? $p['fecha'])): ?>
-                    <small style="color:#9fb0c3"><?= e(date('d/m/Y H:i', strtotime($p['created_at'] ?? $p['fecha']))) ?></small>
+                  
+                  <?php if (!empty($p['created_at'])): ?>
+                    <small style="color:#9fb0c3">
+                      <?= e(date('d/m/Y H:i', strtotime($p['created_at']))) ?>
+                    </small>
                   <?php endif; ?>
                 </article>
               <?php endforeach; ?>
@@ -148,7 +211,6 @@ input[type="file"]{color:#cbd5e1}
             <?php endif; ?>
           </div>
         </div>
-
         <div id="tab-info" class="seccion oculta">
           <form class="forma" method="POST" action="../Controlers/update_profile.php" enctype="multipart/form-data">
             <div>
@@ -173,23 +235,31 @@ input[type="file"]{color:#cbd5e1}
   <?php require_once __DIR__ . "/_footer.php"; ?>
 
 <script>
-const $car = $('#carrusel-fotos').slick({
-  centerMode:true,
-  centerPadding:'60px',
-  slidesToShow:1,
-  adaptiveHeight:false,
-  infinite:true,
-  arrows:false,
-  dots:true,
-  autoplay:true,
-  autoplaySpeed:2800,
-  pauseOnHover:true,
-  cssEase:'ease',
-  responsive:[{breakpoint:860,settings:{centerPadding:'30px'}}]
-});
-document.querySelector('.flecha.izq').onclick=()=> $car.slick('slickPrev');
-document.querySelector('.flecha.der').onclick=()=> $car.slick('slickNext');
+// Verifica si el elemento del carrusel existe en la página
+if ($('#carrusel-fotos').length > 0) {
+  
+  // Si existe, inicializa Slick
+  const $car = $('#carrusel-fotos').slick({
+    centerMode:true,
+    centerPadding:'60px',
+    slidesToShow:1,
+    adaptiveHeight:false,
+    infinite:true,
+    arrows:false,
+    dots:true,
+    autoplay:true,
+    autoplaySpeed:2800,
+    pauseOnHover:true,
+    cssEase:'ease',
+    responsive:[{breakpoint:860,settings:{centerPadding:'30px'}}]
+  });
+  
+  // Y asigna los eventos a las flechas
+  document.querySelector('.flecha.izq').onclick=()=> $car.slick('slickPrev');
+  document.querySelector('.flecha.der').onclick=()=> $car.slick('slickNext');
+}
 
+// El código de las pestañas (tabs) no cambia y funciona igual
 const pestanias=document.querySelectorAll('.pestania');
 const secciones={fotos:document.getElementById('tab-fotos'),post:document.getElementById('tab-post'),info:document.getElementById('tab-info')};
 pestanias.forEach(p=>{

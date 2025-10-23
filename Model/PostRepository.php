@@ -120,6 +120,7 @@ final class PostRepository
         return $post;
     }
 
+    /*
     public function getPostsByUser(int $userId, ?int $viewerId = null): array
     {
         $stmt = $this->db->prepare(
@@ -185,6 +186,156 @@ final class PostRepository
             $postId = $post['id'];
             $post['likes'] = $likeCounts[$postId] ?? 0;
             $post['liked'] = isset($viewerLikes[$postId]);
+        }
+        unset($post);
+
+        return $posts;
+    }
+*/
+
+/**
+     * ===================================================================
+     * REEMPLAZA TU MÉTODO getPostsByUser CON ESTE CÓDIGO
+     * ===================================================================
+     *
+     * Obtiene todos los posts de un usuario específico, formateados para la vista/API.
+     * Incluye datos del autor, imagen del post y métricas de likes.
+     *
+     * @param int $userId El ID del dueño del perfil.
+     * @param int|null $viewerId El ID del usuario que está VIENDO el perfil.
+     * @return array<int, array<string,mixed>>
+     */
+    /**
+     * ===================================================================
+     * REEMPLAZA TU MÉTODO getPostsByUser CON ESTE CÓDIGO (VERSIÓN FINAL)
+     * ===================================================================
+     *
+     * Obtiene todos los posts de un usuario específico, formateados para la vista/API.
+     *
+     * @param int $userId El ID del dueño del perfil.
+     * @param int|null $viewerId El ID del usuario que está VIENDO el perfil.
+     * @return array<int, array<string,mixed>>
+     */
+    public function getPostsByUser(int $userId, ?int $viewerId = null): array
+    {
+        // 1. Consulta Principal: Une Post, User (autor), e ImagesPost (media)
+        $sql = '
+            SELECT
+                p.idPost,
+                p.idBelogingPost,
+                p.content,
+                p.date,
+                
+                -- Datos del Autor del post
+                u.username AS authorName,
+                u.userTag AS authorHandle,
+                u.profileImageRoute AS authorAvatar,
+                
+                -- ########## ¡ESTA ES LA LÍNEA CORREGIDA! ##########
+                -- Ya no usamos i.route (que está vacío).
+                -- Usamos i.Name y construimos la ruta manualmente.
+                i.Name AS mediaFileName,
+                -- ##################################################
+
+                -- Datos del autor del post padre (si es un comentario)
+                parentUser.username AS parentAuthor
+                
+            FROM Post AS p
+            
+            JOIN User AS u ON u.idUser = p.idUserOwner
+            
+            LEFT JOIN Post AS parent ON parent.idPost = p.idBelogingPost
+            LEFT JOIN User AS parentUser ON parentUser.idUser = parent.idUserOwner
+            
+            -- Unimos la tabla de imágenes
+            LEFT JOIN ImagesPost AS i ON i.idPost = p.idPost AND i.order = 1
+            
+            WHERE p.idUserOwner = ?
+            
+            ORDER BY p.date DESC, p.idPost DESC
+        ';
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $stmt->bind_result(
+            $id, $parentId, $content, $date, 
+            $authorName, $authorHandle, $authorAvatar, 
+            $mediaFileName, // <-- La variable ahora es mediaFileName
+            $parentAuthor
+        );
+
+        // 2. Construir el array base de posts
+        $posts = [];
+        while ($stmt->fetch()) {
+            
+            // Construimos la ruta de la imagen aquí en PHP
+            $mediaUrl = null;
+            if ($mediaFileName) {
+                // Usamos la constante que definiste en PostsApi.php
+                // (Debes asegurarte que esta ruta es correcta)
+                $mediaUrl = 'Resources/PostImages/' . $mediaFileName;
+            }
+
+            $posts[] = [
+                'id' => (string)$id,
+                'parent_id' => $parentId !== null ? (string)$parentId : null,
+                'text' => $content,
+                'created_at' => $this->formatDateTime($date),
+                'author' => [
+                    'id' => (string)$userId,
+                    'handle' => $authorHandle,
+                    'name' => $authorName,
+                    'avatar_url' => $this->resolveAvatar($authorAvatar),
+                ],
+                // Usamos la ruta que acabamos de construir
+                'media_url' => $this->normalizeAssetPath($mediaUrl), 
+                'parent_author' => $parentAuthor,
+                'counts' => [
+                    'likes' => 0,
+                    'replies' => 0,
+                ],
+                'viewer' => [
+                    'liked' => false,
+                    'can_delete' => $viewerId !== null && $viewerId === $userId,
+                ],
+            ];
+        }
+        $stmt->close();
+
+        if (empty($posts)) {
+            return $posts;
+        }
+
+        // 3. Obtener Likes (Esta lógica tuya está perfecta)
+        $postIds = array_map(static fn(array $post): int => (int)$post['id'], $posts);
+        $idList = implode(',', $postIds);
+
+        $likeCounts = [];
+        $result = $this->db->query(
+            'SELECT post, COUNT(*) AS likeCount FROM Likes WHERE post IN (' . $idList . ') GROUP BY post'
+        );
+        while ($row = $result->fetch_assoc()) {
+            $likeCounts[(int)$row['post']] = (int)$row['likeCount'];
+        }
+        $result->free();
+
+        $viewerLikes = [];
+        if ($viewerId !== null) {
+            $result = $this->db->query(
+                'SELECT post FROM Likes WHERE idUser = ' . (int)$viewerId . ' AND post IN (' . $idList . ')'
+            );
+            while ($row = $result->fetch_assoc()) {
+                $viewerLikes[(int)$row['post']] = true;
+            }
+            $result->free();
+        }
+
+        // 4. Fusionar los Likes en el array de posts
+        foreach ($posts as &$post) {
+            $postId = (int)$post['id'];
+            $post['counts']['likes'] = $likeCounts[$postId] ?? 0;
+            $post['viewer']['liked'] = isset($viewerLikes[$postId]);
         }
         unset($post);
 
