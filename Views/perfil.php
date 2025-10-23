@@ -16,12 +16,6 @@ $controller = new ProfileController();
 $controller->processProfileUpdate();
 $data = $controller->getProfileData();
 
-
-$u = $_SESSION['user'] ?? null;
-if (!$u) {
-  header("Location: ../LOGIN/_login.php");
-  exit;
-}
 $nombre = $u->getNombre() ?? 'Usuario';
 
 
