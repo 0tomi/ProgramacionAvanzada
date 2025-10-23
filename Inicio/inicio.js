@@ -16,6 +16,8 @@ function resolveMediaPath(path) {
   return `../${trimmed.replace(/^\/+/, '')}`;
 }
 
+const DEFAULT_AVATAR = resolveMediaPath('Resources/profilePictures/defaultProfilePicture.png');
+
 document.addEventListener('DOMContentLoaded', () => {
   loadFeed()
     .catch(err => {
@@ -77,9 +79,7 @@ function buildPostHtml(p) {
   const author = p.author ?? {};
   const name = author.name ? String(author.name) : 'Anónimo';
   const handle = author.handle ? String(author.handle) : '';
-  const avatarUrl = author.avatar_url ? resolveMediaPath(author.avatar_url) : '';
-  const initialSource = (handle || name || 'U').trim();
-  const avatarInitial = initialSource !== '' ? initialSource.charAt(0).toUpperCase() : 'U';
+  const avatarUrl = resolveMediaPath(author.avatar_url) || DEFAULT_AVATAR;
 
   const createdIso = p.created_at ? String(p.created_at) : '';
   const createdHuman = formatDateForUi(createdIso);
@@ -112,9 +112,7 @@ function buildPostHtml(p) {
   const safeCreatedHuman = escapeHtml(createdHuman);
   const safeHandleLabel = escapeHtml(handleLabel);
 
-  const avatarHtml = avatarUrl !== ''
-    ? `<img class="avatar" src="${escapeHtml(avatarUrl)}" alt="Avatar de ${safeName}">`
-    : `<div class="avatar">${escapeHtml(avatarInitial)}</div>`;
+  const avatarHtml = `<img class="avatar" src="${escapeHtml(avatarUrl)}" alt="Avatar de ${safeName}">`;
 
   const menuHtml = canDelete
     ? `<div class="post-menu">
