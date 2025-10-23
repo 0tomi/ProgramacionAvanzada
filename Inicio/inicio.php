@@ -13,6 +13,32 @@ $posts = $inicioController->getFeed($viewerId);
 if (!is_array($posts)) {
     $posts = [];
 }
+
+if (!function_exists('inicio_resolve_media_path')) {
+  /**
+   * Normaliza rutas relativas de archivos multimedia para que sean accesibles
+   * desde la vista de inicio.
+   */
+  function inicio_resolve_media_path(string $path): string
+  {
+      $path = trim($path);
+      if ($path === '') {
+          return '';
+      }
+
+      if (preg_match('#^(?:https?:)?//#i', $path)) {
+          return $path;
+      }
+
+      if (strpos($path, '../') === 0) {
+          return $path;
+      }
+
+      $normalized = ltrim($path, '/');
+
+      return '../' . $normalized;
+  }
+}
 ?>
 
 <?php $require_boostrap = false; $source = 'Inicio'; require_once __DIR__ . '/../Views/header.php'; ?>
@@ -64,7 +90,16 @@ if (!is_array($posts)) {
             $name = htmlspecialchars((string)($author['name'] ?? 'Anónimo'), ENT_QUOTES, 'UTF-8');
             $handle = (string)($author['handle'] ?? '');
             $avatarLetter = strtoupper(substr($handle !== '' ? $handle : ($author['name'] ?? 'U'), 0, 1));
-            $avatarUrl = isset($author['avatar_url']) ? trim((string)$author['avatar_url']) : '';
+            $avatarUrl = '';
+            if (isset($author['avatar_url'])) {
+              $rawAvatar = trim((string)$author['avatar_url']);
+              if ($rawAvatar !== '') {
+                $resolvedAvatar = inicio_resolve_media_path($rawAvatar);
+                if ($resolvedAvatar !== '') {
+                  $avatarUrl = $resolvedAvatar;
+                }
+              }
+            }
             $handleLabel = $handle !== '' ? ((strpos($handle, '@') === 0) ? $handle : '@' . $handle) : '';
 
             $createdAt = (string)($p['created_at'] ?? '');
@@ -95,8 +130,13 @@ if (!is_array($posts)) {
             if (is_array($rawImages)) {
               foreach ($rawImages as $imgValue) {
                 $imagePath = trim((string)$imgValue);
-                if ($imagePath !== '') {
-                  $images[] = $imagePath;
+                if ($imagePath === '') {
+                  continue;
+                }
+
+                $resolvedImage = inicio_resolve_media_path($imagePath);
+                if ($resolvedImage !== '') {
+                  $images[] = $resolvedImage;
                 }
               }
             }
