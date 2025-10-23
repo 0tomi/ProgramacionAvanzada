@@ -8,9 +8,9 @@ $userFactory = new UserFactory();
 
 // Verificar si el usuario ya existe, y crearlo si no.
 if (!$userFactory->registerUser($username, $password)){
-    header("Location: ../LOGIN/_register.php?error=$userFactory->error");
+    header("Location: ../Views/LOGIN/_register.php?error=$userFactory->error");
     exit;
 }
 
 // Exito
-header("Location: ../LOGIN/_login.php?success=Registro+exitoso");
+header("Location: ../Views/LOGIN/_login.php?success=Registro+exitoso");
