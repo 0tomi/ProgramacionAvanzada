@@ -11,18 +11,53 @@ require_once __DIR__ . '/../Controlers/InicioController.php';
 
 require_once __DIR__ . "/header.php";
 
+$u = $_SESSION['user'] ?? null;
+$viewerId = 0;
+if (is_object($u) && method_exists($u, 'getIdUsuario')) {
+  $viewerId = (int)$u->getIdUsuario();
+}
 
-$controller = new ProfileController();
+$requestedProfileId = null;
+$requestedProfileUsername = null;
+if (isset($_GET['id'])) {
+  $requestedProfileId = (int)$_GET['id'];
+  if ($requestedProfileId <= 0) {
+    $requestedProfileId = null;
+  }
+}
+if (isset($_GET['username'])) {
+  $requestedProfileUsername = trim((string)$_GET['username']);
+  if ($requestedProfileUsername === '') {
+    $requestedProfileUsername = null;
+  }
+}
+
+$controller = new ProfileController($requestedProfileId, $requestedProfileUsername);
 $controller->processProfileUpdate();
 $data = $controller->getProfileData();
 
-$nombre = $u->getNombre() ?? 'Usuario';
+$isOwner        = (bool)($data['isOwner'] ?? false);
+$profileOwnerId = $controller->getProfileOwnerId();
 
+$nombre = trim((string)($data['displayName'] ?? ''));
+if ($nombre === '') {
+  if ($isOwner && is_object($u) && method_exists($u, 'getNombre')) {
+    $nombre = (string)($u->getNombre() ?? 'Usuario');
+  } else {
+    $nombre = 'Usuario';
+  }
+}
 
-$userTag      = $data['userTag']      ?? (method_exists($u,'getUserTag') ? (string)$u->getUserTag() : strtolower(preg_replace('/\s+/', '', (string)$nombre)));
-$description  = $data['description']  ?? '';
-$profilePhoto = $data['profilePhoto'] ?? 'Resources/profilePictures/defaultProfilePicture.png';
-$arroba       = '@' . strtolower($userTag);
+$userTag = trim((string)($data['userTag'] ?? ''));
+if ($userTag === '' && $isOwner && is_object($u) && method_exists($u, 'getUserTag')) {
+  $userTag = (string)$u->getUserTag();
+}
+$fallbackTag = strtolower(preg_replace('/\s+/', '', (string)$nombre));
+$userTag = $userTag !== '' ? $userTag : $fallbackTag;
+
+$description  = (string)($data['description'] ?? '');
+$profilePhoto = (string)($data['profilePhoto'] ?? 'Resources/profilePictures/defaultProfilePicture.png');
+$arroba       = $userTag !== '' ? '@' . strtolower($userTag) : '';
 
 
 $isHttp     = (strpos($profilePhoto, 'http') === 0);
@@ -43,9 +78,6 @@ if (!function_exists('perfil_resolve_media_path')) {
     return '../' . ltrim($path, '/');
   }
 }
-
-$profileOwnerId = (int)$u->getIdUsuario();
-$viewerId       = $profileOwnerId;
 
 $posts = [];
 $fotos = [];
@@ -107,6 +139,7 @@ body{font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-
 .inicial{font-weight:800;font-size:48px;color:#bcd2ea}
 .nombre h1{margin:0;font-size:24px;font-weight:800}
 .nombre .arroba{color:var(--muted);margin-top:4px;font-weight:700}
+.bio{text-align:center;margin:12px auto 0;max-width:520px;color:var(--muted);font-size:14px;line-height:1.6}
 .pestanias{padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(15,19,26,.88);backdrop-filter:blur(8px)}
 .lista-pestanias{display:flex;gap:10px;justify-content:center}
 .pestania{padding:10px 18px;border-radius:10px;font-weight:700;color:var(--muted);border:1px solid transparent;cursor:pointer}
@@ -133,6 +166,9 @@ body{font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-
 .post{background:#0e141c;border:1px solid var(--line);border-radius:14px;padding:14px}
 .post h3{margin:0 0 6px}
 .post p{margin:0;color:var(--muted)}
+.post .handle{margin-left:8px;color:var(--muted);font-size:12px}
+.post-author-link{color:inherit;text-decoration:none}
+.post-author-link:hover{text-decoration:underline}
 .forma{display:grid;gap:14px;max-width:620px;margin:0 auto}
 label{font-weight:700}
 input[type="text"],textarea{width:100%;border-radius:12px;border:1px solid #22303c;background:#0f1419;color:#fff;padding:12px 14px;font:inherit}
@@ -184,18 +220,27 @@ input[type="file"]{color:#cbd5e1}
           </div>
           <div class="nombre">
             <h1><?= e($nombre) ?></h1>
-            <div class="arroba"><?= e($arroba) ?></div>
+            <?php if ($arroba !== ''): ?>
+              <div class="arroba"><?= e($arroba) ?></div>
+            <?php endif; ?>
           </div>
+          <?php if ($description !== ''): ?>
+            <p class="bio"><?= e($description) ?></p>
+          <?php elseif ($isOwner): ?>
+            <p class="bio">Todavía no agregaste una descripción.</p>
+          <?php endif; ?>
         </div>
       </div>
 
       <div class="pestanias">
-        <div class="centro lista-pestanias">
-          <div class="pestania activa" data-tab="fotos">Fotos</div>
-          <div class="pestania" data-tab="post">Post</div>
-          <div class="pestania" data-tab="info">Info</div>
+          <div class="centro lista-pestanias">
+            <div class="pestania activa" data-tab="fotos">Fotos</div>
+            <div class="pestania" data-tab="post">Post</div>
+            <?php if ($isOwner): ?>
+              <div class="pestania" data-tab="info">Info</div>
+            <?php endif; ?>
+          </div>
         </div>
-      </div>
 
       <div class="centro marco">
         <div id="tab-fotos" class="seccion">
@@ -214,7 +259,9 @@ input[type="file"]{color:#cbd5e1}
               </div>
             </div>
           <?php else: ?>
-            <p style="color:var(--muted); text-align:center; padding-top:20px;">Aún no tienes publicaciones con fotos.</p>
+            <p style="color:var(--muted); text-align:center; padding-top:20px;">
+              <?= $isOwner ? 'Todavía no tenés publicaciones con fotos.' : 'Este perfil aún no tiene publicaciones con fotos.' ?>
+            </p>
           <?php endif; ?>
         </div>
 
@@ -222,8 +269,28 @@ input[type="file"]{color:#cbd5e1}
           <div class="lista-post" id="lista-posts">
             <?php if (count($posts)): ?>
               <?php foreach ($posts as $p): ?>
+                <?php
+                  $postAuthor = is_array($p['author'] ?? null) ? $p['author'] : [];
+                  $postAuthorName = (string)($postAuthor['name'] ?? 'Post');
+                  $postAuthorHandle = trim((string)($postAuthor['handle'] ?? ''));
+                  $postAuthorId = null;
+                  if (isset($postAuthor['id']) && $postAuthor['id'] !== '') {
+                    $postAuthorId = (int)$postAuthor['id'];
+                  }
+                  $postProfileHref = 'perfil.php';
+                  if ($postAuthorId !== null && $postAuthorId !== $viewerId) {
+                    $postProfileHref .= '?id=' . urlencode((string)$postAuthorId);
+                  }
+                ?>
                 <article class="post">
-                  <h3><?= e($p['author']['name'] ?? 'Post') ?></h3>
+                  <h3>
+                    <a class="post-author-link" href="<?= e($postProfileHref) ?>">
+                      <?= e($postAuthorName) ?>
+                    </a>
+                    <?php if ($postAuthorHandle !== ''): ?>
+                      <span class="handle"><?= e('@' . $postAuthorHandle) ?></span>
+                    <?php endif; ?>
+                  </h3>
                   <p><?= e($p['text'] ?? '') ?></p>
                   <?php if (!empty($p['media_url'])): ?>
                     <figure class="diapo" style="aspect-ratio:16/9;margin:8px 0">
@@ -241,44 +308,46 @@ input[type="file"]{color:#cbd5e1}
           </div>
         </div>
 
-        <div id="tab-info" class="seccion oculta">
-          <div class="info-wrap">
-            <div class="info-grid">
-              <form class="info-card" method="POST" action="">
-                <input type="hidden" name="action" value="updateUserTag">
-                <h3 class="title">Usuario</h3>
-                <p class="sub">Definí tu @usuario para que puedan encontrarte.</p>
-                <div class="field">
-                  <label for="userTag">Usuario (@user)</label>
-                  <input id="userTag" name="userTag" type="text" value="<?= e($userTag) ?>" placeholder="tu_usuario">
-                </div>
-                <button class="boton sec" type="submit">Actualizar usuario</button>
-              </form>
+        <?php if ($isOwner): ?>
+          <div id="tab-info" class="seccion oculta">
+            <div class="info-wrap">
+              <div class="info-grid">
+                <form class="info-card" method="POST" action="">
+                  <input type="hidden" name="action" value="updateUserTag">
+                  <h3 class="title">Usuario</h3>
+                  <p class="sub">Definí tu @usuario para que puedan encontrarte.</p>
+                  <div class="field">
+                    <label for="userTag">Usuario (@user)</label>
+                    <input id="userTag" name="userTag" type="text" value="<?= e($userTag) ?>" placeholder="tu_usuario">
+                  </div>
+                  <button class="boton sec" type="submit">Actualizar usuario</button>
+                </form>
 
-              <form class="info-card" method="POST" action="">
-                <input type="hidden" name="action" value="updateDescripcion">
-                <h3 class="title">Descripción</h3>
-                <p class="sub">Contá algo breve sobre vos.</p>
-                <div class="field">
-                  <label for="descripcion">Descripción</label>
-                  <textarea id="descripcion" name="description" placeholder="Contá algo de vos..."><?= e($description) ?></textarea>
-                </div>
-                <button class="boton sec" type="submit">Actualizar descripción</button>
-              </form>
+                <form class="info-card" method="POST" action="">
+                  <input type="hidden" name="action" value="updateDescripcion">
+                  <h3 class="title">Descripción</h3>
+                  <p class="sub">Contá algo breve sobre vos.</p>
+                  <div class="field">
+                    <label for="descripcion">Descripción</label>
+                    <textarea id="descripcion" name="description" placeholder="Contá algo de vos..."><?= e($description) ?></textarea>
+                  </div>
+                  <button class="boton sec" type="submit">Actualizar descripción</button>
+                </form>
 
-              <form class="info-card wide" method="POST" action="" enctype="multipart/form-data">
-                <input type="hidden" name="action" value="updatePhoto">
-                <h3 class="title">Imagen de perfil</h3>
-                <p class="sub">Subí una foto cuadrada para que se vea mejor.</p>
-                <div class="field">
-                  <label for="avatar">Cambiar imagen</label>
-                  <input id="avatar" name="imagen" type="file" accept="image/*">
-                </div>
-                <button class="boton sec" type="submit">Subir nueva foto</button>
-              </form>
+                <form class="info-card wide" method="POST" action="" enctype="multipart/form-data">
+                  <input type="hidden" name="action" value="updatePhoto">
+                  <h3 class="title">Imagen de perfil</h3>
+                  <p class="sub">Subí una foto cuadrada para que se vea mejor.</p>
+                  <div class="field">
+                    <label for="avatar">Cambiar imagen</label>
+                    <input id="avatar" name="imagen" type="file" accept="image/*">
+                  </div>
+                  <button class="boton sec" type="submit">Subir nueva foto</button>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
+        <?php endif; ?>
       </div>
     </section>
   </main>
@@ -293,17 +362,28 @@ if ($('#carrusel-fotos').length > 0) {
     autoplay:true, autoplaySpeed:2800, pauseOnHover:true, cssEase:'ease',
     responsive:[{breakpoint:860,settings:{centerPadding:'30px'}}]
   });
-  document.querySelector('.flecha.izq').onclick=()=> $car.slick('slickPrev');
-  document.querySelector('.flecha.der').onclick=()=> $car.slick('slickNext');
+  const prev = document.querySelector('.flecha.izq');
+  const next = document.querySelector('.flecha.der');
+  if (prev) prev.onclick = () => $car.slick('slickPrev');
+  if (next) next.onclick = () => $car.slick('slickNext');
 }
-const pestanias=document.querySelectorAll('.pestania');
-const secciones={fotos:document.getElementById('tab-fotos'),post:document.getElementById('tab-post'),info:document.getElementById('tab-info')};
-pestanias.forEach(p=>{
-  p.addEventListener('click',()=>{
-    pestanias.forEach(x=>x.classList.remove('activa'));
+const pestanias = document.querySelectorAll('.pestania');
+const secciones = {};
+pestanias.forEach(p => {
+  const tab = p.dataset.tab;
+  if (!tab) return;
+  const section = document.getElementById(`tab-${tab}`);
+  if (section) {
+    secciones[tab] = section;
+  }
+});
+pestanias.forEach(p => {
+  p.addEventListener('click', () => {
+    pestanias.forEach(x => x.classList.remove('activa'));
     p.classList.add('activa');
-    Object.values(secciones).forEach(s=>s.classList.add('oculta'));
-    secciones[p.dataset.tab].classList.remove('oculta');
+    Object.values(secciones).forEach(s => s.classList.add('oculta'));
+    const target = secciones[p.dataset.tab];
+    if (target) target.classList.remove('oculta');
   });
 });
 </script>

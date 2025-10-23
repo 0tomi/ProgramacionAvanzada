@@ -50,6 +50,8 @@ function buildPostHtml(p) {
   const name = author.name ? String(author.name) : 'Anónimo';
   const handle = author.handle ? String(author.handle) : '';
   const avatarUrl = resolveMediaPath(author.avatar_url) || DEFAULT_AVATAR;
+  const authorId = author.id ? String(author.id) : '';
+  const profileHref = authorId !== '' ? `../Views/perfil.php?id=${encodeURIComponent(authorId)}` : '';
 
   const createdIso = p.created_at ? String(p.created_at) : '';
   const createdHuman = formatDateForUi(createdIso);
@@ -77,6 +79,7 @@ function buildPostHtml(p) {
 
   const safeId = escapeHtml(id);
   const safeName = escapeHtml(name);
+  const safeProfileHref = profileHref ? escapeHtml(profileHref) : '';
   const safeCreatedIso = escapeHtml(createdIso);
   const safeCreatedHuman = escapeHtml(createdHuman);
   const safeHandleLabel = escapeHtml(handleLabel);
@@ -91,7 +94,10 @@ function buildPostHtml(p) {
     sublineHtml += `<time datetime="${safeCreatedIso}">${safeCreatedHuman}</time>`;
   }
 
-  const avatarHtml = `<img class="avatar" src="${escapeHtml(avatarUrl)}" alt="Avatar de ${safeName}">`;
+  const avatarElement = `<img class="avatar" src="${escapeHtml(avatarUrl)}" alt="Avatar de ${safeName}">`;
+  const avatarHtml = safeProfileHref
+    ? `<a class="avatar-link" href="${safeProfileHref}">${avatarElement}</a>`
+    : avatarElement;
 
   const menuHtml = canDelete
     ? `<div class="post-menu">
@@ -113,7 +119,9 @@ function buildPostHtml(p) {
       <header class="post-header">
       ${avatarHtml}
       <div class="meta">
-        <div class="name">${safeName}</div>
+        <div class="name">
+          ${safeProfileHref ? `<a class="name-link" href="${safeProfileHref}">${safeName}</a>` : safeName}
+        </div>
         <div class="subline">${sublineHtml}</div>
       </div>
     </header>

@@ -61,6 +61,12 @@ function renderPost(post) {
   const likeClasses = `chip ${post.viewer?.liked ? 'liked' : ''}`;
   const avatarUrl = escapeHtml(resolveAssetUrl(post.author?.avatar_url, DEFAULT_AVATAR));
   const authorName = post.author?.name ? escapeHtml(post.author.name) : 'Anónimo';
+  const authorId = post.author?.id ? String(post.author.id) : null;
+  let profileHref = null;
+  if (authorId) {
+    profileHref = `../perfil.php?id=${encodeURIComponent(authorId)}`;
+  }
+  const safeProfileHref = profileHref ? escapeHtml(profileHref) : null;
   const createdAt = formatDate(post.created_at);
   const mediaUrl = resolveAssetUrl(post.media_url);
   const safeMedia = escapeHtml(mediaUrl);
@@ -87,9 +93,15 @@ function renderPost(post) {
     <article class="post" data-id="${escapeHtml(postId)}">
       ${menu}
       <header class="post-header">
-        <img class="avatar" src="${avatarUrl}" alt="${authorName}">
+        ${safeProfileHref
+          ? `<a class="avatar-link" href="${safeProfileHref}"><img class="avatar" src="${avatarUrl}" alt="${authorName}"></a>`
+          : `<img class="avatar" src="${avatarUrl}" alt="${authorName}">`}
         <div class="meta">
-          <div class="name">${authorName}</div>
+          <div class="name">
+            ${safeProfileHref
+              ? `<a class="name-link" href="${safeProfileHref}">${authorName}</a>`
+              : authorName}
+          </div>
           <div class="subline"><time>${createdAt}</time></div>
         </div>
       </header>

@@ -87,6 +87,15 @@ if (!function_exists('inicio_resolve_media_path')) {
 
             $idEsc = htmlspecialchars($id, ENT_QUOTES, 'UTF-8');
             $author = is_array($p['author'] ?? null) ? $p['author'] : [];
+            $authorId = isset($author['id']) ? (int)$author['id'] : null;
+            $profileHref = null;
+            if ($authorId !== null) {
+              $profileHref = '../Views/perfil.php';
+              if ($authorId !== $viewerId) {
+                $profileHref .= '?id=' . urlencode((string)$authorId);
+              }
+            }
+            $profileHrefEsc = $profileHref !== null ? htmlspecialchars($profileHref, ENT_QUOTES, 'UTF-8') : null;
             $name = htmlspecialchars((string)($author['name'] ?? 'Anónimo'), ENT_QUOTES, 'UTF-8');
             $handle = (string)($author['handle'] ?? '');
             $avatarUrl = '../Resources/profilePictures/defaultProfilePicture.png';
@@ -168,9 +177,21 @@ if (!function_exists('inicio_resolve_media_path')) {
               <?php endif; ?>
 
               <header class="post-header">
-                <img class="avatar" src="<?= htmlspecialchars($avatarUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Avatar de <?= $name ?>">
+                <?php if ($profileHrefEsc !== null): ?>
+                  <a class="avatar-link" href="<?= $profileHrefEsc ?>">
+                    <img class="avatar" src="<?= htmlspecialchars($avatarUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Avatar de <?= $name ?>">
+                  </a>
+                <?php else: ?>
+                  <img class="avatar" src="<?= htmlspecialchars($avatarUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Avatar de <?= $name ?>">
+                <?php endif; ?>
                 <div class="meta">
-                  <div class="name"><?= $name ?></div>
+                  <div class="name">
+                    <?php if ($profileHrefEsc !== null): ?>
+                      <a class="name-link" href="<?= $profileHrefEsc ?>"><?= $name ?></a>
+                    <?php else: ?>
+                      <?= $name ?>
+                    <?php endif; ?>
+                  </div>
                   <div class="subline">
                     <span class="handle"><?= $handleLabelEsc ?></span><?= $handleLabelEsc ?>
                     <time datetime="<?= $createdAtIso ?>"><?= $createdAtHumanEsc ?></time>
