@@ -167,29 +167,153 @@ public function getFeed(?int $viewerId = null): array {
      */
     public function getPost(int $postId, ?int $viewerId): ?array
     {
-        $graph = $this->loadGraph($viewerId);
-        $posts = $graph['posts'];
-        $commentsByRoot = $graph['commentsByRoot'];
-        $rootAssignments = $graph['rootAssignments'];
+        $viewer = (int)$viewerId;
 
-        if (!isset($posts[$postId])) {
+        $sql = <<<SQL
+            WITH RECURSIVE ancestors AS (
+                SELECT idPost, idBelogingPost
+                FROM Post
+                WHERE idPost = ?
+                UNION ALL
+                SELECT parent.idPost, parent.idBelogingPost
+                FROM Post AS parent
+                INNER JOIN ancestors AS child ON child.idBelogingPost = parent.idPost
+            ),
+            root AS (
+                SELECT idPost AS root_id
+                FROM ancestors
+                WHERE idBelogingPost IS NULL
+                LIMIT 1
+            ),
+            thread AS (
+                SELECT p.idPost, p.idBelogingPost
+                FROM Post AS p
+                INNER JOIN root AS r ON p.idPost = r.root_id
+                UNION ALL
+                SELECT child.idPost, child.idBelogingPost
+                FROM Post AS child
+                INNER JOIN thread AS t ON child.idBelogingPost = t.idPost
+            ),
+            first_image AS (
+                SELECT ip.idPost, ip.route
+                FROM ImagesPost AS ip
+                INNER JOIN (
+                    SELECT idPost, MIN(`order`) AS min_order
+                    FROM ImagesPost
+                    GROUP BY idPost
+                ) AS ordered ON ordered.idPost = ip.idPost AND ordered.min_order = ip.`order`
+            )
+            SELECT
+                r.root_id,
+                p.idPost AS post_id,
+                p.idBelogingPost AS parent_id,
+                p.idUserOwner AS owner_id,
+                p.content,
+                p.date AS created_at,
+                u.idUser AS author_id,
+                u.userTag AS author_handle,
+                u.username AS author_name,
+                u.profileImageRoute AS author_avatar,
+                fi.route AS image_route,
+                COUNT(l.post) AS like_count,
+                MAX(CASE WHEN l.idUser = ? THEN 1 ELSE 0 END) AS viewer_liked
+            FROM thread AS t
+            INNER JOIN Post AS p ON p.idPost = t.idPost
+            INNER JOIN root AS r ON TRUE
+            INNER JOIN User AS u ON u.idUser = p.idUserOwner
+            LEFT JOIN first_image AS fi ON fi.idPost = p.idPost
+            LEFT JOIN Likes AS l ON l.post = p.idPost
+            GROUP BY
+                r.root_id,
+                p.idPost,
+                p.idBelogingPost,
+                p.idUserOwner,
+                p.content,
+                p.date,
+                u.idUser,
+                u.userTag,
+                u.username,
+                u.profileImageRoute,
+                fi.route
+            ORDER BY
+                CASE WHEN p.idPost = r.root_id THEN 0 ELSE 1 END,
+                p.date ASC,
+                p.idPost ASC
+        SQL;
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('ii', $postId, $viewer);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $rows = [];
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = $row;
+        }
+        $result->free();
+        $stmt->close();
+
+        if ($rows === []) {
             return null;
         }
 
-        $rootId = $posts[$postId]['parent_id'] === null
-            ? $postId
-            : ($rootAssignments[$postId] ?? null);
+        $rootId = (int)$rows[0]['root_id'];
+        $rootRow = null;
+        $replies = [];
 
-        if ($rootId === null || !isset($posts[$rootId])) {
+        foreach ($rows as $row) {
+            $isRoot = (int)$row['post_id'] === $rootId;
+            $normalizedImage = $this->normalizeAssetPath($row['image_route']);
+            $formattedDate = $this->formatDateTime($row['created_at']);
+            $viewerData = [
+                'liked' => (bool)$row['viewer_liked'],
+                'can_delete' => $viewer === (int)$row['owner_id'],
+            ];
+            $counts = [
+                'likes' => (int)$row['like_count'],
+                'replies' => 0,
+            ];
+
+            if ($isRoot) {
+                $rootRow = [
+                    'id' => (string)$row['post_id'],
+                    'text' => $row['content'],
+                    'created_at' => $formattedDate,
+                    'author' => [
+                        'id' => (string)$row['author_id'],
+                        'handle' => $row['author_handle'],
+                        'name' => $row['author_name'],
+                        'avatar_url' => $this->resolveAvatar($row['author_avatar']),
+                    ],
+                    'media_url' => $normalizedImage,
+                    'counts' => $counts,
+                    'viewer' => $viewerData,
+                    'replies' => [],
+                ];
+                continue;
+            }
+
+            $parentId = $row['parent_id'] !== null ? (int)$row['parent_id'] : null;
+            $replies[] = [
+                'id' => (string)$row['post_id'],
+                'parent_id' => ($parentId !== null && $parentId === $rootId) ? null : ($parentId !== null ? (string)$parentId : null),
+                'author' => $row['author_name'],
+                'text' => $row['content'],
+                'created_at' => $formattedDate,
+                'media_url' => $normalizedImage,
+                'counts' => $counts,
+                'viewer' => $viewerData,
+            ];
+        }
+
+        if ($rootRow === null) {
             return null;
         }
 
-        $post = $posts[$rootId];
-        unset($post['parent_id']);
-        $post['replies'] = array_values($commentsByRoot[$rootId] ?? []);
-        $post['counts']['replies'] = count($post['replies']);
+        $rootRow['replies'] = $replies;
+        $rootRow['counts']['replies'] = count($replies);
 
-        return $post;
+        return $rootRow;
     }
 
     public function getPostsByUser(int $userId, ?int $viewerId = null): array
@@ -294,8 +418,6 @@ public function getFeed(?int $viewerId = null): array {
      */
     public function toggleLike(int $postId, int $userId): array
     {
-        $this->assertPostExists($postId);
-
         $this->db->begin_transaction();
         try {
             $stmt = $this->db->prepare('SELECT 1 FROM Likes WHERE idUser = ? AND post = ?');
@@ -411,10 +533,7 @@ public function getFeed(?int $viewerId = null): array {
         ?int $parentCommentId = null,
         ?string $imageRelativeRoute = null
     ): array {
-        $this->assertRootPostExists($rootPostId);
-
         $parentId = $parentCommentId ?? $rootPostId;
-        $this->assertPostExists($parentId);
 
         $this->db->begin_transaction();
         try {
@@ -594,28 +713,6 @@ public function getFeed(?int $viewerId = null): array {
             throw new RuntimeException('La publicación indicada no existe.');
         }
     }
-
-    /**
-     * Verifica que el ID corresponda a una publicación principal (idBelogingPost = NULL).
-     *
-     * @throws RuntimeException si no existe o no es raíz.
-     */
-    private function assertRootPostExists(int $postId): void
-    {
-        $stmt = $this->db->prepare('SELECT idBelogingPost FROM Post WHERE idPost = ?');
-        $stmt->bind_param('i', $postId);
-        $stmt->execute();
-        $stmt->bind_result($parent);
-        if (!$stmt->fetch()) {
-            $stmt->close();
-            throw new RuntimeException('La publicación indicada no existe.');
-        }
-        $stmt->close();
-
-        if ($parent !== null) {
-            throw new RuntimeException('El identificador corresponde a un comentario, no a un post principal.');
-        }
-    }
     
     /**
      * Construye la estructura de posts y comentarios para la API.
@@ -628,208 +725,6 @@ public function getFeed(?int $viewerId = null): array {
      *   parentMap: array<int,int>
      * }
      */
-    private function loadGraph(?int $viewerId): array
-    {
-        $rows = $this->fetchAllPosts();
-        $likeCounts = $this->fetchLikeCounts();
-        $viewerLikes = $this->fetchViewerLikes($viewerId);
-        $imagesByPost = $this->fetchImages();
-
-        $viewerLikesSet = array_flip($viewerLikes);
-
-        $posts = [];
-        $parentMap = [];
-
-        foreach ($rows as $row) {
-            $id = (int)$row['idPost'];
-            $parentId = $row['idBelogingPost'] !== null ? (int)$row['idBelogingPost'] : null;
-
-            $posts[$id] = [
-                'id' => (string)$id,
-                'parent_id' => $parentId !== null ? (string)$parentId : null,
-                'text' => $row['content'],
-                'created_at' => $this->formatDateTime($row['date']),
-                'author' => [
-                    'id' => (string)$row['idUserOwner'],
-                    'handle' => $row['userTag'],
-                    'name' => $row['username'],
-                    'avatar_url' => $this->resolveAvatar($row['profileImageRoute']),
-                ],
-                'media_url' => $this->normalizeAssetPath($imagesByPost[$id][0] ?? null),
-                'counts' => [
-                    'likes' => (int)($likeCounts[$id] ?? 0),
-                    'replies' => 0,
-                ],
-                'viewer' => [
-                    'liked' => $viewerId !== null && isset($viewerLikesSet[$id]),
-                    'can_delete' => $viewerId !== null && (int)$row['idUserOwner'] === $viewerId,
-                ],
-            ];
-
-            if ($parentId !== null) {
-                $parentMap[$id] = $parentId;
-            }
-        }
-
-        $memo = [];
-        $rootAssignments = [];
-        foreach (array_keys($parentMap) as $childId) {
-            $rootAssignments[$childId] = $this->findRootId($childId, $parentMap, $memo);
-        }
-
-        $commentsByRoot = [];
-        foreach ($rootAssignments as $childId => $rootId) {
-            if (!isset($posts[$rootId])) {
-                continue;
-            }
-            $commentsByRoot[$rootId][] = $this->toComment($posts[$childId], $rootId);
-        }
-
-        return [
-            'posts' => $posts,
-            'commentsByRoot' => $commentsByRoot,
-            'rootAssignments' => $rootAssignments,
-            'parentMap' => $parentMap,
-        ];
-    }
-
-    /**
-     * Devuelve los datos crudos de la tabla Post enriquecidos con datos de usuario.
-     *
-     * @return array<int, array<string,mixed>>
-     */
-    private function fetchAllPosts(): array
-    {
-        // Optimizamos para obtener posts, likes, y rutas de imágenes en una sola consulta
-        $sql = <<<'SQL'
-            SELECT 
-                p.idPost,
-                p.idBelogingPost,
-                p.idUserOwner,
-                p.content,
-                p.date,
-                u.username,
-                u.userTag,
-                u.profileImageRoute,
-                COALESCE(l.like_count, 0) as like_count,
-                i.route as image_route
-            FROM Post p
-            INNER JOIN User u ON u.idUser = p.idUserOwner
-            LEFT JOIN (
-                SELECT post, COUNT(*) as like_count
-                FROM Likes
-                GROUP BY post
-            ) l ON l.post = p.idPost
-            LEFT JOIN (
-                SELECT idPost, MIN(route) as route
-                FROM ImagesPost
-                GROUP BY idPost
-            ) i ON i.idPost = p.idPost
-            WHERE p.idBelogingPost IS NULL
-            ORDER BY p.date DESC, p.idPost DESC
-            LIMIT 50
-        SQL;
-
-        $result = $this->db->query($sql);
-        $rows = [];
-        while ($row = $result->fetch_assoc()) {
-            $rows[] = $row;
-        }
-        $result->free();
-
-        return $rows;
-    }
-
-    /**
-     * Conteo total de likes por post.
-     *
-     * @return array<int,int>
-     */
-    private function fetchLikeCounts(): array
-    {
-        $sql = 'SELECT post, COUNT(*) AS likeCount FROM Likes GROUP BY post';
-        $result = $this->db->query($sql);
-
-        $map = [];
-        while ($row = $result->fetch_assoc()) {
-            $map[(int)$row['post']] = (int)$row['likeCount'];
-        }
-        $result->free();
-
-        return $map;
-    }
-
-    /**
-     * IDs de posts likeados por el usuario actual.
-     *
-     * @param int|null $viewerId
-     * @return int[]
-     */
-    private function fetchViewerLikes(?int $viewerId): array
-    {
-        if ($viewerId === null) {
-            return [];
-        }
-
-        $stmt = $this->db->prepare('SELECT post FROM Likes WHERE idUser = ?');
-        $stmt->bind_param('i', $viewerId);
-        $stmt->execute();
-        $stmt->bind_result($postId);
-
-        $ids = [];
-        while ($stmt->fetch()) {
-            $ids[] = (int)$postId;
-        }
-        $stmt->close();
-
-        return $ids;
-    }
-
-    /**
-     * Lista de rutas de imágenes asociadas a cada post.
-     *
-     * @return array<int,array<int,string>>
-     */
-    private function fetchImages(): array
-    {
-        $sql = 'SELECT idPost, route FROM ImagesPost ORDER BY `order` ASC';
-        $result = $this->db->query($sql);
-
-        $images = [];
-        while ($row = $result->fetch_assoc()) {
-            $postId = (int)$row['idPost'];
-            $images[$postId][] = $row['route'];
-        }
-        $result->free();
-
-        return $images;
-    }
-
-    /**
-     * Convierte un registro de comentario en el formato esperado por la API.
-     *
-     * @param array<string,mixed> $postData
-     * @param int                 $rootId
-     * @return array{id:string,parent_id:?string,author:string,text:string,created_at:string}
-     */
-    private function toComment(array $postData, int $rootId): array
-    {
-        $parentId = $postData['parent_id'];
-        $parentForResponse = ($parentId !== null && (int)$parentId === $rootId)
-            ? null
-            : $parentId;
-
-        return [
-            'id' => $postData['id'],
-            'parent_id' => $parentForResponse,
-            'author' => $postData['author']['name'],
-            'text' => $postData['text'],
-            'created_at' => $postData['created_at'],
-            'media_url' => $postData['media_url'],
-            'counts' => $postData['counts'],
-            'viewer' => $postData['viewer'],
-        ];
-    }
 
     /**
      * Normaliza rutas relativas para distintos contextos de front-end.
@@ -873,24 +768,6 @@ public function getFeed(?int $viewerId = null): array {
         return $dt->format(DATE_ATOM);
     }
 
-    /**
-     * Determina la raíz de un comentario usando memoización para evitar recomputar.
-     *
-     * @param array<int,int> $parentMap
-     * @param array<int,int> $memo
-     */
-    private function findRootId(int $postId, array $parentMap, array &$memo): int
-    {
-        if (isset($memo[$postId])) {
-            return $memo[$postId];
-        }
-        if (!isset($parentMap[$postId])) {
-            $memo[$postId] = $postId;
-            return $postId;
-        }
-        $memo[$postId] = $this->findRootId($parentMap[$postId], $parentMap, $memo);
-        return $memo[$postId];
-    }
 
     /**
      * Obtiene todos los IDs de comentarios pertenecientes a un post raíz.

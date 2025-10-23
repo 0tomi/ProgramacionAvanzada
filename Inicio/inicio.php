@@ -89,8 +89,7 @@ if (!function_exists('inicio_resolve_media_path')) {
             $author = is_array($p['author'] ?? null) ? $p['author'] : [];
             $name = htmlspecialchars((string)($author['name'] ?? 'Anónimo'), ENT_QUOTES, 'UTF-8');
             $handle = (string)($author['handle'] ?? '');
-            $avatarLetter = strtoupper(substr($handle !== '' ? $handle : ($author['name'] ?? 'U'), 0, 1));
-            $avatarUrl = '';
+            $avatarUrl = '../Resources/profilePictures/defaultProfilePicture.png';
             if (isset($author['avatar_url'])) {
               $rawAvatar = trim((string)$author['avatar_url']);
               if ($rawAvatar !== '') {
@@ -169,11 +168,7 @@ if (!function_exists('inicio_resolve_media_path')) {
               <?php endif; ?>
 
               <header class="post-header">
-                <?php if ($avatarUrl !== ''): ?>
-                  <img class="avatar" src="<?= htmlspecialchars($avatarUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Avatar de <?= $name ?>">
-                <?php else: ?>
-                  <div class="avatar"><?= htmlspecialchars($avatarLetter, ENT_QUOTES, 'UTF-8') ?></div>
-                <?php endif; ?>
+                <img class="avatar" src="<?= htmlspecialchars($avatarUrl, ENT_QUOTES, 'UTF-8') ?>" alt="Avatar de <?= $name ?>">
                 <div class="meta">
                   <div class="name"><?= $name ?></div>
                   <div class="subline">
