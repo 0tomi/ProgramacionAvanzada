@@ -35,6 +35,14 @@ function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8')
 $flash = $_SESSION['flash'] ?? null;
 if ($flash) unset($_SESSION['flash']);
 ?>
+<header class="flex items-center justify-between px-6 py-4 border-b border-[color:var(--line)] bg-[color:var(--panel)]">
+    <!-- mostrar logout papaa -->
+    <a href="../logout.php"
+       class="ml-auto px-4 py-2 rounded-full font-bold border border-[color:var(--line)] bg-red-600 text-white hover:opacity-90 transition">
+      Cerrar sesión
+    </a>
+</header>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
