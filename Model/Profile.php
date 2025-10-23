@@ -117,26 +117,47 @@ class Profile {
         }
 
         $stmt = $this->database->prepare(
-            "SELECT profileImageRoute 
-             FROM User 
+            "SELECT profileImageRoute
+             FROM User
              WHERE idUser = ?"
         );
 
         $stmt->bind_param('i', $this->userID);
-
         $stmt->execute();
 
         $result = $stmt->get_result();
+        $photoPath = null;
 
         if ($row = $result->fetch_assoc()) {
-            $PhotoPath = $row['profileImageRoute'];
+            $photoPath = $row['profileImageRoute'] ?? null;
         }
 
-        if(!$PhotoPath) {
-            $PhotoPath = '../Resources/profilePictures/defaultProfilePicture.png';
+        $stmt->close();
+
+        if (empty($photoPath)) {
+            $photoPath = 'Resources/profilePictures/defaultProfilePicture.png';
         }
 
-        return $PhotoPath;
+        return $this->normalizePublicPath($photoPath);
+    }
+
+    private function normalizePublicPath(string $path): string
+    {
+        if ($path === '') {
+            return '../Resources/profilePictures/defaultProfilePicture.png';
+        }
+
+        if (preg_match('#^(https?://|data:)#i', $path)) {
+            return $path;
+        }
+
+        if (strpos($path, '../') === 0 || $path[0] === '/') {
+            return $path;
+        }
+
+        $trimmed = ltrim($path, '/');
+
+        return '../' . $trimmed;
     }
 
     // updates (Modificacion)
@@ -173,29 +194,60 @@ class Profile {
         $this->userTag = $newUserTag;
     }
 
-    public function updatePhoto($newPhotoPath) {
+    public function updatePhoto($originalFileName) {
+        if (!isset($_FILES['imagen']) || $_FILES['imagen']['error'] !== UPLOAD_ERR_OK) {
+            throw new RuntimeException("No se recibió un archivo de imagen válido.");
+        }
 
-        $photoPathFull = 'Resources/profilePictures/' . $newPhotoPath;
+        if (!is_uploaded_file($_FILES['imagen']['tmp_name'])) {
+            throw new RuntimeException("No se recibió un archivo de imagen válido.");
+        }
 
+        $extension = strtolower((string)pathinfo($originalFileName, PATHINFO_EXTENSION));
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        if (!in_array($extension, $allowedExtensions, true)) {
+            throw new RuntimeException("Formato de imagen no soportado.");
+        }
+
+        try {
+            $uniqueName = sprintf(
+                '%d_%s.%s',
+                $this->userID,
+                bin2hex(random_bytes(8)),
+                $extension
+            );
+        } catch (Exception $e) {
+            throw new RuntimeException("No se pudo generar un nombre para la imagen.");
+        }
+
+        $photoPathFull = 'Resources/profilePictures/' . $uniqueName;
         $targetPath = __DIR__ . '/../' . $photoPathFull;
+
+        $targetDirectory = dirname($targetPath);
+        if (!is_dir($targetDirectory) && !mkdir($targetDirectory, 0755, true) && !is_dir($targetDirectory)) {
+            throw new RuntimeException("No se pudo crear el directorio de destino para la imagen.");
+        }
 
         if (!move_uploaded_file($_FILES['imagen']['tmp_name'], $targetPath)) {
             throw new RuntimeException("Error al mover el archivo subido.");
         }
 
         $stmt = $this->database->prepare(
-            "UPDATE User 
+            "UPDATE User
              SET profileImageRoute = ?
              WHERE idUser = ?"
         );
 
         $stmt->bind_param('si', $photoPathFull, $this->userID);
-
         $stmt->execute();
-
         $stmt->close();
 
         $this->PhotoPath = $photoPathFull;
+
+        if (isset($_SESSION['user']) && method_exists($_SESSION['user'], 'setProfilePhoto')) {
+            $_SESSION['user']->setProfilePhoto($photoPathFull);
+        }
     }
 }
 
