@@ -43,7 +43,7 @@ if (isset($_GET['success']) && $_GET['success'] !== '') {
                     <label for="password">Contraseña</label>
                     <input type="password" id="password" name="password" required placeholder="••••••••">
                 </div>
-                <!-- <div class="g-recaptcha" data-sitekey="6LdELdMrAAAAADXu2Q9TNUIdKA-9U6I9NV4wuJDm"></div> -->
+                <div class="g-recaptcha" data-sitekey="6LdELdMrAAAAADXu2Q9TNUIdKA-9U6I9NV4wuJDm"></div>
                 <div class="remember">
                     <!-- A futuro: <label><input type="checkbox" id="checkbox"/> Recordarme</label> -->
                     <!-- A futuro <a href="#" id="recovery">Olvidaste tu contraseña?</a> -->
