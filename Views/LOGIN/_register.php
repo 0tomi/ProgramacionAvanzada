@@ -36,6 +36,9 @@
                                 <label for="password">Contraseña</label>
                                 <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
                             </div>
+                            <div class="captcha">
+                                <div class="g-recaptcha" data-sitekey="6LdELdMrAAAAADXu2Q9TNUIdKA-9U6I9NV4wuJDm"></div>
+                            </div>
                             <div class="botonLogin">
                                 <button class="btn" type="submit" >Registrarse</button>
                             </div>
@@ -50,6 +53,7 @@
                     </div>
             
             </div>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.login-banner').forEach(banner => {

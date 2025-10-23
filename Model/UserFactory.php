@@ -139,7 +139,7 @@ class UserFactory {
             return $this->user;
 
         } catch (mysqli_sql_exception $e) {
-            $this->error = 'Error en la consulta: ' . $e->getMessage();
+            $this->error = 'Error al querer iniciar sesion con el usuario. Pruebe denuevo';
             error_log($e->getMessage());
             return null;
         }
@@ -163,7 +163,7 @@ class UserFactory {
         );
         $this->dataBase->set_charset('utf8mb4');
         } catch (mysqli_sql_exception $e) {
-            $this->error = 'Error de conexión: ' . $e->getMessage();
+            $this->error = 'Error de conexión a la base de datos.';
             error_log($e->getMessage());
             return;
         }
