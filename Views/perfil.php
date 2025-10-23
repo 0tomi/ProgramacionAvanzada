@@ -11,7 +11,7 @@ require_once __DIR__ . '/../Controlers/InicioController.php';
 
 require_once __DIR__ . "/header.php";
 
-$u = $_SESSION['user'] ?? null;
+$u = $_SESSION['user'];
 $viewerId = 0;
 if (is_object($u) && method_exists($u, 'getIdUsuario')) {
   $viewerId = (int)$u->getIdUsuario();
@@ -66,17 +66,15 @@ $avatarFs   = $isHttp ? null : (__DIR__ . '/../' . ltrim($profilePhoto, '/'));
 $hasLocal   = $avatarFs ? is_file($avatarFs) : false;
 
 
-if (!function_exists('e')) {
-  function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
-}
-if (!function_exists('perfil_resolve_media_path')) {
-  function perfil_resolve_media_path(string $path): string {
-    $path = trim($path);
-    if ($path === '') return '';
-    if (preg_match('#^(?:https?:)?//#i', $path)) return $path;
-    if (strpos($path, '../') === 0) return $path;
-    return '../' . ltrim($path, '/');
-  }
+
+function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
+
+function perfil_resolve_media_path(string $path): string {
+  $path = trim($path);
+  if ($path === '') return '';
+  if (preg_match('#^(?:https?:)?//#i', $path)) return $path;
+  if (strpos($path, '../') === 0) return $path;
+  return '../' . ltrim($path, '/');
 }
 
 $posts = [];
@@ -126,7 +124,7 @@ if ($flash) unset($_SESSION['flash']);
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
 <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 <style>
-:root{--bg:#0c0f14;--panel:#0f131a;--panel-2:#0b0f15;--ink:#e8edf5;--muted:#8ea0b5;--line:#1b2431;--shadow:0 12px 36px rgb(0 0 0 /.28)}
+  :root{--bg:#0c0f14;--panel:#0f131a;--panel-2:#0b0f15;--ink:#e8edf5;--muted:#8ea0b5;--line:#1b2431;--shadow:0 12px 36px rgb(0 0 0 /.28)}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
 body{font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:linear-gradient(360deg,#1b4aaf -40%,#0c0f14 420px) fixed,var(--bg) !important;overflow-x:hidden}
@@ -167,6 +165,7 @@ body{font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-
 .post h3{margin:0 0 6px}
 .post p{margin:0;color:var(--muted)}
 .post .handle{margin-left:8px;color:var(--muted);font-size:12px}
+.post .reply-badge{margin-left:8px;color:#2563eb;font-size:12px;font-weight:700}
 .post-author-link{color:inherit;text-decoration:none}
 .post-author-link:hover{text-decoration:underline}
 .forma{display:grid;gap:14px;max-width:620px;margin:0 auto}
@@ -236,9 +235,7 @@ input[type="file"]{color:#cbd5e1}
           <div class="centro lista-pestanias">
             <div class="pestania activa" data-tab="fotos">Fotos</div>
             <div class="pestania" data-tab="post">Post</div>
-            <?php if ($isOwner): ?>
-              <div class="pestania" data-tab="info">Info</div>
-            <?php endif; ?>
+            <div class="pestania" data-tab="info">Info</div>
           </div>
         </div>
 
@@ -290,6 +287,9 @@ input[type="file"]{color:#cbd5e1}
                     <?php if ($postAuthorHandle !== ''): ?>
                       <span class="handle"><?= e('@' . $postAuthorHandle) ?></span>
                     <?php endif; ?>
+                    <?php if (!empty($p['parent_id'] ?? null)): ?>
+                      <span class="reply-badge">Respondiendo a otro post</span>
+                    <?php endif; ?>
                   </h3>
                   <p><?= e($p['text'] ?? '') ?></p>
                   <?php if (!empty($p['media_url'])): ?>
@@ -307,11 +307,11 @@ input[type="file"]{color:#cbd5e1}
             <?php endif; ?>
           </div>
         </div>
-
-        <?php if ($isOwner): ?>
           <div id="tab-info" class="seccion oculta">
+            <?php if ($isOwner): ?>
             <div class="info-wrap">
               <div class="info-grid">
+               
                 <form class="info-card" method="POST" action="">
                   <input type="hidden" name="action" value="updateUserTag">
                   <h3 class="title">Usuario</h3>
@@ -344,10 +344,19 @@ input[type="file"]{color:#cbd5e1}
                   </div>
                   <button class="boton sec" type="submit">Subir nueva foto</button>
                 </form>
+                <?php else: ?>
+                  <div class="info-card">
+                    <h3 class="title">Descripción de <?= e($nombre) ?></h3>
+                    <?php if ($description !== ''): ?>
+                      <p><?= e($description) ?></p>
+                    <?php else: ?>
+                      <p class="sub">Este usuario todavía no agregó una descripción.</p>
+                    <?php endif; ?>
+                  </div>
               </div>
             </div>
+            <?php endif ?>  
           </div>
-        <?php endif; ?>
       </div>
     </section>
   </main>
