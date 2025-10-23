@@ -3,6 +3,19 @@
 // Ruta base hacia la API del módulo POSTS (desde /Inicio)
 const API_BASE = '../Controlers/PostsApi.php';
 
+/**
+ * Normaliza rutas relativas de archivos multimedia para que sean accesibles
+ * desde la vista de inicio.
+ */
+function resolveMediaPath(path) {
+  const trimmed = (path ?? '').toString().trim();
+  if (!trimmed) return '';
+  if (/^(?:https?:)?\/\//i.test(trimmed) || trimmed.startsWith('../')) {
+    return trimmed;
+  }
+  return `../${trimmed.replace(/^\/+/, '')}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   loadFeed()
     .catch(err => {
@@ -64,7 +77,7 @@ function buildPostHtml(p) {
   const author = p.author ?? {};
   const name = author.name ? String(author.name) : 'Anónimo';
   const handle = author.handle ? String(author.handle) : '';
-  const avatarUrl = author.avatar_url ? String(author.avatar_url) : '';
+  const avatarUrl = author.avatar_url ? resolveMediaPath(author.avatar_url) : '';
   const initialSource = (handle || name || 'U').trim();
   const avatarInitial = initialSource !== '' ? initialSource.charAt(0).toUpperCase() : 'U';
 
@@ -150,16 +163,18 @@ function formatHandleForUi(rawHandle) {
 function normalizeImages(rawImages) {
   if (!rawImages) return [];
   if (Array.isArray(rawImages)) {
-    return rawImages.map(v => (v ?? '').toString().trim()).filter(Boolean);
+    return rawImages
+      .map(resolveMediaPath)
+      .filter(Boolean);
   }
   if (typeof rawImages === 'object') {
     return Object.values(rawImages)
-      .map(v => (v ?? '').toString().trim())
+      .map(resolveMediaPath)
       .filter(Boolean);
   }
   if (typeof rawImages === 'string') {
-    const trimmed = rawImages.trim();
-    return trimmed !== '' ? [trimmed] : [];
+    const normalized = resolveMediaPath(rawImages);
+    return normalized !== '' ? [normalized] : [];
   }
   return [];
 }
@@ -193,6 +208,13 @@ async function marcarLikesAlCargar() {
   } catch (_) {
     // silencioso
   }
+}
+
+function resolveMediaPath(path) {
+  const trimmed = (path ?? '').toString().trim();
+  if (!trimmed) return '';
+  if (/^(?:https?:)?\/\//i.test(trimmed) || trimmed.startsWith('../')) return trimmed;
+  return `../${trimmed.replace(/^\/+/, '')}`;
 }
 
 /** Delegación global de clicks para like, menú contextual y overlay */
