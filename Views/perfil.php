@@ -1,18 +1,37 @@
 <?php
+declare(strict_types=1);
+
 $preruta = '../';
 require_once "../Controlers/autenticacion.php";
-$source = 'Perfil'; $require_boostrap = false;
 require_once __DIR__ . "/header.php";
+
+
+require_once __DIR__ . "/../Controlers/ProfileController.php";
+
+$controller = new ProfileController();
+$controller->processProfileUpdate();
+$data = $controller->getProfileData();
 
 $u = $_SESSION['user'] ?? null;
 $nombre = $u ? ($u->getNombre() ?? 'Usuario') : 'Usuario';
-$avatar = $u ? ('../' . ($u->getProfilePhoto() ?? 'Resources/profilePictures/defaultProfilePicture.png')) : 'Resources/profilePictures/defaultProfilePicture.png';
-$arroba = '@' . strtolower(preg_replace('/\s+/', '', $nombre));
+
+
+$userTag = $data['userTag'] ?? '';
+$description = $data['description'] ?? '';
+$profilePhoto = $data['profilePhoto'] ?? 'Resources/profilePictures/defaultProfilePicture.png';
+
+
+$avatarRel = (strpos($profilePhoto, 'http') === 0) ? $profilePhoto : ('../' . ltrim($profilePhoto, '/'));
+$arroba = $userTag ? '@' . strtolower($userTag) : '@' . strtolower(preg_replace('/\s+/', '', (string)$nombre));
+
 
 if (!isset($fotos) || !is_array($fotos)) $fotos = [];
 if (!isset($posts) || !is_array($posts)) $posts = [];
 
 function e($v){ return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'); }
+
+$flash = $_SESSION['flash'] ?? null;
+if ($flash) unset($_SESSION['flash']);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -47,6 +66,10 @@ body{font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-
 .seccion{height:100%;overflow-y:auto;overflow-x:hidden}
 .oculta{display:none}
 
+.alert{margin:14px auto 0;max-width:680px;padding:12px 14px;border-radius:12px;border:1px solid}
+.alert.ok{background:#072812;border-color:#1b6b3a;color:#c8f3db}
+.alert.err{background:#2b0c10;border-color:#7a2531;color:#ffd7dc}
+
 .carrusel-contenedor{max-width:620px;margin:0 auto;position:relative}
 .slick-list{overflow:hidden !important}
 .slick-track{will-change:transform}
@@ -73,16 +96,32 @@ textarea{min-height:120px}
 input[type="file"]{color:#cbd5e1}
 .boton{width:100%;padding:12px 16px;border-radius:14px;border:1px solid #124225;background:#17a34a;color:#fff;font-weight:800;cursor:pointer}
 .boton:hover{filter:brightness(1.05)}
+.boton.sec{background:#1a2a41;border-color:#27406b}
 </style>
 </head>
 <body>
   <main class="contenedor">
+    <?php if ($flash): ?>
+      <div class="alert <?= $flash['type']==='error'?'err':'ok' ?>"><?= e($flash['message'] ?? '') ?></div>
+    <?php endif; ?>
+    <?php if (!empty($data['errors'])): ?>
+      <div class="alert err">
+        <?php foreach (($data['errors'] ?? []) as $err): ?>
+          <div>• <?= e($err) ?></div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
+
     <section class="tarjeta">
       <div class="encabezado">
         <div class="centro">
           <div class="foto">
-            <?php if ($avatar && is_file($avatar)): ?>
-              <img src="<?= e($avatar) ?>" alt="perfil">
+            <?php
+              $isHttp = (strpos($avatarRel, 'http') === 0);
+              $isFile = (!$isHttp && is_file($avatarRel));
+            ?>
+            <?php if ($isHttp || $isFile): ?>
+              <img src="<?= e($avatarRel) ?>" alt="perfil">
             <?php else: ?>
               <div class="inicial"><?= strtoupper(substr(e($nombre),0,1)) ?></div>
             <?php endif; ?>
@@ -103,6 +142,7 @@ input[type="file"]{color:#cbd5e1}
       </div>
 
       <div class="centro marco">
+        <!-- FOTOS -->
         <div id="tab-fotos" class="seccion">
           <div class="carrusel-contenedor">
             <button type="button" class="flecha izq" aria-label="Anterior">
@@ -126,6 +166,7 @@ input[type="file"]{color:#cbd5e1}
           </div>
         </div>
 
+        <!-- POSTS -->
         <div id="tab-post" class="seccion oculta">
           <div class="lista-post" id="lista-posts">
             <?php if (count($posts)): ?>
@@ -149,21 +190,35 @@ input[type="file"]{color:#cbd5e1}
           </div>
         </div>
 
+        <!-- INFO (3 formularios según el controlador) -->
         <div id="tab-info" class="seccion oculta">
-          <form class="forma" method="POST" action="../Controlers/update_profile.php" enctype="multipart/form-data">
+          <!-- 1) Actualizar userTag -->
+          <form class="forma" method="POST" action="">
+            <input type="hidden" name="action" value="updateUserTag">
             <div>
-              <label for="nombre">Nombre</label>
-              <input id="nombre" name="nombre" type="text" value="<?= e($nombre) ?>" />
+              <label for="userTag">Usuario (@user)</label>
+              <input id="userTag" name="userTag" type="text" value="<?= e($userTag) ?>" placeholder="tu_usuario" />
             </div>
+            <button class="boton sec" type="submit">Actualizar usuario</button>
+          </form>
+
+          <!-- 2) Actualizar descripción -->
+          <form class="forma" method="POST" action="">
+            <input type="hidden" name="action" value="updateDescripcion">
             <div>
               <label for="descripcion">Descripción</label>
-              <textarea id="descripcion" name="descripcion"><?= $u ? e($u->getDescripcion()) : '' ?></textarea>
+              <textarea id="descripcion" name="description" placeholder="Contá algo de vos..."><?= e($description) ?></textarea>
             </div>
+            <button class="boton sec" type="submit">Actualizar descripción</button>
+          </form>
+
+          <form class="forma" method="POST" action="" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="updatePhoto">
             <div>
               <label for="avatar">Cambiar imagen</label>
-              <input id="avatar" name="avatar" type="file" accept="image/*" />
+              <input id="avatar" name="imagen" type="file" accept="image/*" />
             </div>
-            <button class="boton" type="submit">Guardar cambios</button>
+            <button class="boton" type="submit">Subir nueva foto</button>
           </form>
         </div>
       </div>
