@@ -3,12 +3,25 @@
 // Ruta base hacia la API del módulo POSTS (desde /Inicio)
 const API_BASE = '../Controlers/PostsApi.php';
 
+/**
+ * Normaliza rutas relativas de archivos multimedia para que sean accesibles
+ * desde la vista de inicio.
+ */
+function resolveMediaPath(path) {
+  const trimmed = (path ?? '').toString().trim();
+  if (!trimmed) return '';
+  if (/^(?:https?:)?\/\//i.test(trimmed) || trimmed.startsWith('../')) {
+    return trimmed;
+  }
+  return `../${trimmed.replace(/^\/+/, '')}`;
+}
+
+const DEFAULT_AVATAR = resolveMediaPath('Resources/profilePictures/defaultProfilePicture.png');
+
 document.addEventListener('DOMContentLoaded', () => {
-  loadFeed()
-    .catch(err => {
-      console.error('[feed] Error cargando inicio:', err);
-    })
-    .then(() => marcarLikesAlCargar());
+  marcarLikesAlCargar().catch(err => {
+    console.error('[feed] Error marcando likes al cargar:', err);
+  });
 
   wireEventosClick();
 
@@ -26,34 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/** Obtiene los posts principales desde la API y los renderiza */
-async function loadFeed() {
-  const feed = document.getElementById('feed');
-  if (!feed) return;
-
-  const res = await fetch(`${API_BASE}?action=list`, { credentials: 'same-origin' });
-  const data = await res.json();
-  if (!data.ok || !Array.isArray(data.items)) {
-    throw new Error(data.error || 'No se pudo cargar el feed.');
-  }
-
-  renderFeed(data.items);
-}
-
-/** Dibuja el feed en pantalla */
-function renderFeed(items) {
-  const feed = document.getElementById('feed');
-  if (!feed) return;
-
-  if (!Array.isArray(items) || items.length === 0) {
-    feed.innerHTML = '<p class="muted">No hay posts todavía.</p>';
-    return;
-  }
-
-  const html = items.map(buildPostHtml).join('');
-  feed.innerHTML = html;
-}
-
 /** Mapea la respuesta de la API al HTML del post */
 function buildPostHtml(p) {
   if (!p || typeof p !== 'object') return '';
@@ -64,12 +49,11 @@ function buildPostHtml(p) {
   const author = p.author ?? {};
   const name = author.name ? String(author.name) : 'Anónimo';
   const handle = author.handle ? String(author.handle) : '';
-  const avatarUrl = author.avatar_url ? String(author.avatar_url) : '';
-  const initialSource = (handle || name || 'U').trim();
-  const avatarInitial = initialSource !== '' ? initialSource.charAt(0).toUpperCase() : 'U';
+  const avatarUrl = resolveMediaPath(author.avatar_url) || DEFAULT_AVATAR;
 
   const createdIso = p.created_at ? String(p.created_at) : '';
   const createdHuman = formatDateForUi(createdIso);
+  const handleLabel = handle !== '' ? formatHandleForUi(handle) : '';
 
   const counts = p.counts ?? {};
   const likeCount = Number(counts.likes ?? 0);
@@ -78,19 +62,16 @@ function buildPostHtml(p) {
   const liked = !!viewer.liked;
   const canDelete = !!viewer.can_delete;
 
-  const mediaUrlRaw = p.media_url ? String(p.media_url) : '';
-  const mediaUrl = mediaUrlRaw.trim();
-  const safeMediaUrl = escapeHtml(mediaUrl);
-  const mediaHtml = mediaUrl !== ''
-    ? `<figure class="media" data-action="open-media" data-media="${safeMediaUrl}" tabindex="0" role="button">
-        <img src="${safeMediaUrl}" alt="Imagen del post">
-      </figure>`
+  const images = normalizeImages(p.images);
+  const mediaHtml = images.length > 0
+    ? `<div class="media-gallery">
+        ${images.map(buildMediaFigureHtml).join('')}
+      </div>`
     : '';
 
   const rawText = String(p.text ?? '');
-  const displayText = truncatePostText(rawText, 150);
-  const safeDisplayText = escapeHtml(displayText);
-  const textHtml = safeDisplayText !== '' ? `<p class="text">${safeDisplayText}</p>` : '';
+  const safeText = escapeHtml(rawText);
+  const textHtml = safeText !== '' ? `<p class="text">${safeText}</p>` : '';
 
   const likeClasses = `chip like${liked ? ' liked' : ''}`;
 
@@ -98,10 +79,19 @@ function buildPostHtml(p) {
   const safeName = escapeHtml(name);
   const safeCreatedIso = escapeHtml(createdIso);
   const safeCreatedHuman = escapeHtml(createdHuman);
+  const safeHandleLabel = escapeHtml(handleLabel);
+  let sublineHtml = '';
+  if (safeHandleLabel !== '') {
+    sublineHtml += `<span class="handle">${safeHandleLabel}</span>${safeHandleLabel}`;
+    if (safeCreatedHuman !== '') {
+      sublineHtml += ' ';
+    }
+  }
+  if (safeCreatedHuman !== '') {
+    sublineHtml += `<time datetime="${safeCreatedIso}">${safeCreatedHuman}</time>`;
+  }
 
-  const avatarHtml = avatarUrl !== ''
-    ? `<img class="avatar" src="${escapeHtml(avatarUrl)}" alt="Avatar de ${safeName}">`
-    : `<div class="avatar">${escapeHtml(avatarInitial)}</div>`;
+  const avatarHtml = `<img class="avatar" src="${escapeHtml(avatarUrl)}" alt="Avatar de ${safeName}">`;
 
   const menuHtml = canDelete
     ? `<div class="post-menu">
@@ -124,9 +114,7 @@ function buildPostHtml(p) {
       ${avatarHtml}
       <div class="meta">
         <div class="name">${safeName}</div>
-        <div class="subline">
-          <time datetime="${safeCreatedIso}">${safeCreatedHuman}</time>
-        </div>
+        <div class="subline">${sublineHtml}</div>
       </div>
     </header>
       ${textHtml}
@@ -138,6 +126,38 @@ function buildPostHtml(p) {
       </div>
     </article>
   `;
+}
+
+function formatHandleForUi(rawHandle) {
+  const trimmed = (rawHandle ?? '').toString().trim();
+  if (trimmed === '') return '';
+  return trimmed.startsWith('@') ? trimmed : `@${trimmed}`;
+}
+
+function normalizeImages(rawImages) {
+  if (!rawImages) return [];
+  if (Array.isArray(rawImages)) {
+    return rawImages
+      .map(resolveMediaPath)
+      .filter(Boolean);
+  }
+  if (typeof rawImages === 'object') {
+    return Object.values(rawImages)
+      .map(resolveMediaPath)
+      .filter(Boolean);
+  }
+  if (typeof rawImages === 'string') {
+    const normalized = resolveMediaPath(rawImages);
+    return normalized !== '' ? [normalized] : [];
+  }
+  return [];
+}
+
+function buildMediaFigureHtml(url) {
+  const safeUrl = escapeHtml(url);
+  return `<figure class="media" data-action="open-media" data-media="${safeUrl}" tabindex="0" role="button">
+    <img src="${safeUrl}" alt="Imagen del post">
+  </figure>`;
 }
 
 /** Formatea fecha ISO a un string legible para el usuario */
@@ -452,12 +472,6 @@ function escapeHtml(s) {
   return (s ?? '').toString().replace(/[&<>"']/g, ch => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[ch]));
-}
-
-function truncatePostText(text, maxLength = 150) {
-  const raw = (text ?? '').toString();
-  if (raw.length <= maxLength) return raw;
-  return `${raw.slice(0, maxLength).trimEnd()}.. Expandir el post para ver mas`;
 }
 
 function hasSelectedImages(form) {
