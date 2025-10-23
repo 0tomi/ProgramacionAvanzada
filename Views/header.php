@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 
-<?php if ($require_boostrap): ?>
-    <html lang="es" class="h-full bg-gray-100">
-<?php else: ?>
-    <html lang="es" class="h-full bg-[#15202b]">
-<?php endif; ?>
+
 
 <head>
   <meta charset="UTF-8">

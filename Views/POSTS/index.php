@@ -1,27 +1,31 @@
-<?php // Para visualizar un post concreto, invocar a esta pagina con ?id = idPost ?>
 <?php
+// Views/POSTS/index.php
+
 $source = 'Post';
 $require_boostrap = true;
 $preruta = '../../';
+
+require_once __DIR__ . '/../../Controlers/autenticacion.php';
 require_once __DIR__ . '/../header.php';
 ?>
 
-<body>
-  
-  <?php
-    $preruta = '../../';
-    require_once __DIR__ . '/../../Controlers/autenticacion.php';
-    ?>
-  <main class="container">
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-8">
-        <section id="feed"></section> <!-- aquí se inyecta el post individual -->
-      </div>
-    </div>
-  </main>
+<link rel="stylesheet" href="<?= $preruta ?>Inicio/inicio.css">
 
-  <a href="../../Inicio/inicio.php" class="back-button-fixed">← Volver al inicio</a>
-  <script src="app.js"></script>
+<main class="shell">
+  <div class="feed-col">
+    <header class="feed-head">
+      <h1>Publicación</h1>
+      <span class="sub">Vista detallada</span>
+    </header>
 
-</body>
-</html>
+    <section id="feed"></section> 
+  </div>
+</main>
+
+<a href="<?= $preruta ?>Inicio/inicio.php" class="back-button-fixed btn btn-primary mt-4 ms-4">
+  ← Volver al inicio
+</a>
+
+<script src="app.js"></script>
+
+<?php require_once __DIR__ . '/../_footer.php'; ?>

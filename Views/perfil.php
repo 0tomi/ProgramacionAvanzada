@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 $preruta = '../';
 $source = 'Perfil'; 
-$require_boostrap = true;
+$require_boostrap = false;
 require_once "../Controlers/autenticacion.php";
 require_once __DIR__ . "/header.php"; 
 
@@ -42,7 +42,7 @@ if ($flash) unset($_SESSION['flash']);
       Cerrar sesión
     </a>
 </header>
-
+<?php require_once __DIR__ . "/barraLateral/barraLateral.php"; ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -58,7 +58,13 @@ if ($flash) unset($_SESSION['flash']);
 :root{--bg:#0c0f14;--panel:#0f131a;--panel-2:#0b0f15;--ink:#e8edf5;--muted:#8ea0b5;--line:#1b2431;--shadow:0 12px 36px rgb(0 0 0 /.28)}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
-body{font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:linear-gradient(360deg,#1b4aaf -40%,#0c0f14 420px) fixed,var(--bg);overflow-x:hidden}
+body {
+  font-family:'Poppins',system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  color:var(--ink);
+  background: linear-gradient(360deg,#1b4aaf -40%,#0c0f14 420px) fixed,var(--bg) !important;
+  overflow-x:hidden;
+}
+
 .contenedor{max-width:950px;margin:0 auto;padding:24px 16px 40px}
 .tarjeta{background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 120%);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
 .centro{max-width:680px;margin:0 auto}
