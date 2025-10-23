@@ -158,7 +158,7 @@ input[type="file"]{color:#cbd5e1}
       </div>
 
       <div class="centro marco">
-        <!-- FOTOS -->
+       
         <div id="tab-fotos" class="seccion">
           <div class="carrusel-contenedor">
             <button type="button" class="flecha izq" aria-label="Anterior">
@@ -182,7 +182,6 @@ input[type="file"]{color:#cbd5e1}
           </div>
         </div>
 
-        <!-- POSTS -->
         <div id="tab-post" class="seccion oculta">
           <div class="lista-post" id="lista-posts">
             <?php if (count($posts)): ?>
@@ -206,9 +205,7 @@ input[type="file"]{color:#cbd5e1}
           </div>
         </div>
 
-        <!-- INFO (3 formularios según el controlador) -->
         <div id="tab-info" class="seccion oculta">
-          <!-- 1) Actualizar userTag -->
           <form class="forma" method="POST" action="">
             <input type="hidden" name="action" value="updateUserTag">
             <div>
@@ -217,8 +214,6 @@ input[type="file"]{color:#cbd5e1}
             </div>
             <button class="boton sec" type="submit">Actualizar usuario</button>
           </form>
-
-          <!-- 2) Actualizar descripción -->
           <form class="forma" method="POST" action="">
             <input type="hidden" name="action" value="updateDescripcion">
             <div>
@@ -227,7 +222,6 @@ input[type="file"]{color:#cbd5e1}
             </div>
             <button class="boton sec" type="submit">Actualizar descripción</button>
           </form>
-
           <form class="forma" method="POST" action="" enctype="multipart/form-data">
             <input type="hidden" name="action" value="updatePhoto">
             <div>
