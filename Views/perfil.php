@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 $preruta = '../';
 $source = 'Perfil';
-$require_boostrap = false;
+$require_boostrap = true;
 
 require_once __DIR__ . '/../Controlers/autenticacion.php';
 require_once __DIR__ . '/../Controlers/ProfileController.php';
@@ -123,6 +123,7 @@ if ($flash) unset($_SESSION['flash']);
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
 <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<link rel="stylesheet" href="<?= $preruta ?>Inicio/inicio.css">
 <style>
   :root{--bg:#0c0f14;--panel:#0f131a;--panel-2:#0b0f15;--ink:#e8edf5;--muted:#8ea0b5;--line:#1b2431;--shadow:0 12px 36px rgb(0 0 0 /.28)}
 *{box-sizing:border-box}

@@ -10,6 +10,7 @@ require_once __DIR__ . '/../header.php';
 ?>
 
 
+<body>
 <link rel="stylesheet" href="<?= $preruta ?>Inicio/inicio.css">
 
 <main class="shell">
@@ -30,3 +31,6 @@ require_once __DIR__ . '/../header.php';
 <script src="app.js"></script>
 
 <?php require_once __DIR__ . '/../_footer.php'; ?>
+
+</body>
+</html>

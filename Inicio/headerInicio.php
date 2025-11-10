@@ -1,14 +1,14 @@
-<header class="flex items-center justify-between px-6 py-4 border-b border-[color:var(--line)] bg-[color:var(--panel)]">
+<header class="inicio-topbar d-flex align-items-center justify-content-between">
   <?php if ($isLoggedIn): ?>
     <!-- mostrar logout papaa -->
     <a href="../logout.php"
-       class="ml-auto px-4 py-2 rounded-full font-bold border border-[color:var(--line)] bg-red-600 text-white hover:opacity-90 transition">
+       class="btn btn-danger fw-bold rounded-pill border inicio-topbar__cta">
       Cerrar sesión
     </a>
   <?php else: ?>
     <!-- inicia sesion pibe -->
     <a href="../index.php"
-       class="ml-auto px-4 py-2 rounded-full font-bold border border-[color:var(--line)] bg-[color:var(--accent)] text-white hover:opacity-90 transition">
+       class="btn btn-primary fw-bold rounded-pill border inicio-topbar__cta">
       Iniciar sesión
     </a>
   <?php endif; ?>
