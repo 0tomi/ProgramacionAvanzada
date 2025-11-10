@@ -1,6 +1,6 @@
 <?php
 include "../Model/UserFactory.php";
-
+/*
 $secret = '6LdELdMrAAAAACqktniyEYfKBsP9hGg9Wvs5Anua'; // No exponer en producción
 $token  = $_POST['g-recaptcha-response'] ?? '';
 $ip     = $_SERVER['REMOTE_ADDR'] ?? '';
@@ -20,7 +20,7 @@ if (!is_array($res) || !($res['success'] ?? false)) {
   header('Location: ../Views/LOGIN/_login.php?error=Captcha+invalido');
   exit;
 }
-
+*/
 $username = trim($_POST['username']);
 $password = trim($_POST['password']);
 
