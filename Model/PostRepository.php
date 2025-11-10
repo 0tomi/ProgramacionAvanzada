@@ -53,7 +53,7 @@ final class PostRepository
         }
     }
 
-public function getFeed(?int $viewerId = null): array {
+public function getFeed(int $viewerId): array {
         $baseSelect = <<<SQL
         SELECT
             p.idPost                                   AS post_id,
@@ -101,8 +101,8 @@ public function getFeed(?int $viewerId = null): array {
         ORDER BY p.date DESC
         SQL;
 
-        if ($viewerId !== null) {
-                $sql = $baseSelect . ',
+
+        $sql = $baseSelect . ',
             CASE WHEN lcur.post IS NOT NULL THEN TRUE ELSE FALSE END AS viewer_has_like,
             CASE WHEN p.idUserOwner = ? THEN TRUE ELSE FALSE END AS viewer_can_delete
         ' . $baseFrom . '
@@ -113,50 +113,42 @@ public function getFeed(?int $viewerId = null): array {
         ) AS lcur ON lcur.post = p.idPost
         ' . $tail;
 
-                $stmt = $this->db->prepare($sql);
-                $stmt->bind_param('ii', $viewerId, $viewerId);
-            } else {
-                $sql = $baseSelect . ',
-            FALSE AS viewer_has_like,
-            FALSE AS viewer_can_delete
-        ' . $baseFrom . '
-        ' . $tail;
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('ii', $viewerId, $viewerId);
 
-                $stmt = $this->db->prepare($sql);
-            }
 
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            $posts = [];
-            while ($row = $result->fetch_assoc()) {
-                $posts[] = [
-                    'id'    => (int)$row['post_id'],
-                    'text'  => $row['post_text'],
-                    'created_at' => $row['created_at'],
-                    'author'     => [
-                        'id'       => (int)$row['author_id'],
-                        'name'      => $row['author_tag'],
-                        'handle' => $row['author_username'],
-                        'avatar_url'   => $row['author_avatar'],
-                    ],
-                    'images'     => [
-                        'image_1' => ($row['image_1'] !== null && $row['image_1'] !== '') ? $row['image_1'] : null,
-                        'image_2' => ($row['image_2'] !== null && $row['image_2'] !== '') ? $row['image_2'] : null,
-                    ],
-                    'counts'      => [
-                        'likes'   => (int)$row['like_count'],
-                        'replies' => (int)$row['reply_count'],
-                    ],
-                    'viewer'     => [
-                        'liked'   => $viewerId !== null ? (bool)$row['viewer_has_like'] : false,
-                        'can_delete' => $viewerId !== null ? (bool)$row['viewer_can_delete'] : false,
-                    ],
-                ];
-            }
-            $stmt->close();
-            return $posts;
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $posts = [];
+        while ($row = $result->fetch_assoc()) {
+            $posts[] = [
+                'id'    => (int)$row['post_id'],
+                'text'  => $row['post_text'],
+                'created_at' => $row['created_at'],
+                'author'     => [
+                    'id'       => (int)$row['author_id'],
+                    'name'      => $row['author_tag'],
+                    'handle' => $row['author_username'],
+                    'avatar_url'   => $row['author_avatar'],
+                ],
+                'images'     => [
+                    'image_1' => ($row['image_1'] !== null && $row['image_1'] !== '') ? $row['image_1'] : null,
+                    'image_2' => ($row['image_2'] !== null && $row['image_2'] !== '') ? $row['image_2'] : null,
+                ],
+                'counts'      => [
+                    'likes'   => (int)$row['like_count'],
+                    'replies' => (int)$row['reply_count'],
+                ],
+                'viewer'     => [
+                    'liked'   => $viewerId !== null ? (bool)$row['viewer_has_like'] : false,
+                    'can_delete' => $viewerId !== null ? (bool)$row['viewer_can_delete'] : false,
+                ],
+            ];
         }
+        $stmt->close();
+        return $posts;
+    }
 
     /**
      * Obtiene un post principal por ID. Si se solicita un comentario, retorna su raíz.
@@ -165,7 +157,7 @@ public function getFeed(?int $viewerId = null): array {
      * @param int|null $viewerId
      * @return array<string,mixed>|null
      */
-    public function getPost(int $postId, ?int $viewerId): ?array
+    public function getPost(int $postId, int $viewerId): ?array
     {
         $viewer = (int)$viewerId;
 
@@ -316,102 +308,6 @@ public function getFeed(?int $viewerId = null): array {
         return $rootRow;
     }
 
-    /*
-    public function getPostsByUser(int $userId, ?int $viewerId = null): array
-    {
-        $stmt = $this->db->prepare(
-            'SELECT
-                p.idPost,
-                p.idBelogingPost,
-                p.content,
-                p.date,
-                parentUser.username AS parentAuthor
-            FROM Post AS p
-            LEFT JOIN Post AS parent ON parent.idPost = p.idBelogingPost
-            LEFT JOIN User AS parentUser ON parentUser.idUser = parent.idUserOwner
-            WHERE p.idUserOwner = ?
-            ORDER BY p.date DESC, p.idPost DESC'
-        );
-        $stmt->bind_param('i', $userId);
-        $stmt->execute();
-        $stmt->bind_result($id, $parentId, $content, $date, $parentAuthor);
-
-        $posts = [];
-        while ($stmt->fetch()) {
-            $posts[] = [
-                'id' => (int)$id,
-                'parent_id' => $parentId !== null ? (int)$parentId : null,
-                'content' => $content,
-                'date' => $date,
-                'parent_author' => $parentAuthor,
-                'likes' => 0,
-                'liked' => false,
-            ];
-        }
-
-        $stmt->close();
-
-        if (empty($posts)) {
-            return $posts;
-        }
-
-        $postIds = array_map(static fn(array $post): int => $post['id'], $posts);
-        $idList = implode(',', $postIds);
-
-        $likeCounts = [];
-        $result = $this->db->query(
-            'SELECT post, COUNT(*) AS likeCount FROM Likes WHERE post IN (' . $idList . ') GROUP BY post'
-        );
-        while ($row = $result->fetch_assoc()) {
-            $likeCounts[(int)$row['post']] = (int)$row['likeCount'];
-        }
-        $result->free();
-
-        $viewerLikes = [];
-        if ($viewerId !== null) {
-            $result = $this->db->query(
-                'SELECT post FROM Likes WHERE idUser = ' . (int)$viewerId . ' AND post IN (' . $idList . ')'
-            );
-            while ($row = $result->fetch_assoc()) {
-                $viewerLikes[(int)$row['post']] = true;
-            }
-            $result->free();
-        }
-
-        foreach ($posts as &$post) {
-            $postId = $post['id'];
-            $post['likes'] = $likeCounts[$postId] ?? 0;
-            $post['liked'] = isset($viewerLikes[$postId]);
-        }
-        unset($post);
-
-        return $posts;
-    }
-*/
-
-/**
-     * ===================================================================
-     * REEMPLAZA TU MÉTODO getPostsByUser CON ESTE CÓDIGO
-     * ===================================================================
-     *
-     * Obtiene todos los posts de un usuario específico, formateados para la vista/API.
-     * Incluye datos del autor, imagen del post y métricas de likes.
-     *
-     * @param int $userId El ID del dueño del perfil.
-     * @param int|null $viewerId El ID del usuario que está VIENDO el perfil.
-     * @return array<int, array<string,mixed>>
-     */
-    /**
-     * ===================================================================
-     * REEMPLAZA TU MÉTODO getPostsByUser CON ESTE CÓDIGO (VERSIÓN FINAL)
-     * ===================================================================
-     *
-     * Obtiene todos los posts de un usuario específico, formateados para la vista/API.
-     *
-     * @param int $userId El ID del dueño del perfil.
-     * @param int|null $viewerId El ID del usuario que está VIENDO el perfil.
-     * @return array<int, array<string,mixed>>
-     */
     public function getPostsByUser(int $userId, ?int $viewerId = null): array
     {
         // 1. Consulta Principal: Une Post, User (autor), e ImagesPost (media)
@@ -426,12 +322,6 @@ public function getFeed(?int $viewerId = null): array {
                 u.username AS authorName,
                 u.userTag AS authorHandle,
                 u.profileImageRoute AS authorAvatar,
-                
-                -- ########## ¡ESTA ES LA LÍNEA CORREGIDA! ##########
-                -- Ya no usamos i.route (que está vacío).
-                -- Usamos i.Name y construimos la ruta manualmente.
-                i.Name AS mediaFileName,
-                -- ##################################################
 
                 -- Datos del autor del post padre (si es un comentario)
                 parentUser.username AS parentAuthor
@@ -465,11 +355,9 @@ public function getFeed(?int $viewerId = null): array {
         $posts = [];
         while ($stmt->fetch()) {
             
-            // Construimos la ruta de la imagen aquí en PHP
+            // Construimos la ruta de la imagen aquí
             $mediaUrl = null;
             if ($mediaFileName) {
-                // Usamos la constante que definiste en PostsApi.php
-                // (Debes asegurarte que esta ruta es correcta)
                 $mediaUrl = 'Resources/PostImages/' . $mediaFileName;
             }
 
@@ -484,6 +372,7 @@ public function getFeed(?int $viewerId = null): array {
                     'name' => $authorName,
                     'avatar_url' => $this->resolveAvatar($authorAvatar),
                 ],
+
                 // Usamos la ruta que acabamos de construir
                 'media_url' => $this->normalizeAssetPath($mediaUrl), 
                 'parent_author' => $parentAuthor,
@@ -503,7 +392,7 @@ public function getFeed(?int $viewerId = null): array {
             return $posts;
         }
 
-        // 3. Obtener Likes (Esta lógica tuya está perfecta)
+        // 3. Obtener Likes
         $postIds = array_map(static fn(array $post): int => (int)$post['id'], $posts);
         $idList = implode(',', $postIds);
 
@@ -816,7 +705,7 @@ public function getFeed(?int $viewerId = null): array {
         $stmt->close();
 
         if ($parentId === null) {
-            throw new RuntimeException('La publicación raíz no puede eliminarse con deleteComment.');
+            throw new RuntimeException('La publicación raíz no puedo eliminarse.');
         }
         if ((int)$ownerId !== $userId) {
             throw new RuntimeException('Solo puedes eliminar comentarios propios.');
