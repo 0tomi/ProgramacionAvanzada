@@ -21,7 +21,12 @@ body{
 
 }
 .inicio-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:1rem;
   padding: 1rem 1.5rem;
+  padding-left:calc(1.5rem + 3.5rem);
   border-bottom:1px solid var(--line);
   background:var(--panel);
 }
