@@ -27,7 +27,7 @@ if (!empty($_SESSION['user'])) {
     </div>
   </main>
 
-    <?php require("Views/_footer.php"); ?>
+  <?php require("Views/_footer.php"); ?>
 
 </body>
 </html>
