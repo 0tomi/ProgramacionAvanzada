@@ -2,7 +2,7 @@
   <?php if ($isLoggedIn): ?>
     <!-- mostrar logout papaa -->
     <a href="../logout.php"
-       class="btn btn-danger fw-bold rounded-pill border inicio-topbar__cta">
+       class="btn inicio-topbar__cta inicio-topbar__cta--logout">
       Cerrar sesión
     </a>
   <?php else: ?>

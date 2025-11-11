@@ -23,12 +23,27 @@ body{
 .inicio-topbar{
   display:flex;
   align-items:center;
-  justify-content:flex-end;
+  justify-content:space-between;
   gap:1rem;
   padding: 1rem 1.5rem;
   padding-left:calc(1.5rem + 3.5rem);
   border-bottom:1px solid var(--line);
   background:var(--panel);
+}
+/* no logro dejar el cerrar sesion al fondo */
+.inicio-topbar__cta--logout{
+  background-color: #0f172a;
+  color: #fff;
+  border: 1px solid transparent;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+  margin-left: auto;
+}
+
+.inicio-topbar__cta--logout:hover,
+.inicio-topbar__cta--logout:focus-visible{
+  background-color: #dc2626;  
+  border-color: #b91c1c;   
+  color: #fff;
 }
 .inicio-topbar__cta{
   padding:0.5rem 1.25rem;
