@@ -41,7 +41,7 @@ if (!function_exists('inicio_resolve_media_path')) {
 }
 ?>
 
-<?php $require_boostrap = false; $source = 'Inicio'; require_once __DIR__ . '/../Views/header.php'; ?>
+<?php $require_boostrap = true; $source = 'Inicio'; require_once __DIR__ . '/../Views/header.php'; ?>
 
 <body>
   <?php include __DIR__ . '/headerInicio.php'; ?>
